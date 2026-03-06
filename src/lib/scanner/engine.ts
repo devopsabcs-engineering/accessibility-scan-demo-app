@@ -1,5 +1,12 @@
 import { chromium } from 'playwright';
-import AxeBuilder from '@axe-core/playwright';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Read axe-core source once at module load time
+const axeSource = fs.readFileSync(
+  path.resolve(process.cwd(), 'node_modules', 'axe-core', 'axe.min.js'),
+  'utf-8'
+);
 
 export async function scanUrl(
   url: string,
@@ -17,12 +24,24 @@ export async function scanUrl(
     await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
     onProgress?.('scanning', 40);
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-      .analyze();
+    // Inject axe-core with a module shim to avoid "module is not defined" error
+    await page.evaluate(`
+      var module = { exports: {} };
+      ${axeSource}
+    `);
+
+    // Run axe analysis with WCAG 2.2 AA tags
+    const results = await page.evaluate(() => {
+      return (window as unknown as { axe: { run: (options: object) => Promise<unknown> } }).axe.run({
+        runOnly: {
+          type: 'tag',
+          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
+        },
+      });
+    });
 
     onProgress?.('scoring', 80);
-    return results;
+    return results as import('axe-core').AxeResults;
   } finally {
     await browser.close();
   }
