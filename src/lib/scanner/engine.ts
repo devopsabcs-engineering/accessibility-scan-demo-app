@@ -21,7 +21,18 @@ export async function scanUrl(
   const page = await context.newPage();
 
   try {
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+    // Use 'load' instead of 'networkidle' — some sites never reach network idle.
+    // Fall back to domcontentloaded on timeout so the scan still runs.
+    try {
+      await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+    } catch (navError: unknown) {
+      if (navError instanceof Error && navError.message.includes('Timeout')) {
+        // Page partially loaded — wait for DOM at minimum, then proceed
+        await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+      } else {
+        throw navError;
+      }
+    }
     onProgress?.('scanning', 40);
 
     // Inject axe-core with a module shim to avoid "module is not defined" error
