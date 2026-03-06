@@ -398,6 +398,30 @@ FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
 .vscode/*
+
+# Next.js
+/.next/
+/out/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# production
+/build
+
+# testing
+/coverage
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
