@@ -1,7 +1,10 @@
 import puppeteer from 'puppeteer';
 
 export async function generatePdf(reportHtml: string): Promise<Buffer> {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
   try {
     const page = await browser.newPage();
     await page.setContent(reportHtml, { waitUntil: 'networkidle0' });

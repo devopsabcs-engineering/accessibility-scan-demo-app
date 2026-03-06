@@ -23,6 +23,9 @@ ENV HOSTNAME=0.0.0.0
 # Install Playwright system dependencies and Chromium
 RUN npx playwright install --with-deps chromium
 
+# Install Puppeteer's Chrome for PDF generation
+RUN npx puppeteer browsers install chrome
+
 # Copy standalone output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
