@@ -195,9 +195,11 @@ Extend the Phase 1 WCAG 2.2 accessibility scanner with multi-page site crawling 
 
 * [ ] Step 10.1: Create `action/action.yml` — composite GitHub Action wrapping CLI
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1662-1710)
-* [ ] Step 10.2: Update `Dockerfile` — add crawlee dependencies and memory tuning
-  * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1712-1745)
-* [ ] Step 10.3: Validate phase changes
+* [ ] Step 10.2: Create `azure-pipelines/a11y-scan.yml` — Azure DevOps pipeline example
+  * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1712-1755)
+* [ ] Step 10.3: Update `Dockerfile` — add crawlee dependencies and memory tuning
+  * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1757-1790)
+* [ ] Step 10.4: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
 ### [ ] Implementation Phase 11: Final Validation
@@ -239,5 +241,6 @@ See [phase2-crawling-cicd-log.md](../logs/2026-03-06/phase2-crawling-cicd-log.md
 * CI/CD endpoint accepts configuration (URL, thresholds) and returns JSON/SARIF/JUnit results with `passed` boolean — Traces to: user requirement (CI/CD integration)
 * `a11y-scan` CLI tool supports `--url`, `--threshold`, `--format`, `--output` with exit codes 0/1/2 — Traces to: research Lines 222-230
 * GitHub Actions composite action wraps CLI with SARIF upload support — Traces to: research Lines 530-575
+* Azure DevOps pipeline example documented with JUnit output and `PublishTestResults` — Traces to: user requirement (CI/CD integration), research Lines 601-625
 * Phase 1 single-page scanning remains fully backward-compatible — Traces to: user requirement (backward compatibility)
 * `npm run lint` and `npm run build` pass with zero errors — Traces to: derived objective (code quality)
