@@ -1,0 +1,48 @@
+name: Build and Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RESOURCE_GROUP: rg-a11y-scan-demo
+  APP_NAME: a11y-scan-demo
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy infrastructure
+        uses: azure/arm-deploy@v2
+        id: infra
+        with:
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          template: ./infra/main.bicep
+          parameters: appName=${{ env.APP_NAME }} imageTag=${{ github.sha }}
+
+      - name: Log in to ACR
+        run: |
+          ACR_NAME=${{ steps.infra.outputs.acrName }}
+          az acr login --name $ACR_NAME
+
+      - name: Build and push Docker image
+        run: |
+          ACR_LOGIN_SERVER=${{ steps.infra.outputs.acrLoginServer }}
+          IMAGE=$ACR_LOGIN_SERVER/${{ env.APP_NAME }}
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+
+      - name: Restart Web App
+        run: |
+          az webapp restart --name ${{ steps.infra.outputs.webAppName }} --resource-group ${{ env.RESOURCE_GROUP }}
