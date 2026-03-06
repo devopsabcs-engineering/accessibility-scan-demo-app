@@ -217,7 +217,7 @@ graph TB
 
     subgraph "Scan Engine"
         N[Playwright - Launch Chromium] --> O[Navigate to URL]
-        O --> P[@axe-core/playwright - WCAG 2.2 AA]
+        O --> P["axe-core/playwright - WCAG 2.2 AA"]
         P --> Q[Result Parser + Scorer]
     end
 
