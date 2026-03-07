@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, type Page } from 'playwright';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,6 +8,28 @@ const axeSource = fs.readFileSync(
   'utf-8'
 );
 
+/**
+ * Scan an already-navigated Playwright Page with axe-core.
+ * Used by the crawler where the crawler manages browser lifecycle.
+ */
+export async function scanPage(page: Page): Promise<import('axe-core').AxeResults> {
+  // Inject axe-core with a module shim to avoid "module is not defined" error
+  await page.evaluate(`var module = { exports: {} }; ${axeSource}`);
+  // Run axe analysis with WCAG 2.2 AA tags
+  return page.evaluate(() => {
+    return (window as unknown as { axe: { run: (options: object) => Promise<unknown> } }).axe.run({
+      runOnly: {
+        type: 'tag',
+        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
+      },
+    });
+  }) as Promise<import('axe-core').AxeResults>;
+}
+
+/**
+ * Backward-compatible wrapper: launches browser, navigates, scans, closes.
+ * Used by Phase 1 single-page scan API.
+ */
 export async function scanUrl(
   url: string,
   onProgress?: (status: string, progress: number) => void
@@ -38,24 +60,10 @@ export async function scanUrl(
     }
     onProgress?.('scanning', 40);
 
-    // Inject axe-core with a module shim to avoid "module is not defined" error
-    await page.evaluate(`
-      var module = { exports: {} };
-      ${axeSource}
-    `);
-
-    // Run axe analysis with WCAG 2.2 AA tags
-    const results = await page.evaluate(() => {
-      return (window as unknown as { axe: { run: (options: object) => Promise<unknown> } }).axe.run({
-        runOnly: {
-          type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
-        },
-      });
-    });
+    const results = await scanPage(page);
 
     onProgress?.('scoring', 80);
-    return results as import('axe-core').AxeResults;
+    return results;
   } finally {
     await browser.close();
   }

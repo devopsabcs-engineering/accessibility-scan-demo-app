@@ -1,0 +1,36 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SCAN_URL: ''
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Use Node.js 20'
+
+  - script: npm ci
+    displayName: 'Install dependencies'
+
+  - script: npx playwright install --with-deps chromium
+    displayName: 'Install Playwright browsers'
+
+  - script: |
+      npx ts-node src/cli/bin/a11y-scan.ts scan \
+        --url "$(SCAN_URL)" \
+        --threshold 80 \
+        --format junit \
+        --output $(Build.ArtifactStagingDirectory)/a11y-results/results.xml
+    displayName: 'Run Accessibility Scan'
+
+  - task: PublishTestResults@2
+    condition: always()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(Build.ArtifactStagingDirectory)/a11y-results/*.xml'
+      testRunTitle: 'Accessibility Scan Results'
+      failTaskOnFailedTests: true
+    displayName: 'Publish Accessibility Results'

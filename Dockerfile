@@ -19,6 +19,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 # Install Playwright system dependencies and Chromium
 RUN npx playwright install --with-deps chromium
@@ -33,6 +34,13 @@ COPY --from=builder /app/public ./public
 
 # Copy axe-core so the scanner can read it at runtime
 COPY --from=deps /app/node_modules/axe-core ./node_modules/axe-core
+
+# Copy crawlee and related modules for site crawling
+COPY --from=deps /app/node_modules/crawlee ./node_modules/crawlee
+COPY --from=deps /app/node_modules/@crawlee ./node_modules/@crawlee
+COPY --from=deps /app/node_modules/sitemapper ./node_modules/sitemapper
+COPY --from=deps /app/node_modules/robots-parser ./node_modules/robots-parser
+COPY --from=deps /app/node_modules/commander ./node_modules/commander
 
 EXPOSE 3000
 

@@ -3,10 +3,15 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
+type ScanMode = 'single' | 'crawl';
+
 export default function ScanForm() {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<ScanMode>('single');
+  const [maxPages, setMaxPages] = useState(50);
+  const [maxDepth, setMaxDepth] = useState(3);
   const router = useRouter();
 
   async function handleSubmit(e: FormEvent) {
@@ -32,20 +37,37 @@ export default function ScanForm() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim() }),
-      });
+      if (mode === 'crawl') {
+        const res = await fetch('/api/crawl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim(), maxPages, maxDepth }),
+        });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || 'Failed to start scan.');
-        return;
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || 'Failed to start crawl.');
+          return;
+        }
+
+        const { crawlId } = await res.json();
+        router.push(`/crawl/${crawlId}`);
+      } else {
+        const res = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim() }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || 'Failed to start scan.');
+          return;
+        }
+
+        const { scanId } = await res.json();
+        router.push(`/scan/${scanId}`);
       }
-
-      const { scanId } = await res.json();
-      router.push(`/scan/${scanId}`);
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -56,11 +78,39 @@ export default function ScanForm() {
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
       <div className="flex flex-col gap-3">
+        {/* Mode Toggle */}
+        <div role="radiogroup" aria-label="Scan mode" className="flex gap-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="scan-mode"
+              value="single"
+              checked={mode === 'single'}
+              onChange={() => setMode('single')}
+              className="accent-blue-600"
+            />
+            <span className="text-sm font-medium">Single Page</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="scan-mode"
+              value="crawl"
+              checked={mode === 'crawl'}
+              onChange={() => setMode('crawl')}
+              className="accent-blue-600"
+            />
+            <span className="text-sm font-medium">Site-Wide Crawl</span>
+          </label>
+        </div>
+
         <label htmlFor="scan-url" className="text-lg font-medium">
           Website URL
         </label>
         <p id="scan-url-help" className="text-sm text-gray-600 dark:text-gray-400">
-          Enter the full URL of the page you want to scan for accessibility issues.
+          {mode === 'crawl'
+            ? 'Enter the root URL of the site to crawl and scan for accessibility issues.'
+            : 'Enter the full URL of the page you want to scan for accessibility issues.'}
         </p>
         <div className="flex gap-2">
           <input
@@ -79,9 +129,46 @@ export default function ScanForm() {
             disabled={loading}
             className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
           >
-            {loading ? 'Starting...' : 'Scan'}
+            {loading ? 'Starting...' : mode === 'crawl' ? 'Start Crawl' : 'Scan'}
           </button>
         </div>
+
+        {/* Crawl Configuration */}
+        {mode === 'crawl' && (
+          <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="max-pages" className="text-sm font-medium">
+                Max Pages
+              </label>
+              <input
+                id="max-pages"
+                type="number"
+                value={maxPages}
+                onChange={e => setMaxPages(Number(e.target.value))}
+                min={1}
+                max={200}
+                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="max-depth" className="text-sm font-medium">
+                Max Depth
+              </label>
+              <input
+                id="max-depth"
+                type="number"
+                value={maxDepth}
+                onChange={e => setMaxDepth(Number(e.target.value))}
+                min={1}
+                max={10}
+                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              />
+            </div>
+          </div>
+        )}
+
         {error && (
           <p role="alert" className="text-red-600 dark:text-red-400 text-sm">
             {error}

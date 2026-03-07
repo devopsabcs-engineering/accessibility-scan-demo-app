@@ -50,175 +50,170 @@ Extend the Phase 1 WCAG 2.2 accessibility scanner with multi-page site crawling 
 
 ## Implementation Checklist
 
-### [ ] Implementation Phase 1: Types, Engine Refactor, and Store Extension
+### [x] Implementation Phase 1: Types, Engine Refactor, and Store Extension
 
 <!-- parallelizable: true -->
 
-* [ ] Step 1.1: Create `src/lib/types/crawl.ts` with all crawl/site types
+* [x] Step 1.1: Create `src/lib/types/crawl.ts` with all crawl/site types
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 15-85)
-* [ ] Step 1.2: Refactor `src/lib/scanner/engine.ts` — extract `scanPage(page)` and wrap `scanUrl(url)` for backward compatibility
+* [x] Step 1.2: Refactor `src/lib/scanner/engine.ts` — extract `scanPage(page)` and wrap `scanUrl(url)` for backward compatibility
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 87-140)
-* [ ] Step 1.3: Extend `src/lib/scanner/store.ts` with `CrawlRecord` CRUD and TTL cleanup
+* [x] Step 1.3: Extend `src/lib/scanner/store.ts` with `CrawlRecord` CRUD and TTL cleanup
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 142-200)
-* [ ] Step 1.4: Validate phase changes
+* [x] Step 1.4: Validate phase changes
   * Run `npm run lint` and `npm run build` for modified files
 
-### [ ] Implementation Phase 2: Crawler Module
+### [x] Implementation Phase 2: Crawler Module
 
 <!-- parallelizable: false -->
 
-* [ ] Step 2.1: Install crawling dependencies (`crawlee`, `sitemapper`, `robots-parser`)
+* [x] Step 2.1: Install crawling dependencies (`crawlee`, `sitemapper`, `robots-parser`)
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 202-220)
-* [ ] Step 2.2: Create `src/lib/crawler/url-utils.ts` — URL normalization, domain filtering, link validation
+* [x] Step 2.2: Create `src/lib/crawler/url-utils.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 222-270)
-* [ ] Step 2.3: Create `src/lib/crawler/robots.ts` — robots.txt fetching and compliance checking
+* [x] Step 2.3: Create `src/lib/crawler/robots.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 272-310)
-* [ ] Step 2.4: Create `src/lib/crawler/sitemap.ts` — sitemap discovery and URL extraction
+* [x] Step 2.4: Create `src/lib/crawler/sitemap.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 312-350)
-* [ ] Step 2.5: Create `src/lib/crawler/site-crawler.ts` — crawlee `PlaywrightCrawler` orchestration with combined discovery
+* [x] Step 2.5: Create `src/lib/crawler/site-crawler.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 352-450)
-* [ ] Step 2.6: Validate phase changes
+* [x] Step 2.6: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 3: Site Scoring and Aggregation
+### [x] Implementation Phase 3: Site Scoring and Aggregation
 
 <!-- parallelizable: true -->
 
-* [ ] Step 3.1: Create `src/lib/scoring/site-calculator.ts` — aggregate page scores into `SiteScoreResult`
+* [x] Step 3.1: Create `src/lib/scoring/site-calculator.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 452-510)
-* [ ] Step 3.2: Validate phase changes
+* [x] Step 3.2: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 4: Crawl API Routes
+### [x] Implementation Phase 4: Crawl API Routes
 
 <!-- parallelizable: false -->
 
-* [ ] Step 4.1: Create `src/app/api/crawl/route.ts` — POST to start crawl (SSRF validation, 202 response)
+* [x] Step 4.1: Create `src/app/api/crawl/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 512-565)
-* [ ] Step 4.2: Create `src/app/api/crawl/[id]/route.ts` — GET crawl status and summary
+* [x] Step 4.2: Create `src/app/api/crawl/[id]/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 567-600)
-* [ ] Step 4.3: Create `src/app/api/crawl/[id]/status/route.ts` — SSE progress stream with per-page events
+* [x] Step 4.3: Create `src/app/api/crawl/[id]/status/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 602-650)
-* [ ] Step 4.4: Create `src/app/api/crawl/[id]/pages/route.ts` — GET list of page results
+* [x] Step 4.4: Create `src/app/api/crawl/[id]/pages/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 652-680)
-* [ ] Step 4.5: Create `src/app/api/crawl/[id]/pages/[pageId]/route.ts` — GET single page scan result
+* [x] Step 4.5: Create `src/app/api/crawl/[id]/pages/[pageId]/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 682-710)
-* [ ] Step 4.6: Create `src/app/api/crawl/[id]/cancel/route.ts` — POST to cancel running crawl
+* [x] Step 4.6: Create `src/app/api/crawl/[id]/cancel/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 712-740)
-* [ ] Step 4.7: Create `src/app/api/crawl/[id]/report/route.ts` — GET aggregated site report JSON
+* [x] Step 4.7: Create `src/app/api/crawl/[id]/report/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 742-770)
-* [ ] Step 4.8: Validate phase changes
+* [x] Step 4.8: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 5: Site Reports and PDF
+### [x] Implementation Phase 5: Site Reports and PDF
 
 <!-- parallelizable: true -->
 
-* [ ] Step 5.1: Create `src/lib/report/site-generator.ts` — site-wide report assembly from crawl data
+* [x] Step 5.1: Create `src/lib/report/site-generator.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 772-820)
-* [ ] Step 5.2: Create `src/lib/report/templates/site-report-template.ts` — HTML template for site-wide executive summary
+* [x] Step 5.2: Create `src/lib/report/templates/site-report-template.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 822-870)
-* [ ] Step 5.3: Create `src/app/api/crawl/[id]/pdf/route.ts` — site-wide PDF endpoint
+* [x] Step 5.3: Create `src/app/api/crawl/[id]/pdf/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 872-910)
-* [ ] Step 5.4: Create `src/app/api/crawl/[id]/pages/[pageId]/pdf/route.ts` — per-page PDF (reuse Phase 1 pipeline)
+* [x] Step 5.4: Create `src/app/api/crawl/[id]/pages/[pageId]/pdf/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 912-940)
-* [ ] Step 5.5: Validate phase changes
+* [x] Step 5.5: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 6: Crawl UI Components
+### [x] Implementation Phase 6: Crawl UI Components
 
 <!-- parallelizable: true -->
 
-* [ ] Step 6.1: Extend `src/components/ScanForm.tsx` with crawl mode toggle (single-page vs site-wide)
+* [x] Step 6.1: Extend `src/components/ScanForm.tsx` with crawl mode toggle
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 942-985)
-* [ ] Step 6.2: Create `src/components/CrawlProgress.tsx` — multi-page progress display with per-page status
+* [x] Step 6.2: Create `src/components/CrawlProgress.tsx`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 987-1030)
-* [ ] Step 6.3: Create `src/components/PageList.tsx` — page results table with scores and links
+* [x] Step 6.3: Create `src/components/PageList.tsx`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1032-1070)
-* [ ] Step 6.4: Create `src/components/SiteScoreDisplay.tsx` — site-wide score gauge and summary
+* [x] Step 6.4: Create `src/components/SiteScoreDisplay.tsx`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1072-1110)
-* [ ] Step 6.5: Create `src/app/crawl/[id]/page.tsx` — crawl results page wiring components
+* [x] Step 6.5: Create `src/app/crawl/[id]/page.tsx`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1112-1155)
-* [ ] Step 6.6: Extend `src/app/page.tsx` — add crawl mode option on homepage
+* [x] Step 6.6: Extend `src/app/page.tsx`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1157-1180)
-* [ ] Step 6.7: Validate phase changes
+* [x] Step 6.7: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 7: SARIF and CI/CD Foundation
+### [x] Implementation Phase 7: SARIF and CI/CD Foundation
 
 <!-- parallelizable: true -->
 
-* [ ] Step 7.1: Create `src/lib/report/sarif-generator.ts` — axe-core violations to SARIF v2.1.0 mapping
+* [x] Step 7.1: Create `src/lib/report/sarif-generator.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1182-1240)
-* [ ] Step 7.2: Create `src/lib/ci/threshold.ts` — threshold evaluation (score, count, rule-based)
+* [x] Step 7.2: Create `src/lib/ci/threshold.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1242-1290)
-* [ ] Step 7.3: Create `src/lib/ci/formatters/json.ts` — CI JSON output formatter
+* [x] Step 7.3: Create `src/lib/ci/formatters/json.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1292-1320)
-* [ ] Step 7.4: Create `src/lib/ci/formatters/sarif.ts` — CI SARIF output formatter
+* [x] Step 7.4: Create `src/lib/ci/formatters/sarif.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1322-1350)
-* [ ] Step 7.5: Create `src/lib/ci/formatters/junit.ts` — CI JUnit XML output formatter
+* [x] Step 7.5: Create `src/lib/ci/formatters/junit.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1352-1380)
-* [ ] Step 7.6: Validate phase changes
+* [x] Step 7.6: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 8: CI API Routes
+### [x] Implementation Phase 8: CI API Routes
 
 <!-- parallelizable: false -->
 
-* [ ] Step 8.1: Create `src/app/api/ci/scan/route.ts` — synchronous single-page CI scan endpoint
+* [x] Step 8.1: Create `src/app/api/ci/scan/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1382-1430)
-* [ ] Step 8.2: Create `src/app/api/ci/crawl/route.ts` — synchronous site crawl CI endpoint
+* [x] Step 8.2: Create `src/app/api/ci/crawl/route.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1432-1480)
-* [ ] Step 8.3: Validate phase changes
+* [x] Step 8.3: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 9: CLI Tool
+### [x] Implementation Phase 9: CLI Tool
 
 <!-- parallelizable: false -->
 
-* [ ] Step 9.1: Install CLI dependency (`commander`)
+* [x] Step 9.1: Install CLI dependency (`commander`)
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1482-1495)
-* [ ] Step 9.2: Create `src/cli/bin/a11y-scan.ts` — CLI entry point with Commander.js
+* [x] Step 9.2: Create `src/cli/bin/a11y-scan.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1497-1540)
-* [ ] Step 9.3: Create `src/cli/commands/scan.ts` — single-page scan command
+* [x] Step 9.3: Create `src/cli/commands/scan.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1542-1580)
-* [ ] Step 9.4: Create `src/cli/commands/crawl.ts` — site crawl command
+* [x] Step 9.4: Create `src/cli/commands/crawl.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1582-1620)
-* [ ] Step 9.5: Create `src/cli/config/loader.ts` — `.a11yrc.json` configuration file loader
+* [x] Step 9.5: Create `src/cli/config/loader.ts`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1622-1660)
-* [ ] Step 9.6: Validate phase changes
+* [x] Step 9.6: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 10: GitHub Action and Docker Updates
+### [x] Implementation Phase 10: GitHub Action and Docker Updates
 
 <!-- parallelizable: true -->
 
-* [ ] Step 10.1: Create `action/action.yml` — composite GitHub Action wrapping CLI
+* [x] Step 10.1: Create `action/action.yml`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1662-1710)
-* [ ] Step 10.2: Create `azure-pipelines/a11y-scan.yml` — Azure DevOps pipeline example
+* [x] Step 10.2: Create `azure-pipelines/a11y-scan.yml`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1712-1755)
-* [ ] Step 10.3: Update `Dockerfile` — add crawlee dependencies and memory tuning
+* [x] Step 10.3: Update `Dockerfile`
   * Details: .copilot-tracking/details/2026-03-06/phase2-crawling-cicd-details.md (Lines 1757-1790)
-* [ ] Step 10.4: Validate phase changes
+* [x] Step 10.4: Validate phase changes
   * Run `npm run lint` and `npm run build`
 
-### [ ] Implementation Phase 11: Final Validation
+### [x] Implementation Phase 11: Final Validation
 
 <!-- parallelizable: false -->
 
-* [ ] Step 11.1: Run full project validation
-  * Execute `npm run lint`
-  * Execute `npm run build`
-  * Manual smoke test: single-page scan (Phase 1 backward compat)
-  * Manual smoke test: site crawl with a small test site
-  * Manual smoke test: CI endpoint with threshold evaluation
-* [ ] Step 11.2: Fix minor validation issues
-  * Iterate on lint errors and build warnings
-  * Apply fixes directly when corrections are straightforward
-* [ ] Step 11.3: Report blocking issues
-  * Document issues requiring additional research
-  * Provide user with next steps and recommended planning
-  * Avoid large-scale fixes within this phase
+* [x] Step 11.1: Run full project validation
+  * Execute `npm run lint` — passed, zero errors
+  * Execute `npm run build` — passed, compiled in 16.4s, all routes generated
+  * Manual smoke test: deferred to user
+* [x] Step 11.2: Fix minor validation issues
+  * No issues found — lint and build clean
+* [x] Step 11.3: Report blocking issues
+  * No blocking issues — 3 pre-existing sitemapper dependency warnings only
 
 ## Planning Log
 

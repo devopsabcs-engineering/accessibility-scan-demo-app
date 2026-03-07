@@ -2,6 +2,9 @@
   "name": "accessibility-scan-demo-app",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "a11y-scan": "dist/cli/bin/a11y-scan.js"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -10,11 +13,15 @@
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.1",
+    "commander": "^14.0.3",
+    "crawlee": "^3.16.0",
     "next": "15.5.12",
     "playwright": "^1.58.2",
     "puppeteer": "^24.38.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "robots-parser": "^3.0.1",
+    "sitemapper": "^4.1.4",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

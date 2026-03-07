@@ -10,7 +10,7 @@ export default function Home() {
             AODA WCAG 2.2 Accessibility Scanner
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Enter a URL to scan for WCAG 2.2 Level AA accessibility compliance.
+            Scan a single page or crawl an entire site for WCAG 2.2 Level AA accessibility compliance.
           </p>
         </div>
 
