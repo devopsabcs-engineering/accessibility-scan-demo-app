@@ -146,6 +146,10 @@ export function aggregateViolations(
           pageId: page.id,
           nodeCount,
         });
+        if (existing.nodes && existing.nodes.length < 5) {
+          const remaining = 5 - existing.nodes.length;
+          existing.nodes.push(...violation.nodes.slice(0, remaining));
+        }
       } else {
         ruleMap.set(violation.id, {
           ruleId: violation.id,
@@ -156,6 +160,8 @@ export function aggregateViolations(
           principle: mapTagToPrinciple(violation.tags),
           totalInstances: nodeCount,
           affectedPages: [{ url: page.url, pageId: page.id, nodeCount }],
+          tags: violation.tags,
+          nodes: violation.nodes.slice(0, 5),
         });
       }
     }

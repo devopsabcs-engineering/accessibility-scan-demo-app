@@ -1,4 +1,4 @@
-import type { ScanStatus } from './scan';
+import type { ScanStatus, AxeNode } from './scan';
 import type { ScoreGrade, PrincipleScores, ImpactBreakdown } from './score';
 
 // ---------- Crawl Core ----------
@@ -74,6 +74,8 @@ export interface AggregatedViolation {
   principle: string;
   totalInstances: number;
   affectedPages: { url: string; pageId: string; nodeCount: number }[];
+  tags?: string[];
+  nodes?: AxeNode[];
 }
 
 // ---------- Site Score ----------

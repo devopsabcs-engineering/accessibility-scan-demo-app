@@ -1,4 +1,5 @@
 import type { ReportData } from '../../types/report';
+import type { AxeNode } from '../../types/scan';
 
 const impactColors: Record<string, string> = {
   critical: '#dc2626',
@@ -26,23 +27,36 @@ function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;');
 }
 
-export function generateReportHtml(data: ReportData): string {
-  const violationRows = data.violations
-    .map(v => `
-      <tr>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;">
-          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:white;background:${impactColors[v.impact] || '#6b7280'};">
-            ${v.impact}
-          </span>
-        </td>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:500;">${escapeHtml(v.help)}</td>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:12px;">${v.id}</td>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;">${v.nodes.length}</td>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:12px;">${v.principle || '-'}</td>
-      </tr>
-    `)
-    .join('');
+const categoryLabels: Record<string, string> = {
+  'cat.aria': 'ARIA',
+  'cat.color': 'Color & Contrast',
+  'cat.forms': 'Forms',
+  'cat.keyboard': 'Keyboard',
+  'cat.language': 'Language',
+  'cat.name-role-value': 'Name / Role / Value',
+  'cat.parsing': 'Parsing',
+  'cat.semantics': 'Semantics',
+  'cat.sensory-and-visual-cues': 'Sensory & Visual Cues',
+  'cat.structure': 'Structure',
+  'cat.tables': 'Tables',
+  'cat.text-alternatives': 'Text Alternatives',
+  'cat.time-and-media': 'Time & Media',
+};
 
+function extractCategory(tags: string[]): string {
+  const catTag = tags.find(t => t.startsWith('cat.'));
+  if (!catTag) return 'General';
+  return categoryLabels[catTag] || 'General';
+}
+
+function cappedNodes(nodes: AxeNode[], max: number): { shown: AxeNode[]; remaining: number } {
+  return {
+    shown: nodes.slice(0, max),
+    remaining: Math.max(0, nodes.length - max),
+  };
+}
+
+export function generateReportHtml(data: ReportData): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,6 +120,36 @@ export function generateReportHtml(data: ReportData): string {
     }).join('')}
   </div>
 
+  <h2>Category Breakdown</h2>
+  <div class="section">
+    ${(() => {
+      const counts: Record<string, number> = {};
+      data.violations.forEach(v => {
+        const cat = extractCategory(v.tags);
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      const total = data.violations.length || 1;
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      if (sorted.length === 0) return '<p style="color:#16a34a;font-weight:500;">No category violations found.</p>';
+      return `<table>
+        <thead><tr><th>Category</th><th>Violations</th><th style="width:40%;">Distribution</th></tr></thead>
+        <tbody>
+          ${sorted.map(([cat, count]) => `
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:500;">${escapeHtml(cat)}</td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;">${count}</td>
+              <td style="padding:8px;border-bottom:1px solid #e5e7eb;">
+                <div style="height:12px;border-radius:6px;background:#e5e7eb;">
+                  <div style="height:100%;border-radius:6px;background:#3b82f6;width:${Math.round((count / total) * 100)}%;"></div>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    })()}
+  </div>
+
   <h2>Impact Breakdown</h2>
   <div class="section">
     <table>
@@ -125,10 +169,31 @@ export function generateReportHtml(data: ReportData): string {
   ${data.violations.length > 0 ? `
   <h2>Detailed Violations (${data.violations.length})</h2>
   <div class="section">
-    <table>
-      <thead><tr><th>Impact</th><th>Issue</th><th>Rule</th><th>Elements</th><th>Principle</th></tr></thead>
-      <tbody>${violationRows}</tbody>
-    </table>
+    ${data.violations.map(v => {
+      const { shown, remaining } = cappedNodes(v.nodes, 5);
+      const category = extractCategory(v.tags);
+      return `
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:white;background:${impactColors[v.impact] || '#6b7280'};">${v.impact}</span>
+          <span style="font-weight:600;font-size:15px;">${escapeHtml(v.help)}</span>
+          <span style="color:#6b7280;font-size:12px;">${escapeHtml(v.id)}</span>
+          <span style="color:#6b7280;font-size:12px;">${v.nodes.length} element(s)</span>
+          <span style="color:#6b7280;font-size:12px;">${escapeHtml(v.principle || '-')}</span>
+        </div>
+        <p style="margin:8px 0;font-size:13px;color:#374151;">${escapeHtml(v.description)}</p>
+        <p style="margin:4px 0 12px;font-size:12px;color:#6b7280;">Category: ${escapeHtml(category)}</p>
+        ${shown.map(node => `
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:8px;">
+            <p style="margin:0 0 4px;font-size:12px;color:#6b7280;">Selector: <code style="background:#e5e7eb;padding:2px 4px;border-radius:3px;font-size:11px;">${escapeHtml(node.target.join(' > '))}</code></p>
+            <pre style="background:#1e293b;color:#e2e8f0;padding:12px;border-radius:6px;overflow-x:auto;font-size:12px;margin:8px 0;"><code>${escapeHtml(node.html)}</code></pre>
+            ${node.failureSummary ? `<p style="margin:4px 0 0;font-size:12px;color:#ca8a04;background:#fefce8;padding:8px;border-radius:4px;">${escapeHtml(node.failureSummary)}</p>` : ''}
+          </div>
+        `).join('')}
+        ${remaining > 0 ? `<p style="font-size:12px;color:#6b7280;font-style:italic;">...and ${remaining} more element(s)</p>` : ''}
+        <a href="${escapeHtml(v.helpUrl)}" style="font-size:13px;color:#2563eb;text-decoration:none;" target="_blank" rel="noopener noreferrer">Learn more &rarr;</a>
+      </div>`;
+    }).join('')}
   </div>
   ` : '<h2>Violations</h2><p style="color:#16a34a;font-weight:500;">No violations found.</p>'}
 
