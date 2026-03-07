@@ -415,6 +415,8 @@ FodyWeavers.xsd
 
 # testing
 /coverage
+coverage/
+test-results/
 
 # vercel
 .vercel
