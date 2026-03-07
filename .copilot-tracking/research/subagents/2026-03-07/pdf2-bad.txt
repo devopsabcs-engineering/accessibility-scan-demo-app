@@ -1,0 +1,1114 @@
+--- PAGE 1 ---
+Your website is not inclusive and accessible
+to people with disabilities.
+Fix issues now >107We found 107 issues on your
+page
+Issue severity
+0
+Moderate0
+Minor2
+Serious105
+Critical
+Issues detected by category
+83 General 16 Graphics
+6Tabs 1Interactive Content
+1Landmarks 0Forms
+0Dragging Alternative 0ARIA
+0Lists 0Metadata
+0TablesScan results for codepen.io/leezee/pen/eYbXzpJ
+Non-compliant
+Your scan found serious accessibility issues. Let’ s fix them now to help you meet accessibility
+requirements and mitigate legal risk.
+Fri Mar 6, 2026
+
+--- PAGE 2 ---
+# Element Relevant Successes Failures Score
+1 The alt attribute is used to
+provide a text alternative for
+images. It is not meant to be
+used on elements other than
+images and therefore will not be
+read using screen-readers.Yes 5 0100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+2 Breadcrumb navigation regions
+are essential for user orientation.
+If not appropriately tagged,
+screen reader users will not
+know that such an option exists
+on the page and will face more
+difficulties browsing around.No 0 01<img alt="Algolia" src="https://cpwebassets.codepen.io/assets/settings/algol
+ia-9e1c0c887f4db420704b2a79926864019ef156bcecc9d5774a7e4eaa731fc5b5.svg">
+2<img alt="Algolia" src="https://cpwebassets.codepen.io/assets/settings/algol
+ia-9e1c0c887f4db420704b2a79926864019ef156bcecc9d5774a7e4eaa731fc5b5.svg">
+3<img alt="Algolia" src="https://cpwebassets.codepen.io/assets/settings/algol
+ia-9e1c0c887f4db420704b2a79926864019ef156bcecc9d5774a7e4eaa731fc5b5.svg">
+4<img alt="" src="https://srv.buysellads.com/static/30242/563b33185b6426eabf5
+60dcbc5fb5adc5c8de263" style="background-color: rgb(0, 0, 0);">
+5<img alt="" class="PenAd-module_pixel-CdlDM" src="https://ad.doubleclick.ne
+t/ddm/trackimp/N718679.452584BUYSELLADS.COM/B29332811.421611927;dc_trk_aid=6
+13858961;dc_trk_cid=235700574;ord=[timestamp];dc_lat=;dc_rdid=;tag_for_child
+_directed_treatment=;tf...
+
+--- PAGE 3 ---
+# Element Relevant Successes Failures Score
+3 Elements with emphasis
+importance should have the
+emphasis role. If not, screen
+reader users may not understand
+the emphasis of the text.No 0 0
+# Element Relevant Successes Failures Score
+4 An iframe needs a label that
+describes its purpose to screen
+reader users.Yes Pass -100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+5 Ambiguous links like "Learn
+More", "Shop Now" and "Start
+Here" are often used as a call to
+action. However , screen-reader
+users, while using link
+navigation, do not interact with
+content above or below the link
+and therefore don't have the
+same context as to what they will
+learn more about.No 0 01<iframe id="result" name="CodePen" title="CodePen Preview" src="https://code
+pen.io/leezee/fullpage/eYbXzpJ?anon=true&amp;view=" sandbox="allow-downloads
+allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-esc
+ape-sandbox allow-pre...
+
+--- PAGE 4 ---
+# Element Relevant Successes Failures Score
+6 Using role="application" is
+generally discouraged because it
+disables standard screen reader
+modes and forces users into an
+application mode. This removes
+familiar navigation shortcuts,
+such as heading or landmark
+navigation, and requires them to
+interact in ways they may not
+expect.No 0 0
+# Element Relevant Successes Failures Score
+7 Discounted prices often appear
+next to the original and
+distinguished with visual cues
+like strikethroughs or color
+changes. Both prices must also
+be conveyed by screen readers
+in a way that enables users to
+differentiate between the values,
+ensuring they can understand
+when a discount is applied.No 0 0
+# Element Relevant Successes Failures Score
+8 Elements with strong importance
+should have the strong role. If
+not, screen reader users may not
+understand the importance of the
+text.No 0 0
+
+--- PAGE 5 ---
+# Element Relevant Successes Failures Score
+9 If content remains visible on the
+screen but assigned aria-
+hidden="true", it will be excluded
+from the accessibility tree. As a
+result, screen reader users will
+not have access to the same
+information as sighted users.Yes 598 6790
+Code snapshots of successful elements
+1<header class="main-header" id="main-header"><div class="EditorHeader-module
+_root-cpo0V header-wrap HeaderWrap-module_root-PsKVw"><div class="Logo-modul
+e_root-ojP5q" data-component="Logo" data-test-id="logo"><a href="/" class="L
+ogo-module_small-T4UEU...
+2<div class="EditorHeader-module_root-cpo0V header-wrap HeaderWrap-module_roo
+t-PsKVw"><div class="Logo-module_root-ojP5q" data-component="Logo" data-test
+-id="logo"><a href="/" class="Logo-module_small-T4UEU"><svg viewBox="0 0 100
+100" xmlns="http://ww...
+3<div class="Logo-module_root-ojP5q" data-component="Logo" data-test-id="log
+o"><a href="/" class="Logo-module_small-T4UEU"><svg viewBox="0 0 100 100" xm
+lns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 34.2c-.4-
+2.6-3.3-4-5.3-5.3-3.6-2....
+4<a href="/" class="Logo-module_small-T4UEU"><svg viewBox="0 0 100 100" xmlns
+="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 34.2c-.4-2.6-
+3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-5.7-17.1-11.4-25.6-17.1-2-1.3-4-
+2.7-6-4-1.4-1-3.3-1-4.8...
+5<div class="ItemTitle-module_root-tJA+7" data-test-id="item-title-area"><div
+class="ItemTitle-module_text-PYYCs" data-view="pen"><h1 class="ItemTitle-mod
+ule_title-6kJVb" id="item-title"><span class="ItemTitle-module_titleLink-1hR
+hU" id="editable-titl...
+6<div class="ItemTitle-module_text-PYYCs" data-view="pen"><h1 class="ItemTitl
+e-module_title-6kJVb" id="item-title"><span class="ItemTitle-module_titleLin
+k-1hRhU" id="editable-title-span">A11y testing</span></h1><div class="ItemTi
+tle-module_by-nYpg9"><...
+7<h1 class="ItemTitle-module_title-6kJVb" id="item-title"><span class="ItemTi
+tle-module_titleLink-1hRhU" id="editable-title-span">A11y testing</span></h1
+>
+
+--- PAGE 6 ---
+Code snapshots of failed elements8<span class="ItemTitle-module_titleLink-1hRhU" id="editable-title-span">A11y
+testing</span>
+9<div class="ItemTitle-module_by-nYpg9"><a class="ItemTitle-module_ownerLink-
+CLyo7" href="/leezee">Elizabeth </a><button data-test="follow-button" data-f
+ollowing="false" title="Follow Elizabeth" data-size="mini" data-has-icon="tr
+ue" data-color="green"...
+10<a class="ItemTitle-module_ownerLink-CLyo7" href="/leezee">Elizabeth </a>
+1<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="t
+rue"><path d="M100 34.2c-.4-2.6-3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-
+5.7-17.1-11.4-25.6-17.1-2-1.3-4-2.7-6-4-1.4-1-3.3-1-4.8 0-5.7 3.8-11.5 7.7-1
+7.2 11.5L5.2 29C3 30.4....
+2<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">1</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+3<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">2</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+4<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">3</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+5<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">4</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+6<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">5</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+7<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">6</div></div>
+
+--- PAGE 7 ---
+8<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">7</div></div>
+9<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0p
+x; width: 26px;">8</div><div class="CodeMirror-gutter-elt" style="left: 34p
+x; width: 10px;"><div cl...
+10<div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -44p
+x;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0
+px; width: 26px;">9</div></div>
+
+--- PAGE 8 ---
+# Element Relevant Successes Failures Score
+10 When elements are visually
+hidden but still exposed to
+assistive technology , screen
+reader users may encounter
+content that should not be
+available in the current interface.
+This can obscure the current
+state of the page and lead to
+confusion about what information
+or controls are available.Yes 813 1698
+Code snapshots of successful elements
+1<a href="/" class="Logo-module_large-J2pKy"><svg fill="none" stroke="#fff" s
+troke-linecap="round" stroke-linejoin="round" stroke-width="2.3" viewBox="0
+0 138 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15
+8a7 7 0 1 0 0 10m7-8....
+2<svg fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="roun
+d" stroke-width="2.3" viewBox="0 0 138 26" xmlns="http://www.w3.org/2000/sv
+g" aria-hidden="true"><path d="M15 8a7 7 0 1 0 0 10m7-8.7L33 2l11 7.3v7.4L33
+24l-11-7.3zm0 0 11 7.4 ...
+3<span class="ScreenReaderText-module_root-jASUi">CodePen Home</span>
+4<button aria-expanded="false" data-open="false" class="Button-module_root-xw
++9D EditorHeaderPen-module_toggleActionsButton-E+eAn MobileNavButton-module_
+root-EApZk"><div class="MobileNavButton-module_icon-uF4CA" aria-hidden="tru
+e"><span></span><svg vi...
+5<div class="MobileNavButton-module_icon-uF4CA" aria-hidden="true"><span></sp
+an><svg viewBox="-122.9 121.1 105.9 61.9" xmlns="http://www.w3.org/2000/sv
+g"><path d="m-63.2 180.3 43.5-43.5c1.7-1.7 2.7-4 2.7-6.5s-1-4.8-2.7-6.5-4-2.
+7-6.5-2.7-4.8 1-6.5 2.7L...
+6<span></span>
+7<svg viewBox="-122.9 121.1 105.9 61.9" xmlns="http://www.w3.org/2000/svg"><p
+ath d="m-63.2 180.3 43.5-43.5c1.7-1.7 2.7-4 2.7-6.5s-1-4.8-2.7-6.5-4-2.7-6.5
+-2.7-4.8 1-6.5 2.7L-69.9 161l-37.2-37.2c-1.7-1.7-4-2.7-6.5-2.7s-4.8 1-6.5 2.
+6c-1.9 1.8-2.8 4.2-2.8...
+
+--- PAGE 9 ---
+Code snapshots of failed elements8<span class="ScreenReaderText-module_root-jASUi">Pen Editor Menu</span>
+9<div class="DropdownControlled-module_content-mxnG0" id="_r_2_" role="menu"
+data-open="false" hidden="" data-direction="bottom left"></div>
+10<div class="view-switcher EditorHeaderViewSwitcher_mobile-TM24l"><div class
+="EditorHeaderViewSwitcher_switch-thcS-"><nav class="EditorHeaderViewSwitch
+erLinks_linkList-b3AAG"><a class="EditorHeaderViewSwitcherLink_link-wYdA5 e
+ditor-link pen-link activ...
+1<div class="unsaved-editor-message"><b>0</b> unsaved changes <span class="di
+smiss"><svg class="icon-x" viewBox="0 0 100 100"><path d="M96.8 83.7L63.1 50
+l33.7-33.7c3.6-3.6 3.6-9.4 0-13.1s-9.5-3.6-13.1 0L50 36.9 16.3 3.2C12.7-.4
+6.9-.4 3.2 3.2s-3.6 9.5...
+2<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+3<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+4<div style="overflow: hidden; position: relative; width: 3px; height: 0px; t
+op: 4px; left: 43px;"><textarea autocorrect="off" autocapitalize="off" spell
+check="false" aria-label="CSS Code Editor" tabindex="0" style="position: abs
+olute; bottom: -1em; p...
+5<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+6<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+7<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+8<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+9<span role="presentation" style="padding-right: 0.1px;"><span cm-text=""> </s
+pan></span>
+
+--- PAGE 10 ---
+10<div style="overflow: hidden; position: relative; width: 3px; height: 0px;
+top: 4px; left: 43px;"><textarea autocorrect="off" autocapitalize="off" spe
+llcheck="false" aria-label="JavaScript Code Editor" tabindex="0" style="pos
+ition: absolute; bottom: ...
+
+--- PAGE 11 ---
+# Element Relevant Successes Failures Score
+11 Buttons that do not contain
+visible text should be assigned
+labels that inform screen reader
+users of their purpose.Yes 20 0100
+Code snapshots of successful elements
+1<button data-test="follow-button" data-following="false" title="Follow Eliza
+beth" data-size="mini" data-has-icon="true" data-color="green" class="Button
+-module_root-xw+9D FollowButton-module_root-Q92Q+ ItemTitle-module_followBut
+ton-j5eP7 follow-user-...
+2<button title="Love" data-anon="true" data-view="pen" data-item="Pen" data-h
+ashid="eYbXzpJ" class="Button-module_root-xw+9D EditorHeaderPen-module_loveB
+utton-7F910 loves heart-button"><svg viewBox="-2 0 105 92" xmlns="http://ww
+w.w3.org/2000/svg" clas...
+3<button id="run" title="Com/Ctrl - Shift - 7 to Run" data-has-icon="true" cl
+ass="Button-module_root-xw+9D run"><svg viewBox="0 0 20 20"><path d="M10.66
+1.91a.833.833 0 0 1 1.18 0l2.5 2.5a.833.833 0 0 1 0 1.18l-2.5 2.5a.833.833 0
+1 1-1.18-1.18l1.078-1...
+4<button data-test-id="edit-settings" id="edit-settings" title="Pen Settings"
+data-has-icon="true" class="Button-module_root-xw+9D"><svg viewBox="0 0 100
+100" xmlns="http://www.w3.org/2000/svg"><path d="M87.687 45.077c-.313-2.433
+-.816-4.807-1.542-7.07...
+5<button id="view-switcher-button" data-test-id="view-switcher-button" title
+="Change View" aria-haspopup="menu" aria-controls="_r_2_" class="Button-modu
+le_root-xw+9D"><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" c
+lass="EditorHeaderViewS...
+6<button id="settings-pane-html" class="button button-medium mini-button sett
+ings-nub" data-type="html" title="Open HTML Settings"> <svg viewBox="0 0 100
+100" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-
+2.433-0.816-4.807-1.54...
+7<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-html" data-dropdown="#editor-dropdown-html" aria-haspopup
+="true" aria-expanded="false"> <span class="visually-hidden"> HTML Options
+</span> <svg viewBox="-1...
+
+--- PAGE 12 ---
+8<button id="settings-pane-css" class="button button-medium mini-button setti
+ngs-nub" data-type="css" title="Open CSS Settings"> <svg viewBox="0 0 100 10
+0" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-2.4
+33-0.816-4.807-1.542-7...
+9<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-css" data-dropdown="#editor-dropdown-css" aria-haspopup="t
+rue" aria-expanded="false"> <span class="visually-hidden"> CSS Options </spa
+n> <svg viewBox="-122....
+10<button id="settings-pane-js" class="button button-medium mini-button setti
+ngs-nub" data-type="js" title="Open JS Settings"> <svg viewBox="0 0 100 10
+0" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-2.
+433-0.816-4.807-1.542-7.07...
+
+--- PAGE 13 ---
+# Element Relevant Successes Failures Score
+12 If interactive elements cannot be
+identified as buttons, screen
+reader users may not realize the
+element is actionable, which can
+stop them from submitting forms,
+opening dialogs, or performing
+other intended actions.Yes 20 0100
+Code snapshots of successful elements
+1<button data-test="follow-button" data-following="false" title="Follow Eliza
+beth" data-size="mini" data-has-icon="true" data-color="green" class="Button
+-module_root-xw+9D FollowButton-module_root-Q92Q+ ItemTitle-module_followBut
+ton-j5eP7 follow-user-...
+2<button title="Love" data-anon="true" data-view="pen" data-item="Pen" data-h
+ashid="eYbXzpJ" class="Button-module_root-xw+9D EditorHeaderPen-module_loveB
+utton-7F910 loves heart-button"><svg viewBox="-2 0 105 92" xmlns="http://ww
+w.w3.org/2000/svg" clas...
+3<button id="run" title="Com/Ctrl - Shift - 7 to Run" data-has-icon="true" cl
+ass="Button-module_root-xw+9D run"><svg viewBox="0 0 20 20"><path d="M10.66
+1.91a.833.833 0 0 1 1.18 0l2.5 2.5a.833.833 0 0 1 0 1.18l-2.5 2.5a.833.833 0
+1 1-1.18-1.18l1.078-1...
+4<button data-test-id="edit-settings" id="edit-settings" title="Pen Settings"
+data-has-icon="true" class="Button-module_root-xw+9D"><svg viewBox="0 0 100
+100" xmlns="http://www.w3.org/2000/svg"><path d="M87.687 45.077c-.313-2.433
+-.816-4.807-1.542-7.07...
+5<button id="view-switcher-button" data-test-id="view-switcher-button" title
+="Change View" aria-haspopup="menu" aria-controls="_r_2_" class="Button-modu
+le_root-xw+9D"><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" c
+lass="EditorHeaderViewS...
+6<button id="settings-pane-html" class="button button-medium mini-button sett
+ings-nub" data-type="html" title="Open HTML Settings"> <svg viewBox="0 0 100
+100" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-
+2.433-0.816-4.807-1.54...
+7<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-html" data-dropdown="#editor-dropdown-html" aria-haspopup
+="true" aria-expanded="false"> <span class="visually-hidden"> HTML Options
+</span> <svg viewBox="-1...
+
+--- PAGE 14 ---
+# Element Relevant Successes Failures Score
+13 A sticky footer remains anchored
+to the bottom of the screen while
+the rest of the page content can
+be scrolled. If it is not of fset from
+interactive elements, it can
+overlap and obscure the item in
+focus.Yes - Fail0
+Code snapshots of failed elements8<button id="settings-pane-css" class="button button-medium mini-button setti
+ngs-nub" data-type="css" title="Open CSS Settings"> <svg viewBox="0 0 100 10
+0" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-2.4
+33-0.816-4.807-1.542-7...
+9<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-css" data-dropdown="#editor-dropdown-css" aria-haspopup="t
+rue" aria-expanded="false"> <span class="visually-hidden"> CSS Options </spa
+n> <svg viewBox="-122....
+10<button id="settings-pane-js" class="button button-medium mini-button setti
+ngs-nub" data-type="js" title="Open JS Settings"> <svg viewBox="0 0 100 10
+0" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-2.
+433-0.816-4.807-1.542-7.07...
+1<footer id="react-pen-footer" class="site-footer editor-footer"><div class
+="footer-left"><div class="footer-actions-menu"><button id="footer-button" a
+ria-expanded="false" class="Button-module_root-xw+9D toggle-footer-menu-butt
+on"><svg viewBox="-122.9...
+
+--- PAGE 15 ---
+# Element Relevant Successes Failures Score
+14 Activating anchor links enables
+users to navigate to a dif ferent
+section within the same page by
+scrolling and moving keyboard
+focus. Anchor links that do not
+contain visible text or labeled
+images should be assigned
+labels that inform screen reader
+users of their destination.No 0 0
+# Element Relevant Successes Failures Score
+15 Visual cues are often used by
+sighted users to indicate which
+link represents the current page
+within a set of links. This
+information should be made
+available to screen reader users
+by assigning aria-current='page'
+to the link.No 0 0
+
+--- PAGE 16 ---
+# Element Relevant Successes Failures Score
+16 Screen reader users may find it
+difficult to distinguish between
+links when the purpose of each
+link cannot be determined from
+its text alone or together with its
+immediate context.Yes 5 0100
+Code snapshots of successful elements
+1<a href="/" class="Logo-module_small-T4UEU"><svg viewBox="0 0 100 100" xmlns
+="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 34.2c-.4-2.6-
+3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-5.7-17.1-11.4-25.6-17.1-2-1.3-4-
+2.7-6-4-1.4-1-3.3-1-4.8...
+2<a class="ItemTitle-module_ownerLink-CLyo7" href="/leezee">Elizabeth </a>
+3<a data-test-id="signup-button" href="/accounts/signup/user/free" data-color
+="green" class="Button-module_root-xw+9D LogInAndSignUpButtons-module_signup
+Button-hxnR0">Sign Up</a>
+4<a data-test-id="login-button" href="/login" class="Button-module_root-xw+9D
+LogInAndSignUpButtons-module_loginButton-XjHhF">Log In</a>
+5<a href="https://srv.buysellads.com/ads/click/x/GTND427UCVADK53WCKA4YKQUCA7D
+62QECTYDCZ3JCASI6KQJF6BDL53KC6SITK3NCWBIPK7YFTYDE2QJCA7IK27JHEYI527LFT7DTK3E
+CTNCYBZ52K" class="PenAd-module_searchAd-zsiuz" title="Squarespace: Grow you
+r business with Square...
+
+--- PAGE 17 ---
+# Element Relevant Successes Failures Score
+17 Activating navigation links
+enables users to navigate to a
+different page within the site.
+Links that do not contain visible
+text or labeled images should be
+assigned labels that inform
+screen reader users of their
+destination.Yes 5 0100
+Code snapshots of successful elements
+1<a href="/" class="Logo-module_small-T4UEU"><svg viewBox="0 0 100 100" xmlns
+="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 34.2c-.4-2.6-
+3.3-4-5.3-5.3-3.6-2.4-7.1-4.7-10.7-7.1-8.5-5.7-17.1-11.4-25.6-17.1-2-1.3-4-
+2.7-6-4-1.4-1-3.3-1-4.8...
+2<a class="ItemTitle-module_ownerLink-CLyo7" href="/leezee">Elizabeth </a>
+3<a data-test-id="signup-button" href="/accounts/signup/user/free" data-color
+="green" class="Button-module_root-xw+9D LogInAndSignUpButtons-module_signup
+Button-hxnR0">Sign Up</a>
+4<a data-test-id="login-button" href="/login" class="Button-module_root-xw+9D
+LogInAndSignUpButtons-module_loginButton-XjHhF">Log In</a>
+5<a href="https://srv.buysellads.com/ads/click/x/GTND427UCVADK53WCKA4YKQUCA7D
+62QECTYDCZ3JCASI6KQJF6BDL53KC6SITK3NCWBIPK7YFTYDE2QJCA7IK27JHEYI527LFT7DTK3E
+CTNCYBZ52K" class="PenAd-module_searchAd-zsiuz" title="Squarespace: Grow you
+r business with Square...
+
+--- PAGE 18 ---
+# Element Relevant Successes Failures Score
+18 In most cases, using role=menu
+on navigation elements within a
+web page can negatively impact
+screen reader users, especially
+those using JA WS. The attribute
+should be used for menu types
+that function like those found in
+desktop applications.No 0 0
+# Element Relevant Successes Failures Score
+19 In most cases, using
+role=menubar on navigation
+elements within a web page can
+negatively impact screen reader
+users, especially those using
+JAWS. The attribute should be
+used for menu types that function
+like those found in desktop
+applications.No 0 0
+# Element Relevant Successes Failures Score
+20 In most cases, using ARIA  menu
+roles within a web page can
+negatively impact screen reader
+users, especially those using
+JAWS. role="menuitem" should
+be used for menu items in menu
+types that function like those
+found in desktop applications.No 0 0
+
+--- PAGE 19 ---
+# Element Relevant Successes Failures Score
+21 Interactive elements that trigger
+additional content should only
+have relationship and state ARIA
+attributes, such as aria-expanded
+and aria-controls, if they have
+interactive roles, such as button,
+tab, combobox and in rarer
+cases, link.Yes 3 0100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+22 Make sure that no element has
+an autofocus attribute.No 0 01<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-html" data-dropdown="#editor-dropdown-html" aria-haspopup
+="true" aria-expanded="false"> <span class="visually-hidden"> HTML Options
+</span> <svg viewBox="-1...
+2<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-css" data-dropdown="#editor-dropdown-css" aria-haspopup="t
+rue" aria-expanded="false"> <span class="visually-hidden"> CSS Options </spa
+n> <svg viewBox="-122....
+3<button class="button mini-button button-medium editor-dropdown-button edito
+r-dropdown-button-js" data-dropdown="#editor-dropdown-js" aria-haspopup="tru
+e" aria-expanded="false"> <span class="visually-hidden"> JS Options </span>
+<svg viewBox="-122.9 1...
+
+--- PAGE 20 ---
+# Element Relevant Successes Failures Score
+23 Screen readers rely on properly
+coded and associated labels to
+announce the purpose of a form
+field. A checkbox control without
+an identifiable label may prevent
+screen reader users from
+completing the form.No 0 0
+# Element Relevant Successes Failures Score
+24 Interacting with form controls
+shouldn't automatically submit a
+form or cause any other change
+in context without notifying the
+user in advance. Form controls
+that cause a context change on
+input can disorient a user , since
+the behavior is not expected.No 0 0
+# Element Relevant Successes Failures Score
+25 Adding type="submit" to a control
+that submits a form ensures that
+screen readers users expect a
+change of context when they
+activate the control.No 0 0
+# Element Relevant Successes Failures Score
+26 Main navigation elements should
+have role navigation to ensure
+that screen readers can identify
+them as navigation regions.No 0 0
+
+--- PAGE 21 ---
+# Element Relevant Successes Failures Score
+27 Screen readers rely on properly
+coded and associated labels to
+announce the purpose of a form
+field. A radio control without an
+identifiable label may prevent
+screen reader users from
+completing the form.No 0 0
+# Element Relevant Successes Failures Score
+28 If a field is marked as required
+only through visual cues, but
+lacks the required attribute or
+aria-required="true", screen
+readers will not announce it as
+mandatory . As a result, users
+may experience unnecessary
+delays or confusion when trying
+to submit the form.No 0 0
+# Element Relevant Successes Failures Score
+29 Using an <article> tag on content
+that is not self-contained and that
+cannot stand on its own outside
+the context of the page, such as
+a blog post, news story , or forum
+entry , causes screen readers to
+announce misleading information
+about the purpose the content in
+relation to the main subject of the
+page.No 0 0
+
+--- PAGE 22 ---
+# Element Relevant Successes Failures Score
+30 A breadcrumb region presents a
+trail of links showing the user ’s
+current page in relation to higher-
+level pages on a site. Without a
+label, it may be announced by
+screen reades simply as
+"navigation", making it hard to
+distinguish from other navigation
+regions on the page.No 0 0
+# Element Relevant Successes Failures Score
+31 Screen readers rely on accurate
+tagging and labeling to provide
+necessary context. If an element
+that does not contain navigation
+links is tagged as a navigation
+landmark, screen reader users
+may lose orientation and find the
+page's structure dif ficult to
+understand.No 0 0
+
+--- PAGE 23 ---
+# Element Relevant Successes Failures Score
+32 The main landmark represents
+the primary content of a page. It
+should include only content
+unique to that page and must
+remain separate from repeated
+elements, such as navigation,
+header , or footer .Yes - Fail0
+Code snapshots of failed elements
+# Element Relevant Successes Failures Score
+33 Incorrectly tagging the main
+landmark may cause screen
+reader users to misunderstand
+where the primary content begins
+or ends, leading to confusion and
+inefficient navigation.No 0 0
+# Element Relevant Successes Failures Score
+34 A page typically presents one
+central subject, so a single main
+landmark establishes the
+boundaries of the primary
+content for screen reader users.
+Multiple main landmarks create
+uncertainty about the scope,
+leading to confusion and dif ficulty
+navigating the page.No 0 01<div class="page-wrap"> <div class="boxes"> <div class="mobile-editor-nav">
+<button id="html-toggle" class="selected"><span>HTML</span></button> <button
+id="css-toggle"><span>CSS</span></button> <button id="js-toggle"><span>JS</s
+pan></button> <button...
+
+--- PAGE 24 ---
+# Element Relevant Successes Failures Score
+35 Screen reader users rely on
+landmarks to quickly access
+important regions of a page.
+Defining a form as a search
+landmark ensures that users can
+quickly recognize and navigate to
+the search form.No 0 0
+# Element Relevant Successes Failures Score
+36 Functional images presented
+using CSS background or
+background-image properties
+should be marked up using
+role="img" so that they can be
+identified as images by screen
+reader users.No 0 0
+
+--- PAGE 25 ---
+# Element Relevant Successes Failures Score
+37 Smaller graphics used as
+decorative or complementary
+elements, such as icons, and
+that do not provide additional
+information will often add
+unnecessary clutter to a screen
+reader user's browsing
+experience.Yes 68 1681
+Code snapshots of successful elements
+Code snapshots of failed elements1<span class="cm-attribute">id</span>
+2<span class="cm-tag">ul</span>
+3<span class="cm-tag">li</span>
+4<span class="cm-tag cm-bracket">&gt;&lt;</span>
+5<span class="cm-tag cm-bracket">&lt;/</span>
+6<span class="cm-tag">li</span>
+7<span class="cm-tag">li</span>
+8<span class="cm-tag cm-bracket">&gt;&lt;</span>
+9<span class="cm-tag cm-bracket">&lt;/</span>
+10<span class="cm-tag">li</span>
+
+--- PAGE 26 ---
+1<svg viewBox="0 0 132.4 132.4" xmlns="http://www.w3.org/2000/svg" class="Fol
+lowButton-module_statusIcon-U62Ef"><path d="M75.4 123.1V75.4h47.7c5.1 0 9.2-
+4.1 9.3-9.3s-4.2-9.3-9.3-9.3H75.4V9.3c0-5.1-4.1-9.2-9.3-9.3-5.2-.1-9.3 4.2-
+9.3 9.3V57H9.1C4 57-.1 ...
+2<svg viewBox="-2 0 105 92" xmlns="http://www.w3.org/2000/svg" class="LoveBut
+tonIcon-module_root-3tVfn"><path d="M85.24 2.67C72.29-3.08 55.75 2.67 50 14.
+9 44.25 2 27-3.8 14.76 2.67 1.1 9.14-5.37 25 5.42 44.38 13.33 58 27 68.11 50
+86.81 73.73 68.11 87....
+3<svg viewBox="0 0 20 20"><path d="M10.66 1.91a.833.833 0 0 1 1.18 0l2.5 2.5
+a.833.833 0 0 1 0 1.18l-2.5 2.5a.833.833 0 1 1-1.18-1.18l1.078-1.077h-1.321C
+7.46 5.833 5 8.293 5 11.25c0 2.956 2.46 5.417 5.417 5.417 2.956 0 5.416-2.46
+5.416-5.417a.833.833 0...
+4<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M87.6
+87 45.077c-.313-2.433-.816-4.807-1.542-7.079l8.145-11.73-5.827-7.515-.094-.1
+23-5.824-7.514-12.955 5.577c-2.041-1.265-4.192-2.362-6.459-3.219L59.42 0H40.
+586l-3.709 13.474c-2.2...
+5<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="EditorHea
+derViewSwitcher_iconPen-jP26l"><path d="M0 9.002C0 8.45.455 8 .992 8h18.016
+c.548 0 .992.456.992 1.002v9.996c0 .553-.455 1.002-.992 1.002H.992C.444 20 0
+19.544 0 18.998zm0-8C0...
+6<svg viewBox="0 0 15 15" class="file-type-icon" id="icon-file-html"> <rect f
+ill="#FF3C41" width="15" height="15" rx="4"></rect> <path d="M10.97 2.29a.56
+3.563 0 0 0-.495-.29.572.572 0 0 0-.488.277l-5.905 9.86a.565.565 0 0 0-.007.
+574c.102.18.287.289.49...
+7<svg viewBox="0 0 100 100" id="icon-gear" width="10" height="10"> <path d="M
+87.687,45.077c-0.313-2.433-0.816-4.807-1.542-7.079l8.145-11.73l-5.827-7.515l
+-0.094-0.123l-5.824-7.514 l-12.955,5.577c-2.041-1.265-4.192-2.362-6.459-3.21
+9L59.42,0h-9.34h-0.153...
+8<svg viewBox="-122.9 121.1 105.9 61.9" class="icon-arrow-down-mini" width="1
+0" height="10"> <path d="M-63.2,180.3l43.5-43.5c1.7-1.7,2.7-4,2.7-6.5s-1-4.8
+-2.7-6.5c-1.7-1.7-4-2.7-6.5-2.7s-4.8,1-6.5,2.7l-37.2,37.2l-37.2-37.2 c-1.7-
+1.7-4-2.7-6.5-2.7s-4.8,...
+9<svg viewBox="0 0 15 15" class="file-type-icon" id="icon-file-css"> <rect fi
+ll="#0EBEFF" width="15" height="15" rx="4"></rect><path d="M8 8.366l1.845 1.
+065a.507.507 0 0 0 .686-.181.507.507 0 0 0-.186-.685L8.5 7.5l1.845-1.065a.50
+7.507 0 0 0 .186-.685....
+10<svg viewBox="0 0 100 100" id="icon-gear" width="10" height="10"> <path d
+="M87.687,45.077c-0.313-2.433-0.816-4.807-1.542-7.079l8.145-11.73l-5.827-7.
+515l-0.094-0.123l-5.824-7.514 l-12.955,5.577c-2.041-1.265-4.192-2.362-6.459
+-3.219L59.42,0h-9.34h-0.153...
+
+--- PAGE 27 ---
+# Element Relevant Successes Failures Score
+38 Images require a text alternative
+when the image conveys
+meaningful content or serves a
+functional purpose. If the image
+is decorative, it must be hidden
+from assistive technology .No 0 0
+# Element Relevant Successes Failures Score
+39 Text alternatives must provide
+accurate descriptions of the
+image. Incorrect text alternatives,
+such as filenames or other
+placeholder values, may cause
+screen reader users to either
+miss essential information or
+hear unnecessary content that
+disrupts navigation.No 0 0
+# Element Relevant Successes Failures Score
+40 When non-graphical elements
+are marked up as images,
+screen reader users may
+misunderstand the intended
+purpose of the content.No 0 0
+# Element Relevant Successes Failures Score
+41 A slider should be operable with
+a single pointerNo 0 0
+
+--- PAGE 28 ---
+# Element Relevant Successes Failures Score
+42 Aria labels should describe
+elements that don't have proper
+text, like icons and field labels. It
+should not be used to override
+element texts. Screen reader
+users need to receive the exact
+text as visually on the screen,
+with more context if it is
+ambiguous. An exception applies
+to landmarks such as nav or
+other landmarks: here, ARIA
+labels can provide additional
+context or clarification.No 0 0
+# Element Relevant Successes Failures Score
+43 A sticky header remains
+anchored to the top of the screen
+while the rest of the page content
+can be scrolled. If it is not of fset
+from interactive elements, it can
+overlap and obscure the item in
+focus.No 0 0
+# Element Relevant Successes Failures Score
+44 An empty list will still be
+announced by screen readers,
+which may confuse users,
+leaving them unsure if the list is
+empty or an issue prevents the
+screen reader from announcing
+the list items.No 0 0
+
+--- PAGE 29 ---
+# Element Relevant Successes Failures Score
+45 Specifying a default page
+language ensures screen
+readers apply the correct
+pronunciation rules, voices, and
+braille output. Without it, screen
+readers may guess the language
+incorrectly , causing
+mispronunciations, confusion,
+and reduced comprehension for
+users.Yes Pass -100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+46 The meta viewport should allow
+scalability , typically with
+width=device-width, initial-
+scale=1, so text can be resized
+up to 200% without loss of
+functionality . Using user-
+scalable=no or maximum-
+scale=1 prevents users from
+enlarging content, making it
+difficult for people with low vision
+to read or interact.Yes Pass -100
+Code snapshots of successful elements1<html lang="en" data-theme="dark" class="mac chrome134 js"><head> <meta char
+set="UTF-8"> <title>A11y testing</title> <style type="text/css">@font-face
+{font-family:Lato;font-style:normal;font-weight:400;src:url(/cf-fonts/s/lat
+o/5.0.18/latin/400/norma...
+1<meta name="viewport" content="width=device-width, initial-scale=1">
+
+--- PAGE 30 ---
+# Element Relevant Successes Failures Score
+47 A <meta> element with http-
+equiv="refresh" is sometimes
+used to automatically redirect
+users after a time delay . These
+timed changes can interrupt and
+disorient users who rely on
+assistive technologyNo 0 0
+# Element Relevant Successes Failures Score
+48 A missing page title makes it
+difficult for screen reader users
+and sighted users with multiple
+tabs open to identify the page,
+reducing orientation and usability .Yes Pass -100
+Code snapshots of successful elements
+1<title>A11y testing</title>
+
+--- PAGE 31 ---
+# Element Relevant Successes Failures Score
+49 Screen readers rely heavily on
+page titles to announce the
+purpose of a page. If titles aren’t
+descriptive, users with low or no
+vision may not understand the
+context until they start navigating
+the page.Yes Pass -100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+50 A tablist without role="tablist" is
+not announced as a group of
+related tabs, which prevents
+screen reader users from
+recognizing the structure and
+purpose of the component. This
+makes it harder to navigate
+between tabs and understand
+that the controls belong to a
+single set.Yes - Fail0
+Code snapshots of failed elements1<title>A11y testing</title>
+1<div class="footer-actions" data-expanded="false"><button data-size="mini" c
+lass="Button-module_root-xw+9D console-toggle-button">Console</button><butto
+n data-size="mini" class="Button-module_root-xw+9D">Assets</button><button d
+ata-id="editor-comment...
+
+--- PAGE 32 ---
+# Element Relevant Successes Failures Score
+51 Applying role="tablist" to an
+element without tabs misleads
+screen reader users by
+suggesting a group of tabs that
+does not exist.No 0 0
+# Element Relevant Successes Failures Score
+52 Custom tabs must be explicitly
+defined for screen readers since
+there are no native HTML  tab
+elements. Without assigning
+role="tab" to the interactive
+elements, assistive technology
+will not identify them as tabs,
+preventing users from
+understanding their function or
+navigating them as part of a tab
+interface.Yes 0 40
+Code snapshots of failed elements
+1<button data-size="mini" class="Button-module_root-xw+9D console-toggle-butt
+on">Console</button>
+2<button data-size="mini" class="Button-module_root-xw+9D">Assets</button>
+3<button data-id="editor-comments-button" data-size="mini" class="Button-modu
+le_root-xw+9D">Comments</button>
+4<button title="Keyboard Shortcuts" data-size="mini" class="Button-module_roo
+t-xw+9D keyboard-commands-button"><span> </span></button>
+
+--- PAGE 33 ---
+# Element Relevant Successes Failures Score
+53 Applying role="tab" to an element
+that is not part of a functioning
+tab interface misleads screen
+reader users by presenting it as
+a tab without a corresponding
+panel.No 0 0
+# Element Relevant Successes Failures Score
+54 The role="tabpanel" identifies an
+element as the content region of
+a tab interface. Without this role,
+panels are exposed only by their
+native role (such as a generic div
+or a named section) and screen
+reader users may not perceive
+them as part of the tab structure.Yes - Fail0
+Code snapshots of failed elements
+# Element Relevant Successes Failures Score
+55 Applying role="tabpanel" to an
+element without a corresponding
+tab misleads screen reader users
+by announcing it as tab content,
+even though no controlling tab
+exists.No 0 01<div class="footer-left"><div class="footer-actions-menu"><button id="footer
+-button" aria-expanded="false" class="Button-module_root-xw+9D toggle-footer
+-menu-button"><svg viewBox="-122.9 121.1 105.9 61.9" xmlns="http://www.w3.or
+g/2000/svg"><path d="m...
+
+--- PAGE 34 ---
+# Element Relevant Successes Failures Score
+56 If a column header is not marked
+up with the correct role or scope,
+screen reader users cannot
+determine which header applies
+to each cell.No 0 0
+# Element Relevant Successes Failures Score
+57 If a table header cell is empty ,
+screen reader users may only
+hear a generic label such as
+“column 3” or nothing at all. This
+makes it harder to understand
+what each column or row
+represents.No 0 0
+# Element Relevant Successes Failures Score
+58 When a layout table is marked
+up with HTML  elements like
+<table> or <tr>, or assigned table
+ARIA  roles, screen readers
+announce a data table structure
+with rows, columns, and
+headers, even though the table is
+only used for page layout.No 0 0
+# Element Relevant Successes Failures Score
+59 Nested tables are often
+misinterpreted by screen
+readers, making it hard for users
+to follow the intended structure
+and meaning of the data.No 0 0
+
+--- PAGE 35 ---
+# Element Relevant Successes Failures Score
+60 If a table row header is not
+marked up with the correct role
+or scope, screen reader users
+cannot determine which header
+applies to each cell.No 0 0
+WCAG Best Practices (Not included in score)
+# Element Relevant Successes Failures Score
+1 If an element’ s aria-describedby
+attribute points to an id that does
+not exist or is not valid, assistive
+technologies will not convey the
+intended description, causing
+users to miss important context.No 0 0
+# Element Relevant Successes Failures Score
+2 Since aria-labelledby relies on
+valid id references, screen
+readers can only announce the
+label if the target exists. If the id
+is missing or invalid, the label will
+not be conveyed, causing users
+to miss important context.No 0 0
+
+--- PAGE 36 ---
+# Element Relevant Successes Failures Score
+3 Figure elements are often
+incorrectly used to display
+images on the screen. Incorrectly
+using the figure tag, without
+providing a proper figcaption,
+adds unnecessary clutter to the
+screen reader user's experience.No 0 0
+
+--- PAGE 37 ---
+# Element Relevant Successes Failures Score
+4 The title attribute is announced
+inconsistently across screen
+readers and browsers, making it
+unreliable for labeling interactive
+controls. Because many users
+may never hear the content,
+reliance on the attribute risks
+loss of information. Instead, it
+should be used to provide extra
+help text in addition to a valid
+label.Yes 15 0100
+Code snapshots of successful elements
+1<button data-test="follow-button" data-following="false" title="Follow Eliza
+beth" data-size="mini" data-has-icon="true" data-color="green" class="Button
+-module_root-xw+9D FollowButton-module_root-Q92Q+ ItemTitle-module_followBut
+ton-j5eP7 follow-user-...
+2<button title="Love" data-anon="true" data-view="pen" data-item="Pen" data-h
+ashid="eYbXzpJ" class="Button-module_root-xw+9D EditorHeaderPen-module_loveB
+utton-7F910 loves heart-button"><svg viewBox="-2 0 105 92" xmlns="http://ww
+w.w3.org/2000/svg" clas...
+3<button id="run" title="Com/Ctrl - Shift - 7 to Run" data-has-icon="true" cl
+ass="Button-module_root-xw+9D run"><svg viewBox="0 0 20 20"><path d="M10.66
+1.91a.833.833 0 0 1 1.18 0l2.5 2.5a.833.833 0 0 1 0 1.18l-2.5 2.5a.833.833 0
+1 1-1.18-1.18l1.078-1...
+4<button data-test-id="edit-settings" id="edit-settings" title="Pen Settings"
+data-has-icon="true" class="Button-module_root-xw+9D"><svg viewBox="0 0 100
+100" xmlns="http://www.w3.org/2000/svg"><path d="M87.687 45.077c-.313-2.433
+-.816-4.807-1.542-7.07...
+5<button id="view-switcher-button" data-test-id="view-switcher-button" title
+="Change View" aria-haspopup="menu" aria-controls="_r_2_" class="Button-modu
+le_root-xw+9D"><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" c
+lass="EditorHeaderViewS...
+6<div class="editor-resizer html-editor-resizer" title="Double-click to expan
+d."><h2 class="box-title html-editor-title box-title--resizer" id="html-edit
+or-title"> <svg viewBox="0 0 15 15" class="file-type-icon" id="icon-file-htm
+l"> <rect fill="#FF3C4...
+
+--- PAGE 38 ---
+# Element Relevant Successes Failures Score
+5 The element’ s aria-controls
+points to an id that does not
+exist, or is not valid, breaking the
+link between the controlling
+element and the content it
+manages.Yes 3 0100
+Code snapshots of successful elements7<button id="settings-pane-html" class="button button-medium mini-button sett
+ings-nub" data-type="html" title="Open HTML Settings"> <svg viewBox="0 0 100
+100" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-
+2.433-0.816-4.807-1.54...
+8<div class="editor-resizer css-editor-resizer" title="Double-click to expan
+d."><h2 class="box-title css-editor-title box-title--resizer" id="css-editor
+-title"> <svg viewBox="0 0 15 15" class="file-type-icon" id="icon-file-css">
+<rect fill="#0EBEFF" w...
+9<button id="settings-pane-css" class="button button-medium mini-button setti
+ngs-nub" data-type="css" title="Open CSS Settings"> <svg viewBox="0 0 100 10
+0" id="icon-gear" width="10" height="10"> <path d="M87.687,45.077c-0.313-2.4
+33-0.816-4.807-1.542-7...
+10<div class="editor-resizer js-editor-resizer" title="Double-click to expan
+d."><h2 class="box-title js-editor-title box-title--resizer" id="js-editor-
+title"> <svg viewBox="0 0 15 15" class="file-type-icon" id="icon-file-js">
+<rect fill="#FCD000" width...
+1<button id="view-switcher-button" data-test-id="view-switcher-button" title
+="Change View" aria-haspopup="menu" aria-controls="_r_2_" class="Button-modu
+le_root-xw+9D"><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" c
+lass="EditorHeaderViewS...
+2<button aria-haspopup="menu" aria-controls="_r_0_" data-size="mini" class="B
+utton-module_root-xw+9D">Export</button>
+3<button aria-haspopup="menu" aria-controls="_r_1_" data-size="mini" class="B
+utton-module_root-xw+9D">Share</button>
+
+--- PAGE 39 ---
+# Element Relevant Successes Failures Score
+6 It's good practice to warn users
+about the expected behavior
+when activating a link triggers an
+image to appear .No 0 0
+# Element Relevant Successes Failures Score
+7 It's good practice to warn users
+about the expected behavior
+when activating a link triggers a
+mail application.No 0 0
+# Element Relevant Successes Failures Score
+8 It's good practice to warn users
+about the expected behavior
+when activating a link triggers a
+PDF reader .No 0 0
+
+--- PAGE 40 ---
+# Element Relevant Successes Failures Score
+9 The contentinfo region, typically
+represented by the <footer>
+element, is found at the end of
+each page and provides screen
+reader users with information
+about the website, such as
+copyright, contact details, legal
+information, and navigation links.Yes Pass -100
+Code snapshots of successful elements
+# Element Relevant Successes Failures Score
+10 When a region without global site
+information is tagged as a
+contentinfo landmark, screen
+reader users may be misled
+about its purpose and expect
+website-level details, such as
+copyright or contact information.Yes Pass -100
+Code snapshots of successful elements1<footer id="react-pen-footer" class="site-footer editor-footer"><div class
+="footer-left"><div class="footer-actions-menu"><button id="footer-button" a
+ria-expanded="false" class="Button-module_root-xw+9D toggle-footer-menu-butt
+on"><svg viewBox="-122.9...
+1<footer id="react-pen-footer" class="site-footer editor-footer"><div class
+="footer-left"><div class="footer-actions-menu"><button id="footer-button" a
+ria-expanded="false" class="Button-module_root-xw+9D toggle-footer-menu-butt
+on"><svg viewBox="-122.9...
+
+--- PAGE 41 ---
+# Element Relevant Successes Failures Score
+11 Each page should normally
+include only one contentinfo
+landmark (usually the site footer)
+to keep landmark navigation
+simple and predictable.
+Additional contentinfo landmarks
+are permitted when clearly
+justified, but they must each
+have a unique accessible label.No 0 0
+# Element Relevant Successes Failures Score
+12 Assigning a valid ISO language
+value to the <html> lang attribute
+ensures that screen readers use
+the correct pronunciation rules,
+browsers apply proper spell-
+checking and translation, and
+search engines index the content
+in the appropriate language.Yes Pass -100
+Code snapshots of successful elements
+1<html lang="en" data-theme="dark" class="mac chrome134 js"><head> <meta char
+set="UTF-8"> <title>A11y testing</title> <style type="text/css">@font-face
+{font-family:Lato;font-style:normal;font-weight:400;src:url(/cf-fonts/s/lat
+o/5.0.18/latin/400/norma...
+
+--- PAGE 42 ---
+# Element Relevant Successes Failures Score
+13 Providing a meta viewport to
+control layout and scaling on
+mobile devicesYes Pass -100
+Code snapshots of successful elements
+This audit is subject to the Terms of Service1<meta name="viewport" content="width=device-width, initial-scale=1">
