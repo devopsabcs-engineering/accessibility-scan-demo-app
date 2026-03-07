@@ -62,4 +62,61 @@ Extends the Phase 1 WCAG 2.2 accessibility scanner with multi-page site crawling
 
 ## Additional or Deviating Changes
 
+* `next.config.ts` updated with `serverExternalPackages` to resolve Turbopack bundling issues with crawlee ecosystem modules — not in original plan but required for build
+* 3 pre-existing `sitemapper` transitive dependency version mismatch warnings (cacheable-request 13.0.18 vs 10.2.14) — cosmetic only, no runtime impact
+
 ## Release Summary
+
+**Total files affected**: 38 (30 created, 8 modified, 0 removed)
+
+**Files created (30)**:
+
+* `src/lib/types/crawl.ts` — All crawl/site types and CI/CD types
+* `src/lib/crawler/url-utils.ts` — URL normalization and boundary checking
+* `src/lib/crawler/robots.ts` — robots.txt compliance
+* `src/lib/crawler/sitemap.ts` — Sitemap XML discovery
+* `src/lib/crawler/site-crawler.ts` — PlaywrightCrawler orchestration
+* `src/lib/scoring/site-calculator.ts` — Site-wide score aggregation
+* `src/app/api/crawl/route.ts` — POST crawl endpoint
+* `src/app/api/crawl/[id]/route.ts` — GET crawl status
+* `src/app/api/crawl/[id]/status/route.ts` — SSE crawl progress
+* `src/app/api/crawl/[id]/pages/route.ts` — GET page summaries
+* `src/app/api/crawl/[id]/pages/[pageId]/route.ts` — GET single page result
+* `src/app/api/crawl/[id]/cancel/route.ts` — POST cancel crawl
+* `src/app/api/crawl/[id]/report/route.ts` — GET site report
+* `src/app/api/crawl/[id]/pdf/route.ts` — Site PDF
+* `src/app/api/crawl/[id]/pages/[pageId]/pdf/route.ts` — Per-page PDF
+* `src/lib/report/site-generator.ts` — Site report assembly
+* `src/lib/report/templates/site-report-template.ts` — Site HTML template
+* `src/lib/report/sarif-generator.ts` — SARIF v2.1.0 output
+* `src/lib/ci/threshold.ts` — Threshold evaluation
+* `src/lib/ci/formatters/json.ts` — CI JSON formatter
+* `src/lib/ci/formatters/sarif.ts` — CI SARIF formatter
+* `src/lib/ci/formatters/junit.ts` — CI JUnit XML formatter
+* `src/app/api/ci/scan/route.ts` — Synchronous CI scan endpoint
+* `src/app/api/ci/crawl/route.ts` — Synchronous CI crawl endpoint
+* `src/cli/bin/a11y-scan.ts` — CLI entry point
+* `src/cli/commands/scan.ts` — Scan CLI command
+* `src/cli/commands/crawl.ts` — Crawl CLI command
+* `src/cli/config/loader.ts` — .a11yrc.json config loader
+* `action/action.yml` — Composite GitHub Action
+* `azure-pipelines/a11y-scan.yml` — Azure DevOps pipeline
+
+**Files modified (8)**:
+
+* `src/lib/scanner/engine.ts` — Extracted `scanPage(page)` for crawler integration
+* `src/lib/scanner/store.ts` — Added crawl CRUD and TTL cleanup
+* `package.json` — Added crawlee, sitemapper, robots-parser, commander; bin field
+* `next.config.ts` — serverExternalPackages for crawlee
+* `src/components/ScanForm.tsx` — Crawl mode toggle and config fields
+* `src/app/page.tsx` — Updated hero text for dual-mode
+* `src/app/crawl/[id]/page.tsx` — New crawl results page
+* `Dockerfile` — NODE_OPTIONS memory tuning, crawlee module copies
+
+**Dependencies added**: crawlee, sitemapper, robots-parser, commander
+
+**Infrastructure changes**: Dockerfile updated for crawlee memory requirements; GitHub Action and Azure DevOps pipeline templates added
+
+**Deployment notes**: No migration required. Phase 1 single-page scanning routes remain backward-compatible. New crawl endpoints available at `/api/crawl/*` and CI endpoints at `/api/ci/*`.
+
+**Validation**: `npm run lint` (zero errors) and `npm run build` (compiled successfully, all routes registered) both pass clean.
