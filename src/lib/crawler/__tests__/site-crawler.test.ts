@@ -2,7 +2,6 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { CrawlConfig } from '../../types/crawl';
 
 // Capture the handlers passed to PlaywrightCrawler constructor
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let _capturedOptions: Record<string, unknown>;
 
 vi.mock('crawlee', () => ({
@@ -71,9 +70,12 @@ vi.mock('../sitemap', () => ({
 }));
 
 import { startCrawl, cancelCrawl } from '../site-crawler';
-import { getCrawlDelay, getSitemapUrls, clearRobotsCache } from '../robots';
+import { getCrawlDelay, getSitemapUrls, clearRobotsCache, isAllowedByRobots } from '../robots';
 import { discoverSitemapUrls } from '../sitemap';
-import { updateCrawl, getCrawl } from '../../scanner/store';
+import { updateCrawl, getCrawl, createScan, updateScan } from '../../scanner/store';
+import { scanPage } from '../../scanner/engine';
+import { parseAxeResults } from '../../scanner/result-parser';
+import { isWithinDomainBoundary, isScannable, matchesPatterns } from '../url-utils';
 
 const defaultConfig: CrawlConfig = {
   maxPages: 50,
@@ -251,6 +253,143 @@ describe('site-crawler', () => {
       const result = cancelCrawl('nonexistent-crawl');
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('requestHandler', () => {
+    async function getRequestHandler() {
+      const crawlee = await import('crawlee');
+      vi.mocked(crawlee.PlaywrightCrawler).mockImplementationOnce(function (this: Record<string, unknown>, options: Record<string, unknown>) {
+        _capturedOptions = options;
+        this.run = vi.fn().mockResolvedValue(undefined);
+        return this;
+      });
+      await startCrawl('crawl-rh', 'https://example.com', defaultConfig);
+      return _capturedOptions.requestHandler as (ctx: Record<string, unknown>) => Promise<void>;
+    }
+
+    function createMockContext(url = 'https://example.com/page1') {
+      return {
+        page: { evaluate: vi.fn() },
+        request: { url, loadedUrl: url },
+        enqueueLinks: vi.fn().mockResolvedValue(undefined),
+      };
+    }
+
+    it('scans a page and stores results on success', async () => {
+      const handler = await getRequestHandler();
+      const ctx = createMockContext();
+
+      await handler(ctx);
+
+      expect(createScan).toHaveBeenCalled();
+      expect(scanPage).toHaveBeenCalled();
+      expect(parseAxeResults).toHaveBeenCalled();
+      expect(vi.mocked(updateScan).mock.calls.some(([, data]) => data.status === 'complete')).toBe(true);
+    });
+
+    it('skips already visited URLs', async () => {
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/dupe');
+
+      await handler(ctx);
+      vi.mocked(createScan).mockClear();
+
+      await handler(ctx);
+      expect(createScan).not.toHaveBeenCalled();
+    });
+
+    it('skips URLs outside domain boundary', async () => {
+      vi.mocked(isWithinDomainBoundary).mockReturnValueOnce(false);
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://other.com/page');
+
+      await handler(ctx);
+      expect(createScan).not.toHaveBeenCalled();
+    });
+
+    it('skips URLs that fail pattern matching', async () => {
+      vi.mocked(matchesPatterns).mockReturnValueOnce(false);
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/excluded');
+
+      await handler(ctx);
+      expect(createScan).not.toHaveBeenCalled();
+    });
+
+    it('skips non-scannable URLs', async () => {
+      vi.mocked(isScannable).mockReturnValueOnce(false);
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/file.pdf');
+
+      await handler(ctx);
+      expect(createScan).not.toHaveBeenCalled();
+    });
+
+    it('skips URLs blocked by robots.txt', async () => {
+      vi.mocked(isAllowedByRobots).mockResolvedValueOnce(false);
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/blocked');
+
+      await handler(ctx);
+      expect(createScan).not.toHaveBeenCalled();
+    });
+
+    it('handles scan errors gracefully', async () => {
+      vi.mocked(scanPage).mockRejectedValueOnce(new Error('Scan crashed'));
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/error-page');
+
+      await handler(ctx);
+      expect(vi.mocked(updateScan).mock.calls.some(([, data]) => data.status === 'error')).toBe(true);
+    });
+
+    it('enqueues links when within depth limit', async () => {
+      const handler = await getRequestHandler();
+      const ctx = createMockContext('https://example.com/shallow');
+
+      await handler(ctx);
+      expect(ctx.enqueueLinks).toHaveBeenCalled();
+    });
+  });
+
+  describe('failedRequestHandler', () => {
+    async function getFailedRequestHandler() {
+      const crawlee = await import('crawlee');
+      vi.mocked(crawlee.PlaywrightCrawler).mockImplementationOnce(function (this: Record<string, unknown>, options: Record<string, unknown>) {
+        _capturedOptions = options;
+        this.run = vi.fn().mockResolvedValue(undefined);
+        return this;
+      });
+      await startCrawl('crawl-fh', 'https://example.com', defaultConfig);
+      return _capturedOptions.failedRequestHandler as (ctx: Record<string, unknown>, error: Error) => Promise<void>;
+    }
+
+    it('records failed page with error status', async () => {
+      const handler = await getFailedRequestHandler();
+
+      await handler(
+        { request: { url: 'https://example.com/fail' } },
+        new Error('Navigation timeout')
+      );
+
+      expect(createScan).toHaveBeenCalled();
+      expect(vi.mocked(updateScan).mock.calls.some(
+        ([, data]) => data.status === 'error' && data.message === 'Navigation timeout'
+      )).toBe(true);
+    });
+
+    it('increments failedPageCount on the crawl record', async () => {
+      const handler = await getFailedRequestHandler();
+
+      await handler(
+        { request: { url: 'https://example.com/fail2' } },
+        new Error('Connection refused')
+      );
+
+      expect(vi.mocked(updateCrawl).mock.calls.some(
+        ([, data]) => typeof data.failedPageCount === 'number'
+      )).toBe(true);
     });
   });
 });
