@@ -4,6 +4,9 @@ import { createScan, updateScan } from '@/lib/scanner/store';
 import { scanUrl } from '@/lib/scanner/engine';
 import { parseAxeResults } from '@/lib/scanner/result-parser';
 import { trackScanStart, trackScanComplete, trackScanError } from '@/lib/telemetry';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('api:scan');
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -58,6 +61,7 @@ export async function POST(request: NextRequest) {
   }
 
   const scanId = uuidv4();
+  log.info('Scan requested', { scanId, url: url.trim() });
   createScan(scanId, url.trim());
 
   // Start scan asynchronously — do not await

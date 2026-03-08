@@ -1,5 +1,7 @@
 import { trace, metrics, SpanStatusCode } from '@opentelemetry/api';
+import { createLogger } from '@/lib/logger';
 
+const log = createLogger('telemetry');
 const tracer = trace.getTracer('a11y-scanner');
 const meter = metrics.getMeter('a11y-scanner');
 
@@ -34,6 +36,7 @@ const crawlPagesScanned = meter.createHistogram('crawl.pages_scanned', {
 });
 
 export function trackScanStart(scanId: string, url: string) {
+  log.info('Scan started', { scanId, url });
   scanCounter.add(1, { url: new URL(url).hostname });
   return tracer.startSpan('scan', {
     attributes: { 'scan.id': scanId, 'scan.url': url },
@@ -48,6 +51,7 @@ export function trackScanComplete(
   score: number,
   violationCount: number,
 ) {
+  log.info('Scan completed', { scanId, url, durationMs, score, violationCount });
   scanDuration.record(durationMs, { url: new URL(url).hostname });
   span.setAttributes({
     'scan.duration_ms': durationMs,
@@ -64,6 +68,7 @@ export function trackScanError(
   url: string,
   error: string,
 ) {
+  log.error('Scan failed', { scanId, url, error });
   scanErrorCounter.add(1, { url: new URL(url).hostname });
   span.setStatus({ code: SpanStatusCode.ERROR, message: error });
   span.recordException(new Error(error));
@@ -71,6 +76,7 @@ export function trackScanError(
 }
 
 export function trackCrawlStart(crawlId: string, url: string) {
+  log.info('Crawl started', { crawlId, url });
   crawlCounter.add(1, { url: new URL(url).hostname });
   return tracer.startSpan('crawl', {
     attributes: { 'crawl.id': crawlId, 'crawl.url': url },
@@ -85,6 +91,7 @@ export function trackCrawlComplete(
   pagesScanned: number,
   pagesFailed: number,
 ) {
+  log.info('Crawl completed', { crawlId, url, durationMs, pagesScanned, pagesFailed });
   crawlDuration.record(durationMs, { url: new URL(url).hostname });
   crawlPagesScanned.record(pagesScanned, { url: new URL(url).hostname });
   span.setAttributes({
@@ -102,6 +109,7 @@ export function trackCrawlError(
   url: string,
   error: string,
 ) {
+  log.error('Crawl failed', { crawlId, url, error });
   crawlErrorCounter.add(1, { url: new URL(url).hostname });
   span.setStatus({ code: SpanStatusCode.ERROR, message: error });
   span.recordException(new Error(error));

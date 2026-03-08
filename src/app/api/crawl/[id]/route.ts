@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCrawl } from '@/lib/scanner/store';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('api:crawl:id');
 
 export async function GET(
   _request: NextRequest,
@@ -9,6 +12,7 @@ export async function GET(
   const crawl = getCrawl(id);
 
   if (!crawl) {
+    log.warn('Crawl not found', { id });
     return NextResponse.json({ error: 'Crawl not found' }, { status: 404 });
   }
 

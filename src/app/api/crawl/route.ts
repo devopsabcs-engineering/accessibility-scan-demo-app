@@ -4,6 +4,9 @@ import { createCrawl, getCrawl } from '@/lib/scanner/store';
 import { startCrawl } from '@/lib/crawler/site-crawler';
 import type { CrawlConfig, CrawlRequest } from '@/lib/types/crawl';
 import { trackCrawlStart, trackCrawlComplete, trackCrawlError } from '@/lib/telemetry';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('api:crawl');
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -94,6 +97,7 @@ export async function POST(request: NextRequest) {
   }
 
   const crawlId = uuidv4();
+  log.info('Crawl requested', { crawlId, url: url.trim(), maxPages: config.maxPages, maxDepth: config.maxDepth });
   createCrawl(crawlId, url.trim(), config);
 
   // Start crawl asynchronously — do not await
