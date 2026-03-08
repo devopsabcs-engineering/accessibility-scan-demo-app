@@ -33,14 +33,13 @@ async function runIbmScan(page: Page, label: string): Promise<IbmReportResult[]>
 }
 
 /**
- * Run both axe-core and IBM Equal Access scans in parallel, then normalize and merge.
+ * Run axe-core, IBM Equal Access, and custom checks sequentially to avoid
+ * script-injection conflicts when multiple engines evaluate on the same page.
  */
 export async function multiEngineScan(page: Page, url: string): Promise<MultiEngineResults> {
-  const [axeResults, ibmResults, customResults] = await Promise.all([
-    scanPage(page),
-    runIbmScan(page, url),
-    runCustomChecks(page),
-  ]);
+  const axeResults = await scanPage(page);
+  const ibmResults = await runIbmScan(page, url);
+  const customResults = await runCustomChecks(page);
   return normalizeAndMerge(axeResults, ibmResults, customResults);
 }
 
