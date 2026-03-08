@@ -42,6 +42,10 @@ COPY --from=deps /app/node_modules/sitemapper ./node_modules/sitemapper
 COPY --from=deps /app/node_modules/robots-parser ./node_modules/robots-parser
 COPY --from=deps /app/node_modules/commander ./node_modules/commander
 
+# Copy Azure Monitor OpenTelemetry for Application Insights
+COPY --from=deps /app/node_modules/@azure ./node_modules/@azure
+COPY --from=deps /app/node_modules/@opentelemetry ./node_modules/@opentelemetry
+
 EXPOSE 3000
 
 CMD ["node", "server.js"]

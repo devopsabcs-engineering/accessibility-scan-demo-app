@@ -13,6 +13,8 @@ param appServicePlanSku string = 'P1v3'
 var acrName = replace('${appName}acr', '-', '')
 var appServicePlanName = '${appName}-plan'
 var webAppName = '${appName}-app'
+var logAnalyticsName = '${appName}-log'
+var appInsightsName = '${appName}-ai'
 
 // Azure Container Registry
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
@@ -23,6 +25,29 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   }
   properties: {
     adminUserEnabled: true
+  }
+}
+
+// Log Analytics Workspace (required by Application Insights)
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: logAnalyticsName
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+  }
+}
+
+// Application Insights
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightsName
+  location: location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalyticsWorkspace.id
   }
 }
 
@@ -68,6 +93,10 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
           name: 'WEBSITES_PORT'
           value: '3000'
         }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: applicationInsights.properties.ConnectionString
+        }
       ]
     }
     httpsOnly: true
@@ -85,3 +114,9 @@ output webAppName string = webApp.name
 
 @description('ACR name')
 output acrName string = acr.name
+
+@description('Application Insights connection string')
+output appInsightsConnectionString string = applicationInsights.properties.ConnectionString
+
+@description('Application Insights name')
+output appInsightsName string = applicationInsights.name
