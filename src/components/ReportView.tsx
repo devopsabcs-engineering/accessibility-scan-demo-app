@@ -14,15 +14,15 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
       {/* Header */}
       <header className="text-center space-y-2">
         <h1 className="text-2xl font-bold">WCAG 2.2 Level AA Accessibility Report</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           <a href={results.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
             {results.url}
           </a>
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600">
           Scanned on {new Date(results.timestamp).toLocaleString()} · Engine: {results.engineVersion}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600">
           {results.score.totalViolations} violations across {results.score.totalElementViolations} elements
         </p>
       </header>
@@ -90,10 +90,10 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
             </summary>
             <ul className="mt-3 space-y-1">
               {results.passes.map((p) => (
-                <li key={p.id} className="text-sm text-gray-600 dark:text-gray-400 py-1">
+                <li key={p.id} className="text-sm text-gray-600 py-1">
                   <span className="text-green-500 mr-2" aria-hidden="true">✓</span>
                   {p.description}
-                  <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">({p.id})</span>
+                  <span className="text-xs text-gray-600 ml-2">({p.id})</span>
                 </li>
               ))}
             </ul>
@@ -110,7 +110,7 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
             </summary>
             <ul className="mt-3 space-y-1">
               {results.incomplete.map((item) => (
-                <li key={item.id} className="text-sm text-gray-600 dark:text-gray-400 py-1">
+                <li key={item.id} className="text-sm text-gray-600 py-1">
                   <span className="text-yellow-500 mr-2" aria-hidden="true">?</span>
                   {item.description}
                   <a href={item.helpUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline ml-2 text-xs">
@@ -135,7 +135,7 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
       </section>
 
       {/* Disclaimer */}
-      <footer className="text-xs text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
+      <footer className="text-xs text-gray-600 border-t border-gray-200 dark:border-gray-700 pt-4">
         <p>
           <strong>Disclaimer:</strong> Automated accessibility testing can detect approximately 30-57% of WCAG failures.
           This report should be supplemented with manual testing, assisted technology testing, and expert review

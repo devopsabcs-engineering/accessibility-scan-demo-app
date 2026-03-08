@@ -88,13 +88,13 @@ export default function CrawlProgress({ crawlId, onComplete, onError }: CrawlPro
       </div>
 
       {/* Status Text */}
-      <div aria-live="polite" className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+      <div aria-live="polite" className="flex justify-between text-sm text-gray-600 mb-2">
         <span>{message}</span>
         <span>{progress}%</span>
       </div>
 
       {/* Page Counts */}
-      <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <div className="flex gap-4 text-sm text-gray-600 mb-4">
         <span>{completedPages}/{totalPages} pages completed</span>
         {failedPages > 0 && (
           <span className="text-red-500">{failedPages} failed</span>
@@ -103,13 +103,13 @@ export default function CrawlProgress({ crawlId, onComplete, onError }: CrawlPro
 
       {/* Current Page */}
       {currentPage && (
-        <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 truncate">
+        <div className="text-sm text-gray-600 mb-4 truncate">
           Scanning: <span className="font-mono text-xs">{currentPage}</span>
         </div>
       )}
 
       {/* Stage Indicators */}
-      <ol className="flex gap-2 text-xs text-gray-600 dark:text-gray-400 mb-6 list-none p-0 m-0" aria-label="Crawl stages">
+      <ol className="flex gap-2 text-xs text-gray-600 mb-6 list-none p-0 m-0" aria-label="Crawl stages">
         {stages.map((stage) => (
           <li
             key={stage}
@@ -136,7 +136,7 @@ export default function CrawlProgress({ crawlId, onComplete, onError }: CrawlPro
                   {page.grade}
                 </span>
                 <span className="text-gray-500">{page.score}</span>
-                <span className="truncate text-gray-600 dark:text-gray-400 font-mono text-xs">
+                <span className="truncate text-gray-600 font-mono text-xs">
                   {page.url}
                 </span>
               </li>

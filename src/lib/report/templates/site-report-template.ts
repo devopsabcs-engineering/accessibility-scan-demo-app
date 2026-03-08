@@ -2,20 +2,20 @@ import type { SiteReportData } from '../../types/crawl';
 import type { AxeNode } from '../../types/scan';
 
 const impactColors: Record<string, string> = {
-  critical: '#dc2626',
-  serious: '#ea580c',
-  moderate: '#ca8a04',
-  minor: '#2563eb',
+  critical: '#991b1b',
+  serious: '#9a3412',
+  moderate: '#854d0e',
+  minor: '#1e40af',
 };
 
 function gradeColor(grade: string): string {
   switch (grade) {
-    case 'A': return '#22c55e';
-    case 'B': return '#84cc16';
-    case 'C': return '#eab308';
-    case 'D': return '#f97316';
-    case 'F': return '#ef4444';
-    default: return '#6b7280';
+    case 'A': return '#16a34a';
+    case 'B': return '#4d7c0f';
+    case 'C': return '#a16207';
+    case 'D': return '#c2410c';
+    case 'F': return '#dc2626';
+    default: return '#4b5563';
   }
 }
 
@@ -219,9 +219,9 @@ export function generateSiteReportHtml(data: SiteReportData): string {
         <p style="margin:4px 0 12px;font-size:12px;color:#6b7280;">Category: ${escapeHtml(category)}</p>
         ${shown.length > 0 ? shown.map(node => `
           <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:8px;">
-            <p style="margin:0 0 4px;font-size:12px;color:#6b7280;">Selector: <code style="background:#e5e7eb;padding:2px 4px;border-radius:3px;font-size:11px;">${escapeHtml(node.target.join(' > '))}</code></p>
+            <p style="margin:0 0 4px;font-size:12px;color:#4b5563;">Selector: <code style="background:#f3f4f6;padding:2px 4px;border-radius:3px;font-size:11px;color:#1f2937;">${escapeHtml(node.target.join(' > '))}</code></p>
             <pre style="background:#1e293b;color:#e2e8f0;padding:12px;border-radius:6px;overflow-x:auto;font-size:12px;margin:8px 0;"><code>${escapeHtml(node.html)}</code></pre>
-            ${node.failureSummary ? `<p style="margin:4px 0 0;font-size:12px;color:#ca8a04;background:#fefce8;padding:8px;border-radius:4px;">${escapeHtml(node.failureSummary)}</p>` : ''}
+            ${node.failureSummary ? `<p style="margin:4px 0 0;font-size:12px;color:#92400e;background:#fefce8;padding:8px;border-radius:4px;">${escapeHtml(node.failureSummary)}</p>` : ''}
           </div>
         `).join('') : ''}
         ${remaining > 0 ? `<p style="font-size:12px;color:#6b7280;font-style:italic;">...and ${remaining} more element(s)</p>` : ''}

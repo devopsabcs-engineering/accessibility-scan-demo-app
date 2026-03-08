@@ -57,11 +57,11 @@ export default function ScanProgress({ scanId, onComplete, onError }: ScanProgre
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div aria-live="polite" className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div aria-live="polite" className="flex justify-between text-sm text-gray-600">
         <span>{message}</span>
         <span>{progress}%</span>
       </div>
-      <ol className="mt-4 flex gap-2 text-xs text-gray-600 dark:text-gray-400 list-none p-0 m-0" aria-label="Scan stages">
+      <ol className="mt-4 flex gap-2 text-xs text-gray-600 list-none p-0 m-0" aria-label="Scan stages">
         {['Pending', 'Navigating', 'Scanning', 'Scoring', 'Complete'].map((stage) => (
           <li
             key={stage}

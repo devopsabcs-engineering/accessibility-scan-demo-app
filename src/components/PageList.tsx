@@ -53,7 +53,7 @@ export default function PageList({ pages, crawlId: _crawlId }: PageListProps) {
                       ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                       : page.status === 'error'
                       ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
                   }`}>
                     {page.status}
                   </span>
@@ -64,7 +64,7 @@ export default function PageList({ pages, crawlId: _crawlId }: PageListProps) {
         </table>
       </div>
       {pages.length === 0 && (
-        <p className="text-gray-600 dark:text-gray-400 text-sm">No pages scanned yet.</p>
+        <p className="text-gray-600 text-sm">No pages scanned yet.</p>
       )}
     </div>
   );

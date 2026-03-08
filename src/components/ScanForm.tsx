@@ -107,7 +107,7 @@ export default function ScanForm() {
         <label htmlFor="scan-url" className="text-lg font-medium">
           Website URL
         </label>
-        <p id="scan-url-help" className="text-sm text-gray-600 dark:text-gray-400">
+        <p id="scan-url-help" className="text-sm text-gray-600">
           {mode === 'crawl'
             ? 'Enter the root URL of the site to crawl and scan for accessibility issues.'
             : 'Enter the full URL of the page you want to scan for accessibility issues.'}
