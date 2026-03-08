@@ -64,6 +64,16 @@ function simpleHash(input: string): string {
   return Math.abs(hash).toString(16).padStart(8, '0');
 }
 
+function urlToArtifactPath(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname === '/' ? '/index' : parsed.pathname;
+    return `${parsed.hostname}${path}`;
+  } catch {
+    return url;
+  }
+}
+
 function buildRun(url: string, violations: AxeViolation[], toolVersion: string): SarifRun {
   const rulesMap = new Map<string, { rule: SarifRule; index: number }>();
   const rules: SarifRule[] = [];
@@ -91,11 +101,11 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
         ruleId: violation.id,
         ruleIndex: ruleEntry.index,
         level: mapImpactToLevel(violation.impact),
-        message: { text: violation.help },
+        message: { text: `${violation.help} (${url} — ${target})` },
         locations: [
           {
             physicalLocation: {
-              artifactLocation: { uri: url },
+              artifactLocation: { uri: urlToArtifactPath(url) },
               region: { snippet: { text: node.html } },
             },
           },
