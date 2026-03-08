@@ -22,6 +22,9 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
         <p className="text-sm text-gray-500">
           Scanned on {new Date(results.timestamp).toLocaleString()} · Engine: {results.engineVersion}
         </p>
+        <p className="text-sm text-gray-500">
+          {results.score.totalViolations} violations across {results.score.totalElementViolations} elements
+        </p>
       </header>
 
       {/* PDF Download */}

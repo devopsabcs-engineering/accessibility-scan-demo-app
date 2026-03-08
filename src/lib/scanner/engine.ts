@@ -1,29 +1,47 @@
 import { chromium, type Page } from 'playwright';
-import * as fs from 'fs';
-import * as path from 'path';
-
-// Read axe-core source once at module load time
-const axeSource = fs.readFileSync(
-  path.resolve(process.cwd(), 'node_modules', 'axe-core', 'axe.min.js'),
-  'utf-8'
-);
+import AxeBuilder from '@axe-core/playwright';
+import { getCompliance } from 'accessibility-checker';
+import type { MultiEngineResults } from '../types/scan';
+import { normalizeAndMerge, type IbmReportResult } from './result-normalizer';
+import { runCustomChecks } from './custom-checks';
 
 /**
- * Scan an already-navigated Playwright Page with axe-core.
- * Used by the crawler where the crawler manages browser lifecycle.
+ * Scan an already-navigated Playwright Page with axe-core only.
+ * Used by the crawler where the crawler manages browser lifecycle and speed matters.
  */
 export async function scanPage(page: Page): Promise<import('axe-core').AxeResults> {
-  // Inject axe-core with a module shim to avoid "module is not defined" error
-  await page.evaluate(`var module = { exports: {} }; ${axeSource}`);
-  // Run axe analysis with WCAG 2.2 AA tags
-  return page.evaluate(() => {
-    return (window as unknown as { axe: { run: (options: object) => Promise<unknown> } }).axe.run({
-      runOnly: {
-        type: 'tag',
-        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
-      },
-    });
-  }) as Promise<import('axe-core').AxeResults>;
+  return new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
+    .analyze();
+}
+
+/**
+ * Run IBM Equal Access scan on a page with graceful degradation.
+ * If IBM scan fails, returns empty array so the overall scan still succeeds.
+ */
+async function runIbmScan(page: Page, label: string): Promise<IbmReportResult[]> {
+  try {
+    const result = await getCompliance(page, label);
+    if (result && 'report' in result && result.report && 'results' in result.report) {
+      return (result.report.results as IbmReportResult[]) ?? [];
+    }
+    return [];
+  } catch {
+    // Graceful degradation — IBM scan failure must not crash the entire scan
+    return [];
+  }
+}
+
+/**
+ * Run both axe-core and IBM Equal Access scans in parallel, then normalize and merge.
+ */
+export async function multiEngineScan(page: Page, url: string): Promise<MultiEngineResults> {
+  const [axeResults, ibmResults, customResults] = await Promise.all([
+    scanPage(page),
+    runIbmScan(page, url),
+    runCustomChecks(page),
+  ]);
+  return normalizeAndMerge(axeResults, ibmResults, customResults);
 }
 
 /**
@@ -60,7 +78,7 @@ export async function scanUrl(
     }
     onProgress?.('scanning', 40);
 
-    const results = await scanPage(page);
+    const results = await multiEngineScan(page, url);
 
     onProgress?.('scoring', 80);
     return results;

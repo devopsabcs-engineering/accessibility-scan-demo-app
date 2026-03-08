@@ -37,13 +37,13 @@ import { loadConfig, mergeConfig } from '../config/loader';
 import * as fs from 'fs';
 import { scanCommand } from '../commands/scan';
 
-// Standard mock data
+// Standard mock data — uses MultiEngineResults shape (returned by scanUrl)
 const mockAxeResults = {
   violations: [],
   passes: [],
   incomplete: [],
   inapplicable: [],
-  testEngine: { name: 'axe-core', version: '4.10.0' },
+  engineVersions: { 'axe-core': '4.10.0' },
 };
 
 const mockScanResults = {
@@ -60,6 +60,7 @@ const mockScanResults = {
     principleScores: {},
     impactBreakdown: {},
     totalViolations: 0,
+    totalElementViolations: 0,
     totalPasses: 0,
     totalIncomplete: 0,
     aodaCompliant: true,

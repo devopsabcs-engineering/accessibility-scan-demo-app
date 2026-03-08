@@ -4,6 +4,7 @@ export interface ScoreResult {
   principleScores: PrincipleScores;
   impactBreakdown: ImpactBreakdown;
   totalViolations: number;
+  totalElementViolations: number;
   totalPasses: number;
   totalIncomplete: number;
   aodaCompliant: boolean;

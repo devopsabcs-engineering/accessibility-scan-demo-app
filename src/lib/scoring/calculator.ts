@@ -80,12 +80,15 @@ export function calculateScore(
     robust: computePrincipleScore(principleData.robust),
   };
 
+  const totalElementViolations = violations.reduce((sum, v) => sum + v.nodes.length, 0);
+
   return {
     overallScore,
     grade: getGrade(overallScore),
     principleScores,
     impactBreakdown,
     totalViolations: violations.length,
+    totalElementViolations,
     totalPasses: passes.length,
     totalIncomplete: incompleteCount,
     aodaCompliant: violations.length === 0,

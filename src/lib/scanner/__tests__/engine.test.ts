@@ -1,15 +1,30 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 const mocks = vi.hoisted(() => {
+  const mockAnalyze = vi.fn().mockResolvedValue({
+    violations: [],
+    passes: [],
+    incomplete: [],
+    inapplicable: [],
+    testEngine: { name: 'axe-core', version: '4.10.0' },
+  });
+  const mockWithTags = vi.fn();
+
+  const builderInstance = {
+    withTags: mockWithTags,
+    analyze: mockAnalyze,
+  };
+
+  // withTags returns the builder for chaining
+  mockWithTags.mockReturnValue(builderInstance);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const MockAxeBuilder = vi.fn().mockImplementation(function (_opts: unknown) {
+    return builderInstance;
+  });
+
   const mockPage = {
     goto: vi.fn().mockResolvedValue(undefined),
-    evaluate: vi.fn().mockResolvedValue({
-      violations: [],
-      passes: [],
-      incomplete: [],
-      inapplicable: [],
-      testEngine: { name: 'axe-core', version: '4.10.0' },
-    }),
     waitForLoadState: vi.fn().mockResolvedValue(undefined),
   };
   const mockContext = {
@@ -21,15 +36,21 @@ const mocks = vi.hoisted(() => {
     close: vi.fn().mockResolvedValue(undefined),
   };
 
+  const mockGetCompliance = vi.fn().mockResolvedValue({
+    report: { results: [] },
+  });
+
   return {
+    MockAxeBuilder,
+    mockWithTags,
+    mockAnalyze,
     mockPage,
     mockContext,
     mockBrowser,
+    mockGetCompliance,
     chromium: {
       launch: vi.fn().mockResolvedValue(mockBrowser),
     },
-    readFileSync: vi.fn().mockReturnValue('mock-axe-source'),
-    resolve: vi.fn().mockReturnValue('/mock/path/axe.min.js'),
   };
 });
 
@@ -37,15 +58,15 @@ vi.mock('playwright', () => ({
   chromium: mocks.chromium,
 }));
 
-vi.mock('fs', () => ({
-  readFileSync: mocks.readFileSync,
+vi.mock('@axe-core/playwright', () => ({
+  default: mocks.MockAxeBuilder,
 }));
 
-vi.mock('path', () => ({
-  resolve: mocks.resolve,
+vi.mock('accessibility-checker', () => ({
+  getCompliance: mocks.mockGetCompliance,
 }));
 
-import { scanPage, scanUrl } from '../engine';
+import { scanPage, scanUrl, multiEngineScan } from '../engine';
 
 describe('engine', () => {
   beforeEach(() => {
@@ -54,7 +75,7 @@ describe('engine', () => {
     mocks.mockBrowser.newContext.mockResolvedValue(mocks.mockContext);
     mocks.mockContext.newPage.mockResolvedValue(mocks.mockPage);
     mocks.mockPage.goto.mockResolvedValue(undefined);
-    mocks.mockPage.evaluate.mockResolvedValue({
+    mocks.mockAnalyze.mockResolvedValue({
       violations: [],
       passes: [],
       incomplete: [],
@@ -63,32 +84,23 @@ describe('engine', () => {
     });
   });
 
-  describe('module-level initialization', () => {
-    it('fs mock is configured to return axe source', () => {
-      // fs.readFileSync is called at import time; verify mock returns expected value
-      expect(mocks.readFileSync('any-path', 'utf-8')).toBe('mock-axe-source');
-    });
-
-    it('path.resolve mock is configured', () => {
-      expect(mocks.resolve('a', 'b')).toBe('/mock/path/axe.min.js');
-    });
-  });
-
   describe('scanPage', () => {
-    it('injects axe-core and runs analysis on the page', async () => {
+    it('constructs AxeBuilder with the page and runs analysis', async () => {
       const expectedResults = {
         violations: [{ id: 'color-contrast', impact: 'serious' }],
         passes: [{ id: 'html-has-lang' }],
         incomplete: [],
         inapplicable: [],
       };
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined) // axe injection
-        .mockResolvedValueOnce(expectedResults); // axe.run
+      mocks.mockAnalyze.mockResolvedValueOnce(expectedResults);
 
       const results = await scanPage(mocks.mockPage as never);
 
-      expect(mocks.mockPage.evaluate).toHaveBeenCalledTimes(2);
+      expect(mocks.MockAxeBuilder).toHaveBeenCalledWith({ page: mocks.mockPage });
+      expect(mocks.mockWithTags).toHaveBeenCalledWith(
+        ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'],
+      );
+      expect(mocks.mockAnalyze).toHaveBeenCalled();
       expect(results).toEqual(expectedResults);
     });
 
@@ -99,22 +111,23 @@ describe('engine', () => {
         incomplete: [],
         inapplicable: [],
       };
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce(emptyResults);
+      mocks.mockAnalyze.mockResolvedValueOnce(emptyResults);
 
       const results = await scanPage(mocks.mockPage as never);
 
       expect(results.violations).toHaveLength(0);
     });
+
+    it('includes best-practice in the tags array', async () => {
+      await scanPage(mocks.mockPage as never);
+
+      const tagsArg = mocks.mockWithTags.mock.calls[0][0] as string[];
+      expect(tagsArg).toContain('best-practice');
+    });
   });
 
   describe('scanUrl', () => {
     it('launches browser, navigates, scans, and closes browser', async () => {
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({ violations: [], passes: [], incomplete: [], inapplicable: [] });
-
       await scanUrl('https://example.com');
 
       expect(mocks.chromium.launch).toHaveBeenCalledWith(
@@ -128,9 +141,6 @@ describe('engine', () => {
 
     it('calls onProgress callback at each stage', async () => {
       const onProgress = vi.fn();
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({ violations: [], passes: [], incomplete: [], inapplicable: [] });
 
       await scanUrl('https://example.com', onProgress);
 
@@ -142,9 +152,6 @@ describe('engine', () => {
     it('handles navigation timeout by falling back to domcontentloaded', async () => {
       const timeoutError = new Error('Timeout 30000ms exceeded');
       mocks.mockPage.goto.mockRejectedValueOnce(timeoutError);
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({ violations: [], passes: [], incomplete: [], inapplicable: [] });
 
       await scanUrl('https://slow-site.com');
 
@@ -162,27 +169,91 @@ describe('engine', () => {
     });
 
     it('closes browser even when scan throws', async () => {
-      mocks.mockPage.evaluate.mockRejectedValueOnce(new Error('axe eval failed'));
+      mocks.mockAnalyze.mockRejectedValueOnce(new Error('axe eval failed'));
 
       await expect(scanUrl('https://example.com')).rejects.toThrow('axe eval failed');
 
       expect(mocks.mockBrowser.close).toHaveBeenCalled();
     });
 
-    it('returns axe results on successful scan', async () => {
-      const expectedResults = {
-        violations: [{ id: 'image-alt' }],
+    it('returns multi-engine results on successful scan', async () => {
+      const axeData = {
+        violations: [{ id: 'image-alt', impact: 'serious', tags: ['wcag2a'], description: 'Alt', help: 'Alt', helpUrl: '', nodes: [{ html: '<img>', target: ['img'], impact: 'serious', any: [], all: [], none: [] }] }],
         passes: [],
         incomplete: [],
         inapplicable: [],
+        testEngine: { name: 'axe-core', version: '4.10.0' },
       };
-      mocks.mockPage.evaluate
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce(expectedResults);
+      mocks.mockAnalyze.mockResolvedValueOnce(axeData);
 
       const results = await scanUrl('https://example.com');
 
-      expect(results).toEqual(expectedResults);
+      // scanUrl now returns MultiEngineResults
+      expect(results).toHaveProperty('engineVersions');
+      expect(results.violations.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('multiEngineScan', () => {
+    it('runs both axe-core and IBM scans in parallel', async () => {
+      const axeData = {
+        violations: [],
+        passes: [],
+        incomplete: [],
+        inapplicable: [],
+        testEngine: { name: 'axe-core', version: '4.10.0' },
+      };
+      mocks.mockAnalyze.mockResolvedValueOnce(axeData);
+      mocks.mockGetCompliance.mockResolvedValueOnce({
+        report: {
+          results: [{
+            ruleId: 'img_alt_valid',
+            value: ['VIOLATION', 'FAIL'],
+            path: { dom: 'img.test' },
+            message: 'Missing alt',
+            snippet: '<img>',
+            level: 'violation',
+          }],
+        },
+      });
+
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+
+      expect(results.engineVersions['axe-core']).toBe('4.10.0');
+      expect(results.engineVersions['ibm-equal-access']).toBe('latest');
+      expect(results.violations).toHaveLength(1);
+      expect(results.violations[0].engine).toBe('ibm-equal-access');
+    });
+
+    it('gracefully degrades when IBM scan fails', async () => {
+      const axeData = {
+        violations: [{ id: 'color-contrast', impact: 'serious', tags: ['wcag2aa'], description: 'Contrast', help: 'Contrast', helpUrl: '', nodes: [{ html: '<p>', target: ['p'], impact: 'serious', any: [], all: [], none: [] }] }],
+        passes: [],
+        incomplete: [],
+        inapplicable: [],
+        testEngine: { name: 'axe-core', version: '4.10.0' },
+      };
+      mocks.mockAnalyze.mockResolvedValueOnce(axeData);
+      mocks.mockGetCompliance.mockRejectedValueOnce(new Error('IBM engine failure'));
+
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+
+      // Should still return axe results even though IBM failed
+      expect(results.violations).toHaveLength(1);
+      expect(results.violations[0].id).toBe('color-contrast');
+      expect(results.engineVersions['axe-core']).toBe('4.10.0');
+    });
+
+    it('returns MultiEngineResults format with engineVersions', async () => {
+      mocks.mockGetCompliance.mockResolvedValueOnce({ report: { results: [] } });
+
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+
+      expect(results).toHaveProperty('engineVersions');
+      expect(results).toHaveProperty('violations');
+      expect(results).toHaveProperty('passes');
+      expect(results).toHaveProperty('incomplete');
+      expect(results).toHaveProperty('inapplicable');
     });
   });
 });

@@ -68,6 +68,7 @@ const mockScanRecord = {
       principleScores: {},
       impactBreakdown: {},
       totalViolations: 0,
+      totalElementViolations: 0,
       totalPasses: 10,
       totalIncomplete: 0,
       aodaCompliant: true,

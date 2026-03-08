@@ -226,3 +226,82 @@ describe('parseAxeResults', () => {
     expect(result.violations[0].nodes[0].target).toEqual(['#main', '.content', 'li']);
   });
 });
+
+describe('parseAxeResults with MultiEngineResults', () => {
+  it('parses MultiEngineResults and includes all engine versions in engineVersion string', () => {
+    const multiResults = {
+      violations: [{
+        id: 'image-alt',
+        impact: 'critical' as const,
+        tags: ['wcag2a', 'wcag111'],
+        description: 'Images must have alt text',
+        help: 'Ensure images have alt text',
+        helpUrl: 'https://able.ibm.com/rules/tools/help/img_alt_valid',
+        nodes: [{
+          html: '<img src="photo.jpg">',
+          target: ['img'],
+          impact: 'critical',
+          failureSummary: 'No alt text',
+        }],
+        principle: 'perceivable',
+        engine: 'ibm-equal-access' as const,
+      }],
+      passes: [],
+      incomplete: [],
+      inapplicable: [],
+      engineVersions: { 'axe-core': '4.10.0', 'ibm-equal-access': 'latest' },
+    };
+
+    const result = parseAxeResults('https://example.com', multiResults);
+    expect(result.engineVersion).toContain('axe-core 4.10.0');
+    expect(result.engineVersion).toContain('ibm-equal-access latest');
+    expect(result.violations).toHaveLength(1);
+    expect(result.violations[0].id).toBe('image-alt');
+  });
+
+  it('sets principle from violation when already present', () => {
+    const multiResults = {
+      violations: [{
+        id: 'color-contrast',
+        impact: 'serious' as const,
+        tags: ['wcag2aa', 'wcag143'],
+        description: 'Contrast',
+        help: 'Contrast',
+        helpUrl: '',
+        nodes: [],
+        principle: 'perceivable',
+        engine: 'axe-core' as const,
+      }],
+      passes: [],
+      incomplete: [],
+      inapplicable: [],
+      engineVersions: { 'axe-core': '4.10.0' },
+    };
+
+    const result = parseAxeResults('https://example.com', multiResults);
+    expect(result.violations[0].principle).toBe('perceivable');
+  });
+
+  it('computes score from multi-engine violations', () => {
+    const multiResults = {
+      violations: [{
+        id: 'image-alt',
+        impact: 'critical' as const,
+        tags: ['wcag2a'],
+        description: 'Alt',
+        help: 'Alt',
+        helpUrl: '',
+        nodes: [{ html: '<img>', target: ['img'], impact: 'critical', failureSummary: '' }],
+        engine: 'ibm-equal-access' as const,
+      }],
+      passes: [],
+      incomplete: [],
+      inapplicable: [],
+      engineVersions: { 'axe-core': '4.10.0', 'ibm-equal-access': 'latest' },
+    };
+
+    const result = parseAxeResults('https://example.com', multiResults);
+    expect(result.score).toBeDefined();
+    expect(result.score.totalViolations).toBe(1);
+  });
+});

@@ -1,9 +1,46 @@
-import type { ScanResults, AxeViolation, AxePass, AxeIncomplete, AxeInapplicable } from '../types/scan';
+import type { ScanResults, AxeViolation, AxePass, AxeIncomplete, AxeInapplicable, MultiEngineResults } from '../types/scan';
 import type { AxeResults } from 'axe-core';
 import { mapTagToPrinciple } from '../scoring/wcag-mapper';
 import { calculateScore } from '../scoring/calculator';
 
-export function parseAxeResults(url: string, raw: AxeResults): ScanResults {
+function isMultiEngineResults(raw: AxeResults | MultiEngineResults): raw is MultiEngineResults {
+  return 'engineVersions' in raw;
+}
+
+export function parseAxeResults(url: string, raw: AxeResults | MultiEngineResults): ScanResults {
+  if (isMultiEngineResults(raw)) {
+    return parseMultiEngineResults(url, raw);
+  }
+
+  return parseSingleEngineResults(url, raw);
+}
+
+function parseMultiEngineResults(url: string, raw: MultiEngineResults): ScanResults {
+  // Violations are already in NormalizedViolation format with principle set
+  const violations: AxeViolation[] = raw.violations.map(v => ({
+    ...v,
+    principle: v.principle ?? mapTagToPrinciple(v.tags),
+  }));
+
+  const score = calculateScore(violations, raw.passes, raw.incomplete.length);
+
+  const engineVersionStr = Object.entries(raw.engineVersions)
+    .map(([name, version]) => `${name} ${version}`)
+    .join(', ');
+
+  return {
+    url,
+    timestamp: new Date().toISOString(),
+    engineVersion: engineVersionStr,
+    violations,
+    passes: raw.passes,
+    incomplete: raw.incomplete,
+    inapplicable: raw.inapplicable,
+    score,
+  };
+}
+
+function parseSingleEngineResults(url: string, raw: AxeResults): ScanResults {
   const violations: AxeViolation[] = raw.violations.map(v => ({
     id: v.id,
     impact: (v.impact as AxeViolation['impact']) || 'minor',

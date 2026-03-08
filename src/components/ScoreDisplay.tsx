@@ -59,6 +59,7 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
         <div>
           <div className="text-2xl font-bold text-red-500">{score.totalViolations}</div>
           <div className="text-gray-500">Violations</div>
+          <div className="text-sm text-gray-400">({score.totalElementViolations} elements)</div>
         </div>
         <div>
           <div className="text-2xl font-bold text-green-500">{score.totalPasses}</div>

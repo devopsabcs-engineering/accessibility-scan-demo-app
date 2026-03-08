@@ -38,6 +38,19 @@ export interface AxeViolation {
   helpUrl: string;
   nodes: AxeNode[];
   principle?: string;
+  engine?: 'axe-core' | 'ibm-equal-access' | 'custom';
+}
+
+export interface NormalizedViolation extends AxeViolation {
+  engine: 'axe-core' | 'ibm-equal-access' | 'custom';
+}
+
+export interface MultiEngineResults {
+  violations: NormalizedViolation[];
+  passes: AxePass[];
+  incomplete: AxeIncomplete[];
+  inapplicable: AxeInapplicable[];
+  engineVersions: Record<string, string>;
 }
 
 export interface AxeNode {

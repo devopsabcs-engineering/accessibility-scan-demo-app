@@ -56,85 +56,85 @@ Refactor the accessibility scanner engine to close a massive detection gap (1 vi
 
 ## Implementation Checklist
 
-### [ ] Implementation Phase 1: AxeBuilder Migration + Best-Practice Rules
+### [x] Implementation Phase 1: AxeBuilder Migration + Best-Practice Rules
 
 <!-- parallelizable: false -->
 
-* [ ] Step 1.1: Refactor `engine.ts` to use `@axe-core/playwright` AxeBuilder
+* [x] Step 1.1: Refactor `engine.ts` to use `@axe-core/playwright` AxeBuilder
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 13-56)
-* [ ] Step 1.2: Rewrite `engine.test.ts` to mock AxeBuilder instead of `page.evaluate()`
+* [x] Step 1.2: Rewrite `engine.test.ts` to mock AxeBuilder instead of `page.evaluate()`
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 58-103)
-* [ ] Step 1.3: Validate phase changes
+* [x] Step 1.3: Validate phase changes
   * Run `npm run lint` and `npm run test` for scanner module
   * Run `npm run build` to verify TypeScript compilation
 
-### [ ] Implementation Phase 2: IBM Equal Access Integration
+### [x] Implementation Phase 2: IBM Equal Access Integration
 
 <!-- parallelizable: false -->
 
-* [ ] Step 2.1: Install `accessibility-checker` and create `.achecker.yml` configuration
+* [x] Step 2.1: Install `accessibility-checker` and create `.achecker.yml` configuration
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 107-141)
-* [ ] Step 2.2: Verify IBM `aChecker.getCompliance()` iframe scanning behavior
+* [x] Step 2.2: Verify IBM `aChecker.getCompliance()` iframe scanning behavior
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 211-251)
   * **Must complete before Step 2.4** — determines whether IBM needs iframe-specific handling (DR-05)
-* [ ] Step 2.3: Create `result-normalizer.ts` for multi-engine result merging and deduplication
+* [x] Step 2.3: Create `result-normalizer.ts` for multi-engine result merging and deduplication
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 253-312)
-* [ ] Step 2.4: Add IBM scanning function to `engine.ts` and integrate multi-engine pipeline
+* [x] Step 2.4: Add IBM scanning function to `engine.ts` and integrate multi-engine pipeline
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 314-365)
-* [ ] Step 2.5: Update `result-parser.ts` to handle unified multi-engine results
+* [x] Step 2.5: Update `result-parser.ts` to handle unified multi-engine results
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 367-391)
-* [ ] Step 2.6: Add tests for IBM integration and result normalization
+* [x] Step 2.6: Add tests for IBM integration and result normalization
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 393-425)
-* [ ] Step 2.7: Update downstream `scanUrl()` callers for `MultiEngineResults` type
+* [x] Step 2.7: Update downstream `scanUrl()` callers for `MultiEngineResults` type
   * Affected files: `src/app/api/scan/route.ts`, `src/app/api/ci/scan/route.ts`, `src/cli/commands/scan.ts`, `src/cli/__tests__/scan.test.ts` (DD-04)
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 427-460)
-* [ ] Step 2.8: Validate phase changes
+* [x] Step 2.8: Validate phase changes
   * Run `npm run lint`, `npm run test`, and `npm run build`
 
-### [ ] Implementation Phase 3: Custom Playwright Checks
+### [x] Implementation Phase 3: Custom Playwright Checks
 
 <!-- parallelizable: false -->
 
-* [ ] Step 3.1: Create `custom-checks.ts` framework and implement 5 DOM/CSS checks
+* [x] Step 3.1: Create `custom-checks.ts` framework and implement 5 DOM/CSS checks
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 324-412)
-* [ ] Step 3.2: Integrate custom checks into multi-engine pipeline in `engine.ts`
+* [x] Step 3.2: Integrate custom checks into multi-engine pipeline in `engine.ts`
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 414-440)
-* [ ] Step 3.3: Add tests for custom checks
+* [x] Step 3.3: Add tests for custom checks
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 442-480)
-* [ ] Step 3.4: Validate phase changes
+* [x] Step 3.4: Validate phase changes
   * Run `npm run lint`, `npm run test`, and `npm run build`
 
-### [ ] Implementation Phase 4: Element-Level Counting and Reporting Parity
+### [x] Implementation Phase 4: Element-Level Counting and Reporting Parity
 
 <!-- parallelizable: false -->
 
-* [ ] Step 4.1: Add `elementViolationCount` to `ScoreResult` type and update calculator
+* [x] Step 4.1: Add `elementViolationCount` to `ScoreResult` type and update calculator
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 484-520)
-* [ ] Step 4.2: Update `result-parser.ts` to include element-level summary
+* [x] Step 4.2: Update `result-parser.ts` to include element-level summary
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 522-545)
-* [ ] Step 4.3: Update UI components to display both rule-level and element-level counts
+* [x] Step 4.3: Update UI components to display both rule-level and element-level counts
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 547-575)
-* [ ] Step 4.4: Update report generators (PDF, SARIF) for element-level counts
+* [x] Step 4.4: Update report generators (PDF, SARIF) for element-level counts
   * Details: .copilot-tracking/details/2026-03-07/scanner-gap-analysis-details.md (Lines 577-600)
-* [ ] Step 4.5: Validate phase changes
+* [x] Step 4.5: Validate phase changes
   * Run `npm run lint`, `npm run test`, and `npm run build`
 
-### [ ] Implementation Phase 5: Final Validation
+### [x] Implementation Phase 5: Final Validation
 
 <!-- parallelizable: false -->
 
-* [ ] Step 5.1: Run full project validation
+* [x] Step 5.1: Run full project validation
   * Execute `npm run lint`
   * Execute `npm run build`
   * Execute `npm run test` (full test suite)
-* [ ] Step 5.2: Fix minor validation issues
+* [x] Step 5.2: Fix minor validation issues
   * Iterate on lint errors and build warnings
   * Apply fixes directly when corrections are straightforward
 * [ ] Step 5.3: Manual integration test on CodePen bad page
   * Scan `https://codepen.io/leezee/pen/eYbXzpJ` and verify violation count increase
   * Compare findings against commercial tool categories from research
   * Document detection coverage improvement
-* [ ] Step 5.4: Report blocking issues
+* [x] Step 5.4: Report blocking issues
   * Document issues requiring additional research
   * Provide user with next steps and recommended planning
   * Avoid large-scale fixes within this phase

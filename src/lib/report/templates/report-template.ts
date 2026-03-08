@@ -99,7 +99,7 @@ export function generateReportHtml(data: ReportData): string {
       </span>
     </div>
     <div style="display:flex;justify-content:center;gap:40px;margin-top:16px;">
-      <div><strong style="color:#ef4444;font-size:24px;">${data.score.totalViolations}</strong><br><span style="font-size:12px;color:#6b7280;">Violations</span></div>
+      <div><strong style="color:#ef4444;font-size:24px;">${data.score.totalViolations}</strong><br><span style="font-size:12px;color:#6b7280;">Violations</span><br><span style="font-size:11px;color:#9ca3af;">(${data.score.totalElementViolations} elements)</span></div>
       <div><strong style="color:#22c55e;font-size:24px;">${data.score.totalPasses}</strong><br><span style="font-size:12px;color:#6b7280;">Passed</span></div>
       <div><strong style="color:#eab308;font-size:24px;">${data.score.totalIncomplete}</strong><br><span style="font-size:12px;color:#6b7280;">Needs Review</span></div>
     </div>

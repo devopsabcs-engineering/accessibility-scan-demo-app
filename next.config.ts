@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     "@crawlee/utils",
     "@crawlee/types",
     "@crawlee/memory-storage",
+    "accessibility-checker",
   ],
 };
 

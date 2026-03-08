@@ -32,6 +32,7 @@ function makeScanResults(violations: AxeViolation[]): ScanResults {
       minor: { passed: 10, failed: 0 },
     },
     totalViolations: violations.length,
+    totalElementViolations: 0,
     totalPasses: 10,
     totalIncomplete: 0,
     aodaCompliant: violations.length === 0,

@@ -32,6 +32,7 @@ describe('calculateScore', () => {
     expect(result.grade).toBe('A');
     expect(result.aodaCompliant).toBe(true);
     expect(result.totalViolations).toBe(0);
+    expect(result.totalElementViolations).toBe(0);
     expect(result.totalPasses).toBe(0);
   });
 
@@ -138,5 +139,32 @@ describe('calculateScore', () => {
   it('records incompleteCount in result', () => {
     const result = calculateScore([], [], 5);
     expect(result.totalIncomplete).toBe(5);
+  });
+
+  it('counts totalElementViolations as sum of nodes across violations', () => {
+    const violations = [
+      makeViolation({
+        id: 'v1',
+        impact: 'serious',
+        tags: ['wcag111'],
+        nodes: [
+          { html: '<span>a</span>', target: ['span.a'], impact: 'serious' },
+          { html: '<span>b</span>', target: ['span.b'], impact: 'serious' },
+          { html: '<span>c</span>', target: ['span.c'], impact: 'serious' },
+        ],
+      }),
+      makeViolation({
+        id: 'v2',
+        impact: 'minor',
+        tags: ['wcag211'],
+        nodes: [
+          { html: '<div>x</div>', target: ['div.x'], impact: 'minor' },
+          { html: '<div>y</div>', target: ['div.y'], impact: 'minor' },
+        ],
+      }),
+    ];
+    const result = calculateScore(violations, [], 0);
+    expect(result.totalViolations).toBe(2);
+    expect(result.totalElementViolations).toBe(5);
   });
 });

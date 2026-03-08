@@ -86,6 +86,7 @@ function makeScanRecord(id: string, url: string) {
           minor: { passed: 0, failed: 0 },
         },
         totalViolations: 0,
+        totalElementViolations: 0,
         totalPasses: 0,
         totalIncomplete: 0,
         aodaCompliant: true,
