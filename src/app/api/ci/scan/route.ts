@@ -6,6 +6,9 @@ import { formatSarif } from '@/lib/ci/formatters/sarif';
 import { formatJunit } from '@/lib/ci/formatters/junit';
 import type { CiScanRequest, CiResult, CiViolationSummary } from '@/lib/types/crawl';
 import { trackScanStart, trackScanComplete, trackScanError } from '@/lib/telemetry';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('api:ci:scan');
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -59,6 +62,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid URL. Only public HTTP/HTTPS URLs are allowed.' }, { status: 400 });
   }
 
+  log.info('CI scan requested', { url: url.trim(), format: body.format ?? 'json' });
   const startTime = Date.now();
   const span = trackScanStart('ci-scan', url.trim());
   try {

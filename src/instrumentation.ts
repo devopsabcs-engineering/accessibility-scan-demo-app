@@ -7,6 +7,9 @@ export async function register() {
       useAzureMonitor({
         azureMonitorExporterOptions: { connectionString },
       });
+      console.log('[instrumentation] Azure Monitor OpenTelemetry initialized');
+    } else {
+      console.log('[instrumentation] APPLICATIONINSIGHTS_CONNECTION_STRING not set — telemetry export disabled');
     }
   }
 }

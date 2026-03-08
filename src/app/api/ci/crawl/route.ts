@@ -9,6 +9,9 @@ import { generateSiteSarif } from '@/lib/report/sarif-generator';
 import type { CiCrawlRequest, CiResult, CiViolationSummary, CrawlConfig } from '@/lib/types/crawl';
 import type { ScanRecord } from '@/lib/types/scan';
 import { trackCrawlStart, trackCrawlComplete, trackCrawlError } from '@/lib/telemetry';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('api:ci:crawl');
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -77,6 +80,7 @@ export async function POST(request: NextRequest) {
   };
 
   const crawlId = uuidv4();
+  log.info('CI crawl requested', { crawlId, url: url.trim(), maxPages: config.maxPages, format: body.format ?? 'json' });
   createCrawl(crawlId, url.trim(), config);
 
   const startTime = Date.now();
