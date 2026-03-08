@@ -24,11 +24,11 @@ if ($Mode -eq 'docker') {
     $procs = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue |
         Select-Object -ExpandProperty OwningProcess -Unique
     if ($procs) {
-        foreach ($pid in $procs) {
-            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+        foreach ($procId in $procs) {
+            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
             if ($proc) {
-                Write-Host "Stopping process '$($proc.ProcessName)' (PID $pid) on port 3000..."
-                Stop-Process -Id $pid -Force
+                Write-Host "Stopping process '$($proc.ProcessName)' (PID $procId) on port 3000..."
+                Stop-Process -Id $procId -Force
             }
         }
         Write-Host "Local dev server stopped."
