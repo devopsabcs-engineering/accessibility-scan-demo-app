@@ -1,22 +1,33 @@
-import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+import { chromium, type BrowserContext, type Page } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
-import axe from 'axe-core';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
 import { getCompliance } from 'accessibility-checker';
 import type { MultiEngineResults } from '../types/scan';
 import { normalizeAndMerge, type IbmReportResult } from './result-normalizer';
 import { runCustomChecks } from './custom-checks';
 
-// Wrap axe-core source so the CommonJS `module` variable is safely neutralised
-// in browser contexts. Some sites define a global `module` (AMD loaders, etc.)
-// which causes axe's `_typeof(module)` / `module.exports` check to throw.
-const safeAxeSource = `(function(module, exports){${axe.source}})(undefined, undefined);`;
+// Lazily read the raw axe-core source from disk on first use.
+// We cannot use axe.source because webpack/turbopack mangles the bundled
+// axeFunction.toString(), producing a broken single-line script.
+// We also cannot use require.resolve at module scope because Next.js
+// evaluates it at build time where it returns a webpack module ID (number).
+let _safeAxeSource: string | null = null;
+function getSafeAxeSource(): string {
+  if (!_safeAxeSource) {
+    const axeCorePath = join(dirname(require.resolve('axe-core')), 'axe.min.js');
+    const rawAxeSource = readFileSync(axeCorePath, 'utf-8');
+    _safeAxeSource = `(function(module, exports){${rawAxeSource}})(undefined, undefined);`;
+  }
+  return _safeAxeSource;
+}
 
 /**
  * Scan an already-navigated Playwright Page with axe-core only.
  * Used by the crawler where the crawler manages browser lifecycle and speed matters.
  */
 export async function scanPage(page: Page): Promise<import('axe-core').AxeResults> {
-  return new AxeBuilder({ page, axeSource: safeAxeSource })
+  return new AxeBuilder({ page, axeSource: getSafeAxeSource() })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
     .analyze();
 }

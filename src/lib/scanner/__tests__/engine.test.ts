@@ -76,9 +76,10 @@ vi.mock('@axe-core/playwright', () => ({
   default: mocks.MockAxeBuilder,
 }));
 
-vi.mock('axe-core', () => ({
-  default: { source: 'function axe(){}' },
-}));
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs')>();
+  return { ...actual, readFileSync: vi.fn().mockReturnValue('function axe(){}') };
+});
 
 vi.mock('accessibility-checker', () => ({
   getCompliance: mocks.mockGetCompliance,
