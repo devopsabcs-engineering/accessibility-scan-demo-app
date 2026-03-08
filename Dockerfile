@@ -21,7 +21,10 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_OPTIONS="--max-old-space-size=1024"
 
-# Install Playwright system dependencies and Chromium
+# Install procps (provides 'ps' command needed by Crawlee memory monitoring)
+# and Playwright system dependencies with Chromium
+RUN apt-get update && apt-get install -y --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
 RUN npx playwright install --with-deps chromium
 
 # Install Puppeteer's Chrome for PDF generation
@@ -32,19 +35,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Copy axe-core so the scanner can read it at runtime
-COPY --from=deps /app/node_modules/axe-core ./node_modules/axe-core
-
-# Copy crawlee and related modules for site crawling
-COPY --from=deps /app/node_modules/crawlee ./node_modules/crawlee
-COPY --from=deps /app/node_modules/@crawlee ./node_modules/@crawlee
-COPY --from=deps /app/node_modules/sitemapper ./node_modules/sitemapper
-COPY --from=deps /app/node_modules/robots-parser ./node_modules/robots-parser
-COPY --from=deps /app/node_modules/commander ./node_modules/commander
-
-# Copy Azure Monitor OpenTelemetry for Application Insights
-COPY --from=deps /app/node_modules/@azure ./node_modules/@azure
-COPY --from=deps /app/node_modules/@opentelemetry ./node_modules/@opentelemetry
+# Copy all node_modules from deps to ensure serverExternalPackages
+# (crawlee, @azure/monitor-opentelemetry, etc.) have all transitive dependencies
+COPY --from=deps /app/node_modules ./node_modules
 
 EXPOSE 3000
 
