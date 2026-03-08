@@ -45,8 +45,8 @@ export default function ViolationList({ violations }: ViolationListProps) {
               <span className="text-sm text-gray-600">{items.length} issue{items.length !== 1 ? 's' : ''}</span>
             </summary>
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {items.map((v) => (
-                <ViolationItem key={v.id} violation={v} />
+              {items.map((v, i) => (
+                <ViolationItem key={`${v.id}-${i}`} violation={v} />
               ))}
             </div>
           </details>
