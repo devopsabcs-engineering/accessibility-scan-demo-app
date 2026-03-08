@@ -72,11 +72,17 @@ describe('generateSarif', () => {
     expect(sarif.runs[0].tool.driver.rules).toHaveLength(0);
   });
 
-  it('includes location with artifact URI', () => {
+  it('includes location with file-relative artifact URI', () => {
     const violations = [makeViolation()];
     const sarif = generateSarif('https://example.com', violations, '1.0.0');
     const location = sarif.runs[0].results[0].locations[0];
-    expect(location.physicalLocation.artifactLocation.uri).toBe('https://example.com');
+    expect(location.physicalLocation.artifactLocation.uri).toBe('example.com/index');
+  });
+
+  it('includes scanned URL in result message', () => {
+    const violations = [makeViolation()];
+    const sarif = generateSarif('https://example.com/page', violations, '1.0.0');
+    expect(sarif.runs[0].results[0].message.text).toContain('https://example.com/page');
   });
 });
 
