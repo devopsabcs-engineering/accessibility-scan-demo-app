@@ -8,6 +8,7 @@ import { formatJunit } from '@/lib/ci/formatters/junit';
 import { generateSiteSarif } from '@/lib/report/sarif-generator';
 import type { CiCrawlRequest, CiResult, CiViolationSummary, CrawlConfig } from '@/lib/types/crawl';
 import type { ScanRecord } from '@/lib/types/scan';
+import { trackCrawlStart, trackCrawlComplete, trackCrawlError } from '@/lib/telemetry';
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -78,6 +79,8 @@ export async function POST(request: NextRequest) {
   const crawlId = uuidv4();
   createCrawl(crawlId, url.trim(), config);
 
+  const startTime = Date.now();
+  const span = trackCrawlStart(crawlId, url.trim());
   try {
     // Synchronous crawl — blocks until complete, with timeout
     await Promise.race([
@@ -133,6 +136,8 @@ export async function POST(request: NextRequest) {
     // Format response
     const format = body.format ?? 'json';
 
+    trackCrawlComplete(span, crawlId, url.trim(), Date.now() - startTime, pageRecords.length, crawl.failedPageCount);
+
     if (format === 'sarif') {
       const pages = pageRecords
         .filter((r) => r.results != null)
@@ -154,6 +159,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ciResult);
   } catch (error) {
+    trackCrawlError(span, crawlId, url.trim(), error instanceof Error ? error.message : 'Crawl failed');
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Crawl failed' },
       { status: 500 }

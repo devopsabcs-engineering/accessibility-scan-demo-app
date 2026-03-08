@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createScan, updateScan } from '@/lib/scanner/store';
 import { scanUrl } from '@/lib/scanner/engine';
 import { parseAxeResults } from '@/lib/scanner/result-parser';
+import { trackScanStart, trackScanComplete, trackScanError } from '@/lib/telemetry';
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -66,6 +67,8 @@ export async function POST(request: NextRequest) {
 }
 
 async function runScan(scanId: string, url: string) {
+  const startTime = Date.now();
+  const span = trackScanStart(scanId, url);
   try {
     updateScan(scanId, { status: 'navigating', progress: 10, message: 'Navigating to page...' });
 
@@ -84,13 +87,17 @@ async function runScan(scanId: string, url: string) {
       completedAt: new Date().toISOString(),
       results,
     });
+
+    trackScanComplete(span, scanId, url, Date.now() - startTime, results.score.overallScore, results.violations.length);
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Scan failed';
     updateScan(scanId, {
       status: 'error',
       progress: 0,
-      message: error instanceof Error ? error.message : 'Scan failed',
+      message: errorMsg,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
+    trackScanError(span, scanId, url, errorMsg);
   }
 }
 

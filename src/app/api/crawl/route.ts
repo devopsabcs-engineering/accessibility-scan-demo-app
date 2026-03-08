@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { createCrawl } from '@/lib/scanner/store';
+import { createCrawl, getCrawl } from '@/lib/scanner/store';
 import { startCrawl } from '@/lib/crawler/site-crawler';
 import type { CrawlConfig, CrawlRequest } from '@/lib/types/crawl';
+import { trackCrawlStart, trackCrawlComplete, trackCrawlError } from '@/lib/telemetry';
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -96,7 +97,14 @@ export async function POST(request: NextRequest) {
   createCrawl(crawlId, url.trim(), config);
 
   // Start crawl asynchronously — do not await
-  startCrawl(crawlId, url.trim(), config);
+  const startTime = Date.now();
+  const span = trackCrawlStart(crawlId, url.trim());
+  startCrawl(crawlId, url.trim(), config).then(() => {
+    const crawl = getCrawl(crawlId);
+    trackCrawlComplete(span, crawlId, url.trim(), Date.now() - startTime, crawl?.completedPageCount ?? 0, crawl?.failedPageCount ?? 0);
+  }).catch((error) => {
+    trackCrawlError(span, crawlId, url.trim(), error instanceof Error ? error.message : 'Crawl failed');
+  });
 
   return NextResponse.json({ crawlId }, { status: 202 });
 }

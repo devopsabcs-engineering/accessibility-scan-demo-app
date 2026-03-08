@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
     "@crawlee/types",
     "@crawlee/memory-storage",
     "accessibility-checker",
+    "@azure/monitor-opentelemetry",
+    "@opentelemetry/api",
   ],
 };
 

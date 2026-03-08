@@ -5,6 +5,7 @@ import { evaluateThreshold, getDefaultThreshold } from '@/lib/ci/threshold';
 import { formatSarif } from '@/lib/ci/formatters/sarif';
 import { formatJunit } from '@/lib/ci/formatters/junit';
 import type { CiScanRequest, CiResult, CiViolationSummary } from '@/lib/types/crawl';
+import { trackScanStart, trackScanComplete, trackScanError } from '@/lib/telemetry';
 
 function isValidScanUrl(input: string): boolean {
   if (!input || typeof input !== 'string' || input.length > 2048) return false;
@@ -58,6 +59,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid URL. Only public HTTP/HTTPS URLs are allowed.' }, { status: 400 });
   }
 
+  const startTime = Date.now();
+  const span = trackScanStart('ci-scan', url.trim());
   try {
     // Synchronous scan — blocks until complete
     const rawResults = await scanUrl(url.trim());
@@ -94,6 +97,8 @@ export async function POST(request: NextRequest) {
     // Format response
     const format = body.format ?? 'json';
 
+    trackScanComplete(span, 'ci-scan', url.trim(), Date.now() - startTime, ciResult.score, ciResult.violationCount);
+
     if (format === 'sarif') {
       const sarifOutput = formatSarif(url.trim(), results.violations, results.engineVersion);
       return new NextResponse(sarifOutput, {
@@ -112,6 +117,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ciResult);
   } catch (error) {
+    trackScanError(span, 'ci-scan', url.trim(), error instanceof Error ? error.message : 'Scan failed');
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Scan failed' },
       { status: 500 }
