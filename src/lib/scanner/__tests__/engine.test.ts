@@ -76,6 +76,10 @@ vi.mock('@axe-core/playwright', () => ({
   default: mocks.MockAxeBuilder,
 }));
 
+vi.mock('axe-core', () => ({
+  default: { source: 'function axe(){}' },
+}));
+
 vi.mock('accessibility-checker', () => ({
   getCompliance: mocks.mockGetCompliance,
 }));
@@ -115,7 +119,7 @@ describe('engine', () => {
 
       const results = await scanPage(mocks.mockPage as never);
 
-      expect(mocks.MockAxeBuilder).toHaveBeenCalledWith({ page: mocks.mockPage });
+      expect(mocks.MockAxeBuilder).toHaveBeenCalledWith({ page: mocks.mockPage, axeSource: expect.any(String) });
       expect(mocks.mockWithTags).toHaveBeenCalledWith(
         ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'],
       );

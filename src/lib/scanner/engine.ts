@@ -1,16 +1,22 @@
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
+import axe from 'axe-core';
 import { getCompliance } from 'accessibility-checker';
 import type { MultiEngineResults } from '../types/scan';
 import { normalizeAndMerge, type IbmReportResult } from './result-normalizer';
 import { runCustomChecks } from './custom-checks';
+
+// Wrap axe-core source so the CommonJS `module` variable is safely neutralised
+// in browser contexts. Some sites define a global `module` (AMD loaders, etc.)
+// which causes axe's `_typeof(module)` / `module.exports` check to throw.
+const safeAxeSource = `(function(module, exports){${axe.source}})(undefined, undefined);`;
 
 /**
  * Scan an already-navigated Playwright Page with axe-core only.
  * Used by the crawler where the crawler manages browser lifecycle and speed matters.
  */
 export async function scanPage(page: Page): Promise<import('axe-core').AxeResults> {
-  return new AxeBuilder({ page })
+  return new AxeBuilder({ page, axeSource: safeAxeSource })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
     .analyze();
 }
