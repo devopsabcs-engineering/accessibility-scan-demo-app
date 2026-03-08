@@ -8,7 +8,7 @@ param location string = resourceGroup().location
 param imageTag string = 'latest'
 
 @description('App Service Plan SKU')
-param appServicePlanSku string = 'B1'
+param appServicePlanSku string = 'P1v3'
 
 var acrName = replace('${appName}acr', '-', '')
 var appServicePlanName = '${appName}-plan'
