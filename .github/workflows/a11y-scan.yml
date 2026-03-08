@@ -1,0 +1,59 @@
+name: Accessibility Scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Every Monday at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  SCANNER_BASE_URL: https://a11y-scan-demo-app.azurewebsites.net
+
+jobs:
+  scan:
+    name: Scan ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: codepen-sample
+            url: https://codepen.io/leezee/pen/eYbXzpJ
+          - name: a11y-scan-demo-app
+            url: https://a11y-scan-demo-app.azurewebsites.net/
+          - name: ontario-gov
+            url: https://www.ontario.ca/page/government-ontario
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run accessibility scan
+        run: |
+          mkdir -p results
+          HTTP_STATUS=$(curl -s -o results/${{ matrix.name }}.sarif -w "%{http_code}" \
+            -X POST "${{ env.SCANNER_BASE_URL }}/api/ci/scan" \
+            -H "Content-Type: application/json" \
+            -d '{"url": "${{ matrix.url }}", "format": "sarif"}' \
+            --max-time 120)
+
+          echo "HTTP status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::error::Scan failed for ${{ matrix.url }} (HTTP $HTTP_STATUS)"
+            cat results/${{ matrix.name }}.sarif
+            exit 1
+          fi
+
+          echo "SARIF file written: results/${{ matrix.name }}.sarif"
+          echo "File size: $(wc -c < results/${{ matrix.name }}.sarif) bytes"
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results/${{ matrix.name }}.sarif
+          category: a11y-${{ matrix.name }}
+          wait-for-processing: true
