@@ -1,4 +1,4 @@
-import { chromium, type Page } from 'playwright';
+import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import { getCompliance } from 'accessibility-checker';
 import type { MultiEngineResults } from '../types/scan';
@@ -16,12 +16,17 @@ export async function scanPage(page: Page): Promise<import('axe-core').AxeResult
 }
 
 /**
- * Run IBM Equal Access scan on a page with graceful degradation.
- * If IBM scan fails, returns empty array so the overall scan still succeeds.
+ * Run IBM Equal Access scan in an isolated page to prevent its ACE engine
+ * injection from corrupting the main page's JS context.
  */
-async function runIbmScan(page: Page, label: string): Promise<IbmReportResult[]> {
+async function runIbmScan(context: BrowserContext, url: string): Promise<IbmReportResult[]> {
+  let ibmPage: Page | null = null;
   try {
-    const result = await getCompliance(page, label);
+    ibmPage = await context.newPage();
+    await ibmPage.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() =>
+      ibmPage!.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {})
+    );
+    const result = await getCompliance(ibmPage, url);
     if (result && 'report' in result && result.report && 'results' in result.report) {
       return (result.report.results as IbmReportResult[]) ?? [];
     }
@@ -29,17 +34,43 @@ async function runIbmScan(page: Page, label: string): Promise<IbmReportResult[]>
   } catch {
     // Graceful degradation — IBM scan failure must not crash the entire scan
     return [];
+  } finally {
+    await ibmPage?.close().catch(() => {});
   }
 }
 
 /**
- * Run axe-core, IBM Equal Access, and custom checks sequentially to avoid
- * script-injection conflicts when multiple engines evaluate on the same page.
+ * Navigate a page to a URL with timeout fallback.
  */
-export async function multiEngineScan(page: Page, url: string): Promise<MultiEngineResults> {
+async function navigateTo(page: Page, url: string): Promise<void> {
+  try {
+    await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+  } catch (navError: unknown) {
+    if (navError instanceof Error && navError.message.includes('Timeout')) {
+      await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+    } else {
+      throw navError;
+    }
+  }
+}
+
+/**
+ * Run all scan engines. axe-core and custom checks share the main page;
+ * IBM Equal Access runs in a separate isolated page to avoid context corruption.
+ */
+export async function multiEngineScan(
+  page: Page,
+  url: string,
+  context?: BrowserContext,
+): Promise<MultiEngineResults> {
   const axeResults = await scanPage(page);
-  const ibmResults = await runIbmScan(page, url);
   const customResults = await runCustomChecks(page);
+
+  // IBM scan runs in an isolated page if a context is available
+  const ibmResults = context
+    ? await runIbmScan(context, url)
+    : [];
+
   return normalizeAndMerge(axeResults, ibmResults, customResults);
 }
 
@@ -63,21 +94,10 @@ export async function scanUrl(
   const page = await context.newPage();
 
   try {
-    // Use 'load' instead of 'networkidle' — some sites never reach network idle.
-    // Fall back to domcontentloaded on timeout so the scan still runs.
-    try {
-      await page.goto(url, { waitUntil: 'load', timeout: 30000 });
-    } catch (navError: unknown) {
-      if (navError instanceof Error && navError.message.includes('Timeout')) {
-        // Page partially loaded — wait for DOM at minimum, then proceed
-        await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
-      } else {
-        throw navError;
-      }
-    }
+    await navigateTo(page, url);
     onProgress?.('scanning', 40);
 
-    const results = await multiEngineScan(page, url);
+    const results = await multiEngineScan(page, url, context);
 
     onProgress?.('scoring', 80);
     return results;

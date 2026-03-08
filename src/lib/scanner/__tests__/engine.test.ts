@@ -26,9 +26,20 @@ const mocks = vi.hoisted(() => {
   const mockPage = {
     goto: vi.fn().mockResolvedValue(undefined),
     waitForLoadState: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
   };
+  const mockIbmPage = {
+    goto: vi.fn().mockResolvedValue(undefined),
+    waitForLoadState: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+  };
+  // Track which page newPage returns: first call -> mockPage (main), second -> mockIbmPage (IBM)
+  let newPageCallCount = 0;
   const mockContext = {
-    newPage: vi.fn().mockResolvedValue(mockPage),
+    newPage: vi.fn().mockImplementation(() => {
+      newPageCallCount++;
+      return Promise.resolve(newPageCallCount <= 1 ? mockPage : mockIbmPage);
+    }),
     close: vi.fn(),
   };
   const mockBrowser = {
@@ -45,6 +56,9 @@ const mocks = vi.hoisted(() => {
     mockWithTags,
     mockAnalyze,
     mockPage,
+    mockIbmPage,
+    get newPageCallCount() { return newPageCallCount; },
+    set newPageCallCount(v: number) { newPageCallCount = v; },
     mockContext,
     mockBrowser,
     mockGetCompliance,
@@ -71,10 +85,15 @@ import { scanPage, scanUrl, multiEngineScan } from '../engine';
 describe('engine', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.newPageCallCount = 0;
     mocks.chromium.launch.mockResolvedValue(mocks.mockBrowser);
     mocks.mockBrowser.newContext.mockResolvedValue(mocks.mockContext);
-    mocks.mockContext.newPage.mockResolvedValue(mocks.mockPage);
+    mocks.mockContext.newPage.mockImplementation(() => {
+      mocks.newPageCallCount++;
+      return Promise.resolve(mocks.newPageCallCount <= 1 ? mocks.mockPage : mocks.mockIbmPage);
+    });
     mocks.mockPage.goto.mockResolvedValue(undefined);
+    mocks.mockIbmPage.goto.mockResolvedValue(undefined);
     mocks.mockAnalyze.mockResolvedValue({
       violations: [],
       passes: [],
@@ -195,7 +214,7 @@ describe('engine', () => {
   });
 
   describe('multiEngineScan', () => {
-    it('runs both axe-core and IBM scans in parallel', async () => {
+    it('runs axe-core on main page and IBM in isolated page', async () => {
       const axeData = {
         violations: [],
         passes: [],
@@ -217,12 +236,14 @@ describe('engine', () => {
         },
       });
 
-      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com', mocks.mockContext as never);
 
       expect(results.engineVersions['axe-core']).toBe('4.10.0');
       expect(results.engineVersions['ibm-equal-access']).toBe('latest');
       expect(results.violations).toHaveLength(1);
       expect(results.violations[0].engine).toBe('ibm-equal-access');
+      // IBM scan should have opened a separate page
+      expect(mocks.mockContext.newPage).toHaveBeenCalled();
     });
 
     it('gracefully degrades when IBM scan fails', async () => {
@@ -236,7 +257,7 @@ describe('engine', () => {
       mocks.mockAnalyze.mockResolvedValueOnce(axeData);
       mocks.mockGetCompliance.mockRejectedValueOnce(new Error('IBM engine failure'));
 
-      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com', mocks.mockContext as never);
 
       // Should still return axe results even though IBM failed
       expect(results.violations).toHaveLength(1);
@@ -247,7 +268,7 @@ describe('engine', () => {
     it('returns MultiEngineResults format with engineVersions', async () => {
       mocks.mockGetCompliance.mockResolvedValueOnce({ report: { results: [] } });
 
-      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com');
+      const results = await multiEngineScan(mocks.mockPage as never, 'https://example.com', mocks.mockContext as never);
 
       expect(results).toHaveProperty('engineVersions');
       expect(results).toHaveProperty('violations');
