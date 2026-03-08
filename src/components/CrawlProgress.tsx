@@ -103,16 +103,17 @@ export default function CrawlProgress({ crawlId, onComplete, onError }: CrawlPro
 
       {/* Current Page */}
       {currentPage && (
-        <div className="text-sm text-gray-500 mb-4 truncate">
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 truncate">
           Scanning: <span className="font-mono text-xs">{currentPage}</span>
         </div>
       )}
 
       {/* Stage Indicators */}
-      <div className="flex gap-2 text-xs text-gray-500 mb-6">
+      <ol className="flex gap-2 text-xs text-gray-600 dark:text-gray-400 mb-6 list-none p-0 m-0" aria-label="Crawl stages">
         {stages.map((stage) => (
-          <span
+          <li
             key={stage}
+            aria-current={stage === status ? 'step' : undefined}
             className={`px-2 py-1 rounded capitalize ${
               stage === status
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'
@@ -120,9 +121,9 @@ export default function CrawlProgress({ crawlId, onComplete, onError }: CrawlPro
             }`}
           >
             {stage}
-          </span>
+          </li>
         ))}
-      </div>
+      </ol>
 
       {/* Recent Pages */}
       {recentPages.length > 0 && (

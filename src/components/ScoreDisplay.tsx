@@ -41,7 +41,7 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-3xl font-bold ${gradeColors[score.grade]}`}>{score.overallScore}</span>
-          <span className="text-sm text-gray-500">Grade {score.grade}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Grade {score.grade}</span>
         </div>
       </div>
 
@@ -51,23 +51,26 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
       }`}>
-        {score.aodaCompliant ? '✓ AODA Compliant' : '✕ Needs Remediation'}
+        {score.aodaCompliant ? <><span aria-hidden="true">✓</span> AODA Compliant</> : <><span aria-hidden="true">✕</span> Needs Remediation</>}
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 text-center text-sm">
         <div>
-          <div className="text-2xl font-bold text-red-500">{score.totalViolations}</div>
-          <div className="text-gray-500">Violations</div>
-          <div className="text-sm text-gray-400">({score.totalElementViolations} elements)</div>
+          <div className="text-2xl font-bold text-red-500" aria-hidden="true">{score.totalViolations}</div>
+          <div className="text-gray-600 dark:text-gray-400">Violations</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">({score.totalElementViolations} elements)</div>
+          <div className="sr-only">{score.totalViolations} violations across {score.totalElementViolations} elements</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-green-500">{score.totalPasses}</div>
-          <div className="text-gray-500">Passed</div>
+          <div className="text-2xl font-bold text-green-500" aria-hidden="true">{score.totalPasses}</div>
+          <div className="text-gray-600 dark:text-gray-400">Passed</div>
+          <div className="sr-only">{score.totalPasses} passed rules</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-yellow-500">{score.totalIncomplete}</div>
-          <div className="text-gray-500">Needs Review</div>
+          <div className="text-2xl font-bold text-yellow-500" aria-hidden="true">{score.totalIncomplete}</div>
+          <div className="text-gray-600 dark:text-gray-400">Needs Review</div>
+          <div className="sr-only">{score.totalIncomplete} rules need review</div>
         </div>
       </div>
 

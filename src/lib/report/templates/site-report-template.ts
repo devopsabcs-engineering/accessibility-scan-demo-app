@@ -99,36 +99,42 @@ export function generateSiteReportHtml(data: SiteReportData): string {
     .stat-box { text-align: center; }
     .stat-value { font-size: 24px; font-weight: bold; }
     .stat-label { font-size: 12px; color: #6b7280; }
+    .skip-link { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; background: #fff; color: #2563eb; padding: 8px 16px; font-size: 14px; z-index: 100; }
+    .skip-link:focus { position: static; width: auto; height: auto; overflow: visible; }
     @media print { body { padding: 20px; } }
   </style>
 </head>
 <body>
-  <h1>WCAG 2.2 Level AA Site Accessibility Report</h1>
-  <p style="color:#6b7280;margin-top:0;">
-    ${escapeHtml(data.seedUrl)}<br>
-    Scanned on ${escapeHtml(data.scanDate)} &middot; Engine: ${escapeHtml(data.engineVersion)} &middot; ${score.pageCount} pages scanned
-  </p>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header>
+    <h1>WCAG 2.2 Level AA Site Accessibility Report</h1>
+    <p style="color:#6b7280;margin-top:0;">
+      ${escapeHtml(data.seedUrl)}<br>
+      Scanned on ${escapeHtml(data.scanDate)} &middot; Engine: ${escapeHtml(data.engineVersion)} &middot; ${score.pageCount} pages scanned
+    </p>
+  </header>
+  <main id="main-content">
 
   <h2>Executive Summary</h2>
   <div class="section" style="text-align:center;padding:20px 0;">
-    <div class="score-circle">
+    <div class="score-circle" role="img" aria-label="Accessibility score: ${score.overallScore} out of 100, grade ${score.grade}">
       <span class="score-number">${score.overallScore}</span>
       <span class="score-grade">Grade ${score.grade}</span>
     </div>
     <div style="margin-top:12px;">
-      <span class="badge ${score.aodaCompliant ? 'compliant' : 'non-compliant'}">
+      <span class="badge ${score.aodaCompliant ? 'compliant' : 'non-compliant'}" role="status">
         ${score.aodaCompliant ? 'AODA Compliant' : 'Needs Remediation'}
       </span>
     </div>
     <div style="display:flex;justify-content:center;gap:30px;margin-top:16px;flex-wrap:wrap;">
       <div class="stat-box"><span class="stat-value" style="color:#6b7280;">${score.pageCount}</span><br><span class="stat-label">Pages Scanned</span></div>
-      <div class="stat-box"><span class="stat-value" style="color:#ef4444;">${score.totalUniqueViolations}</span><br><span class="stat-label">Unique Violations</span></div>
-      <div class="stat-box"><span class="stat-value" style="color:#ea580c;">${score.totalViolationInstances}</span><br><span class="stat-label">Total Instances</span></div>
-      <div class="stat-box"><span class="stat-value" style="color:#22c55e;">${score.totalPasses}</span><br><span class="stat-label">Passed Rules</span></div>
+      <div class="stat-box"><span class="stat-value" style="color:#dc2626;">${score.totalUniqueViolations}</span><br><span class="stat-label">Unique Violations</span></div>
+      <div class="stat-box"><span class="stat-value" style="color:#c2410c;">${score.totalViolationInstances}</span><br><span class="stat-label">Total Instances</span></div>
+      <div class="stat-box"><span class="stat-value" style="color:#16a34a;">${score.totalPasses}</span><br><span class="stat-label">Passed Rules</span></div>
     </div>
     <div style="display:flex;justify-content:center;gap:30px;margin-top:12px;flex-wrap:wrap;">
-      <div class="stat-box"><span class="stat-value" style="color:#3b82f6;">${score.highestPageScore}</span><br><span class="stat-label">Highest Page Score</span></div>
-      <div class="stat-box"><span class="stat-value" style="color:#f97316;">${score.lowestPageScore}</span><br><span class="stat-label">Lowest Page Score</span></div>
+      <div class="stat-box"><span class="stat-value" style="color:#2563eb;">${score.highestPageScore}</span><br><span class="stat-label">Highest Page Score</span></div>
+      <div class="stat-box"><span class="stat-value" style="color:#c2410c;">${score.lowestPageScore}</span><br><span class="stat-label">Lowest Page Score</span></div>
       <div class="stat-box"><span class="stat-value" style="color:#6b7280;">${score.medianPageScore}</span><br><span class="stat-label">Median Page Score</span></div>
     </div>
   </div>
@@ -160,7 +166,7 @@ export function generateSiteReportHtml(data: SiteReportData): string {
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
       if (sorted.length === 0) return '<p style="color:#16a34a;font-weight:500;">No category violations found.</p>';
       return `<table>
-        <thead><tr><th>Category</th><th>Violations</th><th style="width:40%;">Distribution</th></tr></thead>
+        <thead><tr><th scope="col">Category</th><th scope="col">Violations</th><th scope="col" style="width:40%;">Distribution</th></tr></thead>
         <tbody>
           ${sorted.map(([cat, count]) => `
             <tr>
@@ -181,7 +187,7 @@ export function generateSiteReportHtml(data: SiteReportData): string {
   <h2>Impact Breakdown</h2>
   <div class="section">
     <table>
-      <thead><tr><th>Impact</th><th>Failed</th><th>Passed</th></tr></thead>
+      <thead><tr><th scope="col">Impact</th><th scope="col">Failed</th><th scope="col">Passed</th></tr></thead>
       <tbody>
         ${(['critical', 'serious', 'moderate', 'minor'] as const).map(impact => `
           <tr>
@@ -228,7 +234,7 @@ export function generateSiteReportHtml(data: SiteReportData): string {
   <h2>Per-Page Scores (${data.pageSummaries.length} pages)</h2>
   <div class="section">
     <table>
-      <thead><tr><th>URL</th><th>Score</th><th>Grade</th><th>Violations</th><th>Passes</th></tr></thead>
+      <thead><tr><th scope="col">URL</th><th scope="col">Score</th><th scope="col">Grade</th><th scope="col">Violations</th><th scope="col">Passes</th></tr></thead>
       <tbody>${pageRows}</tbody>
     </table>
   </div>
@@ -239,7 +245,8 @@ export function generateSiteReportHtml(data: SiteReportData): string {
   </div>
 
   <h2>Disclaimer</h2>
-  <p style="font-size:11px;color:#9ca3af;">${escapeHtml(data.disclaimer)}</p>
+  <p style="font-size:11px;color:#6b7280;">${escapeHtml(data.disclaimer)}</p>
+  </main>
 </body>
 </html>`;
 }

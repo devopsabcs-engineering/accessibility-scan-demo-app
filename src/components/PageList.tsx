@@ -64,7 +64,7 @@ export default function PageList({ pages, crawlId: _crawlId }: PageListProps) {
         </table>
       </div>
       {pages.length === 0 && (
-        <p className="text-gray-500 text-sm">No pages scanned yet.</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">No pages scanned yet.</p>
       )}
     </div>
   );

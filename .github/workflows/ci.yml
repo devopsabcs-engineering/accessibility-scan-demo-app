@@ -20,7 +20,7 @@ jobs:
   ci:
     name: Lint, Test & Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -80,3 +80,28 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Self-scan accessibility tests
+        run: npm run test:a11y
+
+      - name: Upload accessibility report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: a11y-results
+          path: |
+            playwright-report/
+            test-results/a11y-junit.xml
+          retention-days: 30
+
+      - name: Accessibility test report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: 'Accessibility Tests'
+          path: test-results/a11y-junit.xml
+          reporter: java-junit
+          fail-on-error: true

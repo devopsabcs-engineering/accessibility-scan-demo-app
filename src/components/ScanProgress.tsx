@@ -61,10 +61,11 @@ export default function ScanProgress({ scanId, onComplete, onError }: ScanProgre
         <span>{message}</span>
         <span>{progress}%</span>
       </div>
-      <div className="mt-4 flex gap-2 text-xs text-gray-500">
+      <ol className="mt-4 flex gap-2 text-xs text-gray-600 dark:text-gray-400 list-none p-0 m-0" aria-label="Scan stages">
         {['Pending', 'Navigating', 'Scanning', 'Scoring', 'Complete'].map((stage) => (
-          <span
+          <li
             key={stage}
+            aria-current={stage.toLowerCase() === status ? 'step' : undefined}
             className={`px-2 py-1 rounded ${
               stage.toLowerCase() === status
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'
@@ -72,9 +73,9 @@ export default function ScanProgress({ scanId, onComplete, onError }: ScanProgre
             }`}
           >
             {stage}
-          </span>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

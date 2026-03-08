@@ -41,7 +41,7 @@ export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-3xl font-bold ${gradeColors[siteScore.grade]}`}>{siteScore.overallScore}</span>
-          <span className="text-sm text-gray-500">Grade {siteScore.grade}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Grade {siteScore.grade}</span>
         </div>
       </div>
 
@@ -56,34 +56,39 @@ export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
       }`}>
-        {siteScore.aodaCompliant ? '✓ AODA Compliant' : '✕ Needs Remediation'}
+        {siteScore.aodaCompliant ? <><span aria-hidden="true">✓</span> AODA Compliant</> : <><span aria-hidden="true">✕</span> Needs Remediation</>}
       </div>
 
       {/* Score Range */}
       <div className="flex gap-4 text-center text-sm">
         <div>
-          <div className="text-xl font-bold text-red-500">{siteScore.lowestPageScore}</div>
-          <div className="text-gray-500">Lowest</div>
+          <div className="text-xl font-bold text-red-500" aria-hidden="true">{siteScore.lowestPageScore}</div>
+          <div className="text-gray-600 dark:text-gray-400">Lowest</div>
+          <div className="sr-only">Lowest page score: {siteScore.lowestPageScore}</div>
         </div>
         <div>
-          <div className="text-xl font-bold text-yellow-500">{siteScore.medianPageScore}</div>
-          <div className="text-gray-500">Median</div>
+          <div className="text-xl font-bold text-yellow-500" aria-hidden="true">{siteScore.medianPageScore}</div>
+          <div className="text-gray-600 dark:text-gray-400">Median</div>
+          <div className="sr-only">Median page score: {siteScore.medianPageScore}</div>
         </div>
         <div>
-          <div className="text-xl font-bold text-green-500">{siteScore.highestPageScore}</div>
-          <div className="text-gray-500">Highest</div>
+          <div className="text-xl font-bold text-green-500" aria-hidden="true">{siteScore.highestPageScore}</div>
+          <div className="text-gray-600 dark:text-gray-400">Highest</div>
+          <div className="sr-only">Highest page score: {siteScore.highestPageScore}</div>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 text-center text-sm">
         <div>
-          <div className="text-2xl font-bold text-red-500">{siteScore.totalUniqueViolations}</div>
-          <div className="text-gray-500">Unique Violations</div>
+          <div className="text-2xl font-bold text-red-500" aria-hidden="true">{siteScore.totalUniqueViolations}</div>
+          <div className="text-gray-600 dark:text-gray-400">Unique Violations</div>
+          <div className="sr-only">{siteScore.totalUniqueViolations} unique violations</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-green-500">{siteScore.totalPasses}</div>
-          <div className="text-gray-500">Passed Rules</div>
+          <div className="text-2xl font-bold text-green-500" aria-hidden="true">{siteScore.totalPasses}</div>
+          <div className="text-gray-600 dark:text-gray-400">Passed Rules</div>
+          <div className="sr-only">{siteScore.totalPasses} passed rules</div>
         </div>
       </div>
 

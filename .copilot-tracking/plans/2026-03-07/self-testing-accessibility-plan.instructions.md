@@ -57,103 +57,103 @@ Use the AODA WCAG scanner to test the accessibility of its own web UI and genera
 
 ## Implementation Checklist
 
-### [ ] Implementation Phase 1: Playwright Test Infrastructure + Home Page Self-Scan (US 1996)
+### [x] Implementation Phase 1: Playwright Test Infrastructure + Home Page Self-Scan (US 1996)
 
 <!-- parallelizable: false -->
 
-* [ ] Step 1.1: Add `@playwright/test` devDependency and create `playwright.config.ts`
+* [x] Step 1.1: Add `@playwright/test` devDependency and create `playwright.config.ts`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 12-44)
-* [ ] Step 1.2: Create shared AxeBuilder fixture in `e2e/fixtures/axe-fixture.ts`
+* [x] Step 1.2: Create shared AxeBuilder fixture in `e2e/fixtures/axe-fixture.ts`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 46-72)
-* [ ] Step 1.3: Create `e2e/self-scan-home.spec.ts` for home page accessibility scan
+* [x] Step 1.3: Create `e2e/self-scan-home.spec.ts` for home page accessibility scan
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 74-103)
-* [ ] Step 1.4: Create configurable threshold helper in `e2e/fixtures/threshold.ts`
+* [x] Step 1.4: Create configurable threshold helper in `e2e/fixtures/threshold.ts`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 105-140)
-* [ ] Step 1.5: Add `test:a11y` script to `package.json`
+* [x] Step 1.5: Add `test:a11y` script to `package.json`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 142-155)
-* [ ] Step 1.6: Validate phase — run `npx playwright test` locally to confirm infrastructure works
+* [x] Step 1.6: Validate phase — run `npx playwright test` locally to confirm infrastructure works
   * Run lint and build; verify Playwright tests execute against home page
 
-### [ ] Implementation Phase 2: Self-Scan Generated HTML Reports (US 2000)
+### [x] Implementation Phase 2: Self-Scan Generated HTML Reports (US 2000)
 
 <!-- parallelizable: true -->
 
-* [ ] Step 2.1: Create mock report data factories in `e2e/fixtures/report-data.ts`
+* [x] Step 2.1: Create mock report data factories in `e2e/fixtures/report-data.ts`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 122-158)
-* [ ] Step 2.2: Create `e2e/self-scan-report.spec.ts` for single-page report HTML
+* [x] Step 2.2: Create `e2e/self-scan-report.spec.ts` for single-page report HTML
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 160-195)
-* [ ] Step 2.3: Create `e2e/self-scan-site-report.spec.ts` for site report HTML
+* [x] Step 2.3: Create `e2e/self-scan-site-report.spec.ts` for site report HTML
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 197-228)
-* [ ] Step 2.4: Validate phase — run full `test:a11y` suite
+* [x] Step 2.4: Validate phase — run full `test:a11y` suite
   * Confirm report HTML tests execute with mock data via `page.setContent()`
 
-### [ ] Implementation Phase 3: Accessibility Remediation of Scanner UI (US 1999)
+### [x] Implementation Phase 3: Accessibility Remediation of Scanner UI (US 1999)
 
 <!-- parallelizable: false -->
 
-* [ ] Step 3.1: Run Phase 1+2 tests and capture violation reports
+* [x] Step 3.1: Run Phase 1+2 tests and capture violation reports
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 232-246)
-* [ ] Step 3.2: Fix semantic HTML issues (home page `<ol>`, table `scope` attributes)
+* [x] Step 3.2: Fix semantic HTML issues (home page `<ol>`, table `scope` attributes)
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 248-278)
-* [ ] Step 3.3: Fix ARIA and color-only information issues in score/grade displays
+* [x] Step 3.3: Fix ARIA and color-only information issues in score/grade displays
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 280-312)
-* [ ] Step 3.4: Fix low contrast text (upgrade gray utilities)
+* [x] Step 3.4: Fix low contrast text (upgrade gray utilities)
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 314-338)
-* [ ] Step 3.5: Fix step indicator ARIA attributes in progress components
+* [x] Step 3.5: Fix step indicator ARIA attributes in progress components
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 340-362)
-* [ ] Step 3.6: Validate — re-run `test:a11y` to confirm UI violations resolved
+* [x] Step 3.6: Validate — re-run `test:a11y` to confirm UI violations resolved
   * Iterate on remaining failures
 
-### [ ] Implementation Phase 4: Accessibility Remediation of HTML Report Templates (US 2001)
+### [x] Implementation Phase 4: Accessibility Remediation of HTML Report Templates (US 2001)
 
 <!-- parallelizable: true -->
 
-* [ ] Step 4.1: Add landmarks (`<main>`, `<header>`, `<nav>`) and skip link to report templates
+* [x] Step 4.1: Add landmarks (`<main>`, `<header>`, `<nav>`) and skip link to report templates
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 366-398)
-* [ ] Step 4.2: Add `scope="col"` to table headers in report templates
+* [x] Step 4.2: Add `scope="col"` to table headers in report templates
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 400-420)
-* [ ] Step 4.3: Fix ARIA labels and contrast issues in report templates
+* [x] Step 4.3: Fix ARIA labels and contrast issues in report templates
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 422-446)
-* [ ] Step 4.4: Validate — re-run report HTML tests to confirm zero critical/serious violations
+* [x] Step 4.4: Validate — re-run report HTML tests to confirm zero critical/serious violations
   * Iterate on remaining failures
 
-### [ ] Implementation Phase 5: Dynamic Pages Self-Scan (US 1997, US 1998)
+### [x] Implementation Phase 5: Dynamic Pages Self-Scan (US 1997, US 1998)
 
 <!-- parallelizable: false -->
 
-* [ ] Step 5.1: Implement data seeding mechanism via API calls in test setup
+* [x] Step 5.1: Implement data seeding mechanism via API calls in test setup
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 450-488)
-* [ ] Step 5.2: Create `e2e/self-scan-scan-results.spec.ts` for scan results page
+* [x] Step 5.2: Create `e2e/self-scan-scan-results.spec.ts` for scan results page
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 490-520)
-* [ ] Step 5.3: Create `e2e/self-scan-crawl-results.spec.ts` for crawl results page
+* [x] Step 5.3: Create `e2e/self-scan-crawl-results.spec.ts` for crawl results page
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 522-556)
-* [ ] Step 5.4: Remediate any new violations found on dynamic pages
+* [x] Step 5.4: Remediate any new violations found on dynamic pages
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 558-574)
-* [ ] Step 5.5: Validate — run full `test:a11y` suite with all pages passing
+* [x] Step 5.5: Validate — run full `test:a11y` suite with all pages passing
 
-### [ ] Implementation Phase 6: CI Workflow Integration
+### [x] Implementation Phase 6: CI Workflow Integration
 
 <!-- parallelizable: false -->
 
-* [ ] Step 6.1: Add Playwright browser install and self-scan steps to `.github/workflows/ci.yml`
+* [x] Step 6.1: Add Playwright browser install and self-scan steps to `.github/workflows/ci.yml`
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 578-622)
-* [ ] Step 6.2: Add artifact upload for Playwright reports and JUnit results
+* [x] Step 6.2: Add artifact upload for Playwright reports and JUnit results
   * Details: .copilot-tracking/details/2026-03-07/self-testing-accessibility-details.md (Lines 624-650)
-* [ ] Step 6.3: Validate — verify CI workflow YAML syntax and step ordering
+* [x] Step 6.3: Validate — verify CI workflow YAML syntax and step ordering
 
-### [ ] Implementation Phase 7: Final Validation
+### [x] Implementation Phase 7: Final Validation
 
 <!-- parallelizable: false -->
 
-* [ ] Step 7.1: Run full project validation
+* [x] Step 7.1: Run full project validation
   * Execute `npm run lint`
   * Execute `npm run build`
   * Execute `npm run test:ci` (unit tests)
   * Execute `npm run test:a11y` (self-scan tests)
-* [ ] Step 7.2: Fix minor validation issues
+* [x] Step 7.2: Fix minor validation issues
   * Iterate on lint errors and build warnings
   * Apply fixes directly when corrections are straightforward
-* [ ] Step 7.3: Report blocking issues
+* [x] Step 7.3: Report blocking issues
   * Document issues requiring additional research
   * Provide user with next steps and recommended planning
   * Avoid large-scale fixes within this phase

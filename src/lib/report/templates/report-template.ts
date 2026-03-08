@@ -77,31 +77,37 @@ export function generateReportHtml(data: ReportData): string {
     .principle-bar { height: 12px; border-radius: 6px; background: #e5e7eb; margin-top: 4px; }
     .principle-fill { height: 100%; border-radius: 6px; background: #3b82f6; }
     .section { page-break-inside: avoid; }
+    .skip-link { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; background: #fff; color: #2563eb; padding: 8px 16px; font-size: 14px; z-index: 100; }
+    .skip-link:focus { position: static; width: auto; height: auto; overflow: visible; }
     @media print { body { padding: 20px; } }
   </style>
 </head>
 <body>
-  <h1>WCAG 2.2 Level AA Accessibility Report</h1>
-  <p style="color:#6b7280;margin-top:0;">
-    ${escapeHtml(data.url)}<br>
-    Scanned on ${escapeHtml(data.scanDate)} &middot; Engine: ${escapeHtml(data.engineVersion)}
-  </p>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header>
+    <h1>WCAG 2.2 Level AA Accessibility Report</h1>
+    <p style="color:#6b7280;margin-top:0;">
+      ${escapeHtml(data.url)}<br>
+      Scanned on ${escapeHtml(data.scanDate)} &middot; Engine: ${escapeHtml(data.engineVersion)}
+    </p>
+  </header>
+  <main id="main-content">
 
   <h2>Executive Summary</h2>
   <div class="section" style="text-align:center;padding:20px 0;">
-    <div class="score-circle">
+    <div class="score-circle" role="img" aria-label="Accessibility score: ${data.score.overallScore} out of 100, grade ${data.score.grade}">
       <span class="score-number">${data.score.overallScore}</span>
       <span class="score-grade">Grade ${data.score.grade}</span>
     </div>
     <div style="margin-top:12px;">
-      <span class="badge ${data.score.aodaCompliant ? 'compliant' : 'non-compliant'}">
+      <span class="badge ${data.score.aodaCompliant ? 'compliant' : 'non-compliant'}" role="status">
         ${data.score.aodaCompliant ? 'AODA Compliant' : 'Needs Remediation'}
       </span>
     </div>
     <div style="display:flex;justify-content:center;gap:40px;margin-top:16px;">
-      <div><strong style="color:#ef4444;font-size:24px;">${data.score.totalViolations}</strong><br><span style="font-size:12px;color:#6b7280;">Violations</span><br><span style="font-size:11px;color:#9ca3af;">(${data.score.totalElementViolations} elements)</span></div>
-      <div><strong style="color:#22c55e;font-size:24px;">${data.score.totalPasses}</strong><br><span style="font-size:12px;color:#6b7280;">Passed</span></div>
-      <div><strong style="color:#eab308;font-size:24px;">${data.score.totalIncomplete}</strong><br><span style="font-size:12px;color:#6b7280;">Needs Review</span></div>
+      <div><strong style="color:#dc2626;font-size:24px;">${data.score.totalViolations}</strong><br><span style="font-size:12px;color:#6b7280;">Violations</span><br><span style="font-size:11px;color:#6b7280;">(${data.score.totalElementViolations} elements)</span></div>
+      <div><strong style="color:#16a34a;font-size:24px;">${data.score.totalPasses}</strong><br><span style="font-size:12px;color:#6b7280;">Passed</span></div>
+      <div><strong style="color:#a16207;font-size:24px;">${data.score.totalIncomplete}</strong><br><span style="font-size:12px;color:#6b7280;">Needs Review</span></div>
     </div>
   </div>
 
@@ -132,7 +138,7 @@ export function generateReportHtml(data: ReportData): string {
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
       if (sorted.length === 0) return '<p style="color:#16a34a;font-weight:500;">No category violations found.</p>';
       return `<table>
-        <thead><tr><th>Category</th><th>Violations</th><th style="width:40%;">Distribution</th></tr></thead>
+        <thead><tr><th scope="col">Category</th><th scope="col">Violations</th><th scope="col" style="width:40%;">Distribution</th></tr></thead>
         <tbody>
           ${sorted.map(([cat, count]) => `
             <tr>
@@ -153,7 +159,7 @@ export function generateReportHtml(data: ReportData): string {
   <h2>Impact Breakdown</h2>
   <div class="section">
     <table>
-      <thead><tr><th>Impact</th><th>Failed</th><th>Passed</th></tr></thead>
+      <thead><tr><th scope="col">Impact</th><th scope="col">Failed</th><th scope="col">Passed</th></tr></thead>
       <tbody>
         ${(['critical', 'serious', 'moderate', 'minor'] as const).map(impact => `
           <tr>
@@ -203,7 +209,8 @@ export function generateReportHtml(data: ReportData): string {
   </div>
 
   <h2>Disclaimer</h2>
-  <p style="font-size:11px;color:#9ca3af;">${escapeHtml(data.disclaimer)}</p>
+  <p style="font-size:11px;color:#6b7280;">${escapeHtml(data.disclaimer)}</p>
+  </main>
 </body>
 </html>`;
 }

@@ -42,7 +42,7 @@ export default function ViolationList({ violations }: ViolationListProps) {
           <details key={principle} open className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <summary className="px-4 py-3 bg-gray-50 dark:bg-gray-800 cursor-pointer font-medium flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-750">
               <span>{principleLabels[principle] || principle}</span>
-              <span className="text-sm text-gray-500">{items.length} issue{items.length !== 1 ? 's' : ''}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{items.length} issue{items.length !== 1 ? 's' : ''}</span>
             </summary>
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {items.map((v) => (
@@ -71,7 +71,7 @@ function ViolationItem({ violation }: { violation: AxeViolation }) {
           </span>
           <div className="flex-1 min-w-0">
             <div className="font-medium text-sm">{violation.help}</div>
-            <div className="text-xs text-gray-500 mt-0.5">
+            <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
               {violation.id} · {violation.nodes.length} element{violation.nodes.length !== 1 ? 's' : ''} affected
             </div>
           </div>
@@ -84,13 +84,13 @@ function ViolationItem({ violation }: { violation: AxeViolation }) {
             <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded p-3">
               <code className="text-xs break-all block whitespace-pre-wrap">{node.html}</code>
               {node.failureSummary && (
-                <p className="text-xs text-gray-500 mt-2">{node.failureSummary}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{node.failureSummary}</p>
               )}
-              <p className="text-xs text-gray-400 mt-1">Selector: {node.target.join(' > ')}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Selector: {node.target.join(' > ')}</p>
             </div>
           ))}
           {violation.nodes.length > 5 && (
-            <p className="text-xs text-gray-500">...and {violation.nodes.length - 5} more elements</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">...and {violation.nodes.length - 5} more elements</p>
           )}
         </div>
         <a
