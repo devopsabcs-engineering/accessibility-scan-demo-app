@@ -5,11 +5,11 @@ interface ScoreDisplayProps {
 }
 
 const gradeColors: Record<string, string> = {
-  A: 'text-green-500',
-  B: 'text-lime-500',
-  C: 'text-yellow-500',
-  D: 'text-orange-500',
-  F: 'text-red-500',
+  A: 'text-green-700',
+  B: 'text-lime-700',
+  C: 'text-yellow-700',
+  D: 'text-orange-600',
+  F: 'text-red-600',
 };
 
 const gradeBgColors: Record<string, string> = {
@@ -57,18 +57,18 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 text-center text-sm">
         <div>
-          <div className="text-2xl font-bold text-red-500" aria-hidden="true">{score.totalViolations}</div>
+          <div className="text-2xl font-bold text-red-600" aria-hidden="true">{score.totalViolations}</div>
           <div className="text-gray-600">Violations</div>
           <div className="text-sm text-gray-600">({score.totalElementViolations} elements)</div>
           <div className="sr-only">{score.totalViolations} violations across {score.totalElementViolations} elements</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-green-500" aria-hidden="true">{score.totalPasses}</div>
+          <div className="text-2xl font-bold text-green-700 dark:text-green-400" aria-hidden="true">{score.totalPasses}</div>
           <div className="text-gray-600">Passed</div>
           <div className="sr-only">{score.totalPasses} passed rules</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-yellow-500" aria-hidden="true">{score.totalIncomplete}</div>
+          <div className="text-2xl font-bold text-yellow-600" aria-hidden="true">{score.totalIncomplete}</div>
           <div className="text-gray-600">Needs Review</div>
           <div className="sr-only">{score.totalIncomplete} rules need review</div>
         </div>

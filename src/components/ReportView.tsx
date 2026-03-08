@@ -67,7 +67,7 @@ export default function ReportView({ results, scanId }: ReportViewProps) {
                 <tr key={impact} className="border-b border-gray-100 dark:border-gray-800">
                   <td className="py-2 px-3 capitalize">{impact}</td>
                   <td className="py-2 px-3 text-right text-red-600 dark:text-red-400">{results.score.impactBreakdown[impact].failed}</td>
-                  <td className="py-2 px-3 text-right text-green-600 dark:text-green-400">{results.score.impactBreakdown[impact].passed}</td>
+                  <td className="py-2 px-3 text-right text-green-700 dark:text-green-400">{results.score.impactBreakdown[impact].passed}</td>
                 </tr>
               ))}
             </tbody>
