@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
     "accessibility-checker",
     "@azure/monitor-opentelemetry",
     "@opentelemetry/api",
+    "@opentelemetry/api-logs",
   ],
 };
 
