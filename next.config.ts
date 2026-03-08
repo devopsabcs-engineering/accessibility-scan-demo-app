@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   serverExternalPackages: [
-    "axe-core",
     "crawlee",
     "cacheable-request",
     "@crawlee/playwright",

@@ -1,7 +1,7 @@
 import { chromium, type BrowserContext, type Page } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 import { getCompliance } from 'accessibility-checker';
 import type { MultiEngineResults } from '../types/scan';
 import { normalizeAndMerge, type IbmReportResult } from './result-normalizer';
@@ -10,12 +10,20 @@ import { runCustomChecks } from './custom-checks';
 // Lazily read the raw axe-core source from disk on first use.
 // We cannot use axe.source because webpack/turbopack mangles the bundled
 // axeFunction.toString(), producing a broken single-line script.
-// We also cannot use require.resolve at module scope because Next.js
-// evaluates it at build time where it returns a webpack module ID (number).
+// We cannot use require.resolve because webpack transforms it into a
+// numeric module ID even inside serverExternalPackages.
 let _safeAxeSource: string | null = null;
 function getSafeAxeSource(): string {
   if (!_safeAxeSource) {
-    const axeCorePath = join(dirname(require.resolve('axe-core')), 'axe.min.js');
+    // Try common locations for axe-core in standalone and dev modes
+    const candidates = [
+      join(process.cwd(), 'node_modules', 'axe-core', 'axe.min.js'),
+      join(__dirname, '..', '..', '..', 'node_modules', 'axe-core', 'axe.min.js'),
+    ];
+    const axeCorePath = candidates.find(p => existsSync(p));
+    if (!axeCorePath) {
+      throw new Error(`axe-core not found. Searched: ${candidates.join(', ')}`);
+    }
     const rawAxeSource = readFileSync(axeCorePath, 'utf-8');
     _safeAxeSource = `(function(module, exports){${rawAxeSource}})(undefined, undefined);`;
   }
