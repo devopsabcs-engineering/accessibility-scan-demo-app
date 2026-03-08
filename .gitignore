@@ -418,6 +418,9 @@ FodyWeavers.xsd
 coverage/
 test-results/
 
+# scan results
+results/
+
 # vercel
 .vercel
 
