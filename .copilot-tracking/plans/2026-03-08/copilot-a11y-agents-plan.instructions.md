@@ -56,64 +56,64 @@ Create two declarative GitHub Copilot agents — A11y Detector and A11y Resolver
 
 ## Implementation Checklist
 
-### [ ] Implementation Phase 1: Create Agent Definition Files
+### [x] Implementation Phase 1: Create Agent Definition Files
 
 <!-- parallelizable: true -->
 
-* [ ] Step 1.1: Create `.github/agents/` directory and `a11y-detector.agent.md`
+* [x] Step 1.1: Create `.github/agents/` directory and `a11y-detector.agent.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 12-75)
-* [ ] Step 1.2: Create `.github/agents/a11y-resolver.agent.md`
+* [x] Step 1.2: Create `.github/agents/a11y-resolver.agent.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 77-141)
 
-### [ ] Implementation Phase 2: Create Supporting Instructions Files
+### [x] Implementation Phase 2: Create Supporting Instructions Files
 
 <!-- parallelizable: true -->
 
-* [ ] Step 2.1: Create `.github/instructions/wcag22-rules.instructions.md`
+* [x] Step 2.1: Create `.github/instructions/wcag22-rules.instructions.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 145-188)
-* [ ] Step 2.2: Create `.github/instructions/a11y-remediation.instructions.md`
+* [x] Step 2.2: Create `.github/instructions/a11y-remediation.instructions.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 190-250)
 
-### [ ] Implementation Phase 3: Create Prompt Files
+### [x] Implementation Phase 3: Create Prompt Files
 
 <!-- parallelizable: true -->
 
-* [ ] Step 3.1: Create `.github/prompts/a11y-scan.prompt.md`
+* [x] Step 3.1: Create `.github/prompts/a11y-scan.prompt.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 252-285)
-* [ ] Step 3.2: Create `.github/prompts/a11y-fix.prompt.md`
+* [x] Step 3.2: Create `.github/prompts/a11y-fix.prompt.md`
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 287-322)
 
-### [ ] Implementation Phase 4: ADO Work Items and Branching
+### [x] Implementation Phase 4: ADO Work Items and Branching
 
 <!-- parallelizable: false -->
 
-* [ ] Step 4.1: Create ADO Epic, Feature, and User Stories for the agent work
+* [x] Step 4.1: Create ADO Epic, Feature, and User Stories for the agent work
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 326-353)
-* [ ] Step 4.2: Create feature branch and commit with AB# linking
+* [x] Step 4.2: Create feature branch and commit with AB# linking
   * Details: [copilot-a11y-agents-details.md](.copilot-tracking/details/2026-03-08/copilot-a11y-agents-details.md) (Lines 355-377)
 
-### [ ] Implementation Phase 5: Validation
+### [x] Implementation Phase 5: Validation
 
 <!-- parallelizable: false -->
 
-* [ ] Step 5.1: Validate agent file structure and frontmatter
+* [x] Step 5.1: Validate agent file structure and frontmatter
   * Verify YAML frontmatter parses correctly in both agent files
   * Confirm `description` under 120 characters
   * Confirm agent body under 30,000 characters (GitHub.com limit)
   * Verify no `maturity` field in agent frontmatter (per prompt-builder rules)
-* [ ] Step 5.2: Validate instructions file structure
+* [x] Step 5.2: Validate instructions file structure
   * Verify `applyTo` glob patterns match intended file types
   * Confirm instructions files have YAML frontmatter with `description` and `applyTo`
-* [ ] Step 5.3: Validate prompt file structure
+* [x] Step 5.3: Validate prompt file structure
   * Verify prompt files have `description`, `agent`, and `argument-hint` fields
-* [ ] Step 5.4: Run project linting and tests
+* [x] Step 5.4: Run project linting and tests
   * Execute `npm run lint` for ESLint validation
   * Execute `npm run test` for unit test verification
   * Verify no regressions from new files
-* [ ] Step 5.5: Fix minor validation issues
+* [x] Step 5.5: Fix minor validation issues
   * Iterate on lint errors and formatting issues
   * Apply fixes directly when corrections are straightforward
-* [ ] Step 5.6: Report blocking issues
+* [x] Step 5.6: Report blocking issues
   * Document issues requiring additional research
   * Provide user with next steps rather than large-scale inline fixes
 
