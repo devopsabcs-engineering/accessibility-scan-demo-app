@@ -358,8 +358,10 @@ violations visible as Code Scanning alerts under the repository Security tab.
 
 ### Azure Pipelines
 
-An Azure Pipelines definition (`azure-pipelines/a11y-scan.yml`) provides equivalent
-functionality for Azure DevOps environments.
+An equivalent Azure Pipelines definition (`.azuredevops/pipelines/a11y-scan.yml`) scans the
+same three URLs via the deployed app's CI API, using matrix strategy for parallel execution
+and publishing SARIF artifacts. Configure it in Azure DevOps by pointing a pipeline to this
+file in the GitHub repository.
 
 ## Observability
 
