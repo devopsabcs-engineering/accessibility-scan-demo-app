@@ -58,3 +58,6 @@ steps:
       pathToPublish: 'results'
       artifactName: 'a11y-sarif-$(siteName)'
     displayName: 'Publish SARIF artifact - $(siteName)'
+  - task: AdvancedSecurity-Publish@1
+    inputs:
+      SarifsInputDirectory: 'a11y-sarif-$(siteName)'
