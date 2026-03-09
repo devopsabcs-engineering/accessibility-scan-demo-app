@@ -1,6 +1,6 @@
 ---
 title: Accessibility Scan Demo App
-description: Multi-engine WCAG 2.2 Level AA accessibility scanner with web UI, CLI, and GitHub Action
+description: Multi-engine WCAG 2.2 Level AA accessibility scanner with web UI, CLI, GitHub Action, and Azure observability
 ms.date: 2026-03-08
 ---
 
@@ -11,27 +11,31 @@ three complementary engines: axe-core, IBM Equal Access, and custom Playwright-b
 normalized, deduplicated, and scored to produce actionable reports in multiple formats.
 
 Built with Next.js 15, React 19, and TypeScript. Supports single-page scans, full-site crawls with
-configurable depth and concurrency, and CI/CD integration through a CLI and GitHub Action.
+configurable depth and concurrency, and CI/CD integration through a CLI, GitHub Action, and scheduled
+SARIF-based security scanning.
 
 ## Features
 
-* **Multi-engine scanning** — axe-core, IBM Equal Access, and custom checks run together with
-  cross-engine deduplication and severity-based prioritization.
-* **Single-page scan** — enter a URL in the web UI or call the API to scan one page.
-* **Site-wide crawl** — BFS traversal with robots.txt compliance, sitemap discovery, configurable
-  max pages (1–200), depth (1–10), and concurrency (1–5).
-* **WCAG scoring** — weighted scoring by impact (critical, serious, moderate, minor) mapped to
-  WCAG principles (Perceivable, Operable, Understandable, Robust) with A–F grading.
-* **AODA compliance** — reports whether the site meets AODA requirements (WCAG 2.0 AA as a subset
-  of WCAG 2.2 AA).
-* **Multiple output formats** — JSON, SARIF 2.1.0, JUnit XML, PDF, and HTML reports.
-* **CLI tool** — `a11y-scan scan` and `a11y-scan crawl` commands with threshold gating and
-  configurable output.
-* **GitHub Action** — drop-in action for CI pipelines with score/pass outputs and SARIF upload support.
-* **CI threshold gating** — fail builds on score, violation count per severity, or specific rule IDs.
-* **SSRF prevention** — blocks scans of localhost, private IPs, and internal hostnames.
-* **Self-testing** — the app scans itself in CI using Playwright e2e tests to ensure its own
-  WCAG compliance.
+* **Multi-engine scanning** with axe-core, IBM Equal Access, and custom checks running together
+  with cross-engine deduplication and severity-based prioritization.
+* **Single-page scan** via the web UI or API to scan one page.
+* **Site-wide crawl** with BFS traversal, robots.txt compliance, sitemap discovery, configurable
+  max pages (1-200), depth (1-10), and concurrency (1-5).
+* **WCAG scoring** weighted by impact (critical, serious, moderate, minor) mapped to
+  WCAG principles (Perceivable, Operable, Understandable, Robust) with A-F grading.
+* **AODA compliance** reporting (WCAG 2.0 AA as a subset of WCAG 2.2 AA).
+* **Multiple output formats** including JSON, SARIF 2.1.0, JUnit XML, PDF, and HTML reports.
+* **CLI tool** with `a11y-scan scan` and `a11y-scan crawl` commands including threshold gating.
+* **GitHub Action** for CI pipelines with score/pass outputs and SARIF upload support.
+* **Scheduled accessibility scanning** via GitHub Actions with SARIF results published to the
+  GitHub Security tab.
+* **CI threshold gating** to fail builds on score, violation count per severity, or specific rule IDs.
+* **Structured logging** with configurable log levels, writing to both stdout and OpenTelemetry.
+* **Azure Application Insights** integration with custom metrics, traces, live metrics, and
+  100% sampling for full telemetry visibility.
+* **HTTP request logging** via Next.js middleware for all API and page routes.
+* **SSRF prevention** blocking scans of localhost, private IPs, and internal hostnames.
+* **Self-testing** where the app scans itself in CI using Playwright e2e tests.
 
 ## Tech Stack
 
@@ -43,6 +47,7 @@ configurable depth and concurrency, and CI/CD integration through a CLI and GitH
 | Scan engines | axe-core 4.11, IBM Equal Access 4.0, custom Playwright checks |
 | Crawling | Crawlee 3.16 (Playwright-based) |
 | PDF generation | Puppeteer 24 |
+| Observability | Azure Monitor OpenTelemetry 1.16, OpenTelemetry API 1.9, OTel Logs API 0.57 |
 | Unit tests | Vitest 4 with coverage-v8 |
 | E2E tests | Playwright 1.58 with @axe-core/playwright |
 | CLI | Commander 14 |
@@ -115,37 +120,91 @@ Playwright-based checks that catch issues the other engines miss:
 
 ## Architecture
 
-```text
-┌─────────────────────────────────────────┐
-│  Web UI (Next.js)                       │
-│  ├── Home — ScanForm                    │
-│  ├── /scan/[id] — ScanProgress/Report   │
-│  └── /crawl/[id] — CrawlProgress/Report│
-├─────────────────────────────────────────┤
-│  API Routes                             │
-│  ├── POST /api/scan — single-page scan  │
-│  ├── POST /api/crawl — site-wide crawl  │
-│  ├── GET  /api/scan/[id] — results      │
-│  ├── GET  /api/scan/[id]/pdf — PDF      │
-│  └── GET  /api/ci — CI threshold check  │
-├─────────────────────────────────────────┤
-│  Scanner Engine (multi-engine)          │
-│  ├── axe-core (main page)               │
-│  ├── IBM Equal Access (isolated page)   │
-│  └── Custom checks (main page)          │
-├─────────────────────────────────────────┤
-│  Result Pipeline                        │
-│  ├── Normalizer — unified format        │
-│  ├── Deduplicator — cross-engine merge  │
-│  ├── Scorer — weighted WCAG scoring     │
-│  └── Formatters — JSON/SARIF/JUnit/PDF  │
-├─────────────────────────────────────────┤
-│  Site Crawler (Crawlee + Playwright)    │
-│  ├── robots.txt compliance              │
-│  ├── Sitemap discovery                  │
-│  ├── BFS traversal with depth control   │
-│  └── Per-page scan + aggregation        │
-└─────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Browser["Browser"]
+        CLI["CLI Tool<br/>a11y-scan"]
+        GHA["GitHub Actions<br/>Scheduled Scan"]
+    end
+
+    subgraph "Next.js Application"
+        subgraph "Web UI"
+            Home["Home Page<br/>ScanForm"]
+            ScanPage["Scan Results<br/>/scan/[id]"]
+            CrawlPage["Crawl Results<br/>/crawl/[id]"]
+        end
+
+        Middleware["HTTP Middleware<br/>Request Logging"]
+
+        subgraph "API Routes"
+            ScanAPI["POST /api/scan<br/>Single-page scan"]
+            CrawlAPI["POST /api/crawl<br/>Site-wide crawl"]
+            CiScanAPI["POST /api/ci/scan<br/>CI threshold check"]
+            CiCrawlAPI["POST /api/ci/crawl<br/>CI crawl check"]
+            StatusAPI["GET /api/scan/[id]/status<br/>SSE progress stream"]
+            ResultAPI["GET /api/scan/[id]<br/>Scan results"]
+            PdfAPI["GET /api/scan/[id]/pdf<br/>PDF report"]
+        end
+
+        subgraph "Scanner Engine"
+            AxeCore["axe-core<br/>Primary engine"]
+            IBM["IBM Equal Access<br/>Isolated page"]
+            Custom["Custom Checks<br/>Playwright-based"]
+        end
+
+        subgraph "Result Pipeline"
+            Normalizer["Normalizer"]
+            Dedup["Deduplicator"]
+            Scorer["WCAG Scorer"]
+            Formatters["Formatters<br/>JSON / SARIF / JUnit / PDF"]
+        end
+
+        subgraph "Site Crawler"
+            Crawlee["Crawlee<br/>PlaywrightCrawler"]
+            Robots["robots.txt"]
+            Sitemap["Sitemap Discovery"]
+        end
+
+        subgraph "Observability"
+            Logger["Structured Logger<br/>stdout + OTel Logs"]
+            Telemetry["Telemetry Module<br/>Spans + Metrics"]
+            Instrumentation["Instrumentation<br/>Azure Monitor SDK"]
+        end
+
+        Store["In-Memory Store<br/>Scan/Crawl Records"]
+    end
+
+    subgraph "Azure Cloud"
+        AppService["Azure App Service<br/>Docker Container"]
+        ACR["Azure Container Registry"]
+        AppInsights["Application Insights<br/>Traces / Metrics / Live"]
+    end
+
+    subgraph "GitHub"
+        SecurityTab["Security Tab<br/>Code Scanning Alerts"]
+    end
+
+    Browser --> Middleware --> ScanAPI & CrawlAPI
+    Browser --> Home & ScanPage & CrawlPage
+    CLI --> CiScanAPI & CiCrawlAPI
+    GHA -->|"POST /api/ci/scan<br/>format=sarif"| CiScanAPI
+    GHA -->|"Upload SARIF"| SecurityTab
+
+    ScanAPI --> AxeCore & IBM & Custom
+    CrawlAPI --> Crawlee
+    Crawlee --> Robots & Sitemap
+    Crawlee --> AxeCore & IBM & Custom
+
+    AxeCore & IBM & Custom --> Normalizer --> Dedup --> Scorer --> Formatters
+    Formatters --> Store
+    StatusAPI & ResultAPI & PdfAPI --> Store
+
+    Logger --> Instrumentation
+    Telemetry --> Instrumentation
+    Instrumentation --> AppInsights
+
+    AppService --> ACR
 ```
 
 ## CLI
@@ -247,9 +306,11 @@ docker run -d --name a11y-scan -p 3000:3000 a11y-scan-demo:local
 
 The multi-stage Dockerfile:
 
-1. **deps** — installs npm dependencies (node:20-alpine)
-2. **builder** — builds the Next.js standalone output
-3. **runner** — production image (node:20-bookworm-slim) with Chromium and Chrome pre-installed
+1. **deps** installs npm dependencies (node:20-alpine)
+2. **builder** builds the Next.js standalone output
+3. **runner** is the production image (node:20-bookworm-slim) with Chromium, Chrome, and procps
+   pre-installed. All node_modules are copied to ensure serverExternalPackages (Crawlee,
+   Azure Monitor OpenTelemetry, etc.) have their full transitive dependency trees.
 
 ## Infrastructure
 
@@ -261,15 +322,104 @@ Azure deployment is defined in `infra/main.bicep`:
 
 Deploy via GitHub Actions (`.github/workflows/deploy.yml`) using OIDC authentication.
 
-## CI/CD Pipeline
+## CI/CD Pipelines
+
+### CI workflow
 
 The CI workflow (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests:
 
-1. **Lint** — ESLint
-2. **Unit tests** — Vitest with coverage (thresholds: 80% lines, 80% statements, 80% functions, 65% branches)
-3. **Build** — Next.js production build
-4. **E2E tests** — Playwright self-scan accessibility tests
-5. **Reports** — test results, coverage, and accessibility reports uploaded as artifacts
+1. **Lint** with ESLint
+2. **Unit tests** with Vitest and coverage (thresholds: 80% lines, 80% statements, 80% functions, 65% branches)
+3. **Build** the Next.js production output
+4. **E2E tests** with Playwright self-scan accessibility tests
+5. **Reports** uploaded as artifacts (test results, coverage, accessibility reports)
+
+### Deploy workflow
+
+The deploy workflow (`.github/workflows/deploy.yml`) builds a Docker image and deploys to Azure
+App Service via OIDC authentication. It provisions infrastructure with Bicep, pushes the image
+to Azure Container Registry, and restarts the web app.
+
+### Accessibility scan workflow
+
+The accessibility scan workflow (`.github/workflows/a11y-scan.yml`) runs on a weekly schedule
+(Monday 06:00 UTC) and on manual dispatch. It scans three target websites using the deployed
+app's CI API and publishes SARIF results to the GitHub Security tab:
+
+| Target | URL |
+| --- | --- |
+| codepen-sample | `https://codepen.io/leezee/pen/eYbXzpJ` |
+| a11y-scan-demo-app | `https://a11y-scan-demo-app.azurewebsites.net/` |
+| ontario-gov | `https://www.ontario.ca/page/government-ontario` |
+
+Each site is scanned independently via matrix strategy. SARIF files are uploaded using
+`github/codeql-action/upload-sarif@v4` with per-site categories, making accessibility
+violations visible as Code Scanning alerts under the repository Security tab.
+
+### Azure Pipelines
+
+An Azure Pipelines definition (`azure-pipelines/a11y-scan.yml`) provides equivalent
+functionality for Azure DevOps environments.
+
+## Observability
+
+The application includes structured logging and telemetry that work together to provide
+visibility in both the Azure App Service log stream and Application Insights.
+
+### Structured logging
+
+A lightweight logger (`src/lib/logger.ts`) writes structured messages to stdout/stderr with
+ISO timestamps, log levels, and component names. Every log call also emits an OpenTelemetry
+log record via `@opentelemetry/api-logs`, which the Azure Monitor exporter sends to
+Application Insights as Traces.
+
+Example log stream output:
+
+```text
+[2026-03-08T21:32:57.539Z] [INFO] [api:scan] Scan requested {"scanId":"d340...","url":"https://example.com"}
+[2026-03-08T21:33:07.613Z] [INFO] [telemetry] Scan completed {"scanId":"d340...","durationMs":10073,"score":31}
+```
+
+### HTTP request middleware
+
+A Next.js middleware (`src/middleware.ts`) logs every HTTP request to `/api/*`, `/scan/*`, and
+`/crawl/*` routes with method, path, status code, duration, and user agent.
+
+### OpenTelemetry integration
+
+The telemetry module (`src/lib/telemetry.ts`) emits custom spans and metrics for scan and
+crawl operations:
+
+| Metric | Type | Description |
+| --- | --- | --- |
+| `scan.total` | Counter | Total scans initiated |
+| `scan.errors` | Counter | Total scan errors |
+| `scan.duration_ms` | Histogram | Duration per scan |
+| `crawl.total` | Counter | Total crawls initiated |
+| `crawl.errors` | Counter | Total crawl errors |
+| `crawl.duration_ms` | Histogram | Duration per crawl |
+| `crawl.pages_scanned` | Histogram | Pages scanned per crawl |
+
+### Application Insights
+
+When `APPLICATIONINSIGHTS_CONNECTION_STRING` is set, the instrumentation module
+(`src/instrumentation.ts`) initializes Azure Monitor OpenTelemetry with:
+
+* 100% sampling ratio (no telemetry dropped)
+* Live Metrics enabled for real-time monitoring
+* Automatic export of spans, metrics, and log records
+
+Data appears in Application Insights under Traces, Dependencies, Custom Metrics, and Live
+Metrics.
+
+## Environment Variables
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | No | (none) | Azure Application Insights connection string. Enables telemetry export. |
+| `LOG_LEVEL` | No | `info` | Minimum log level: `debug`, `info`, `warn`, or `error`. |
+| `PORT` | No | `3000` | Server listening port. |
+| `NODE_OPTIONS` | No | (none) | Set to `--max-old-space-size=1024` in Docker for memory control. |
 
 ## Scoring
 
@@ -295,24 +445,32 @@ median page scores.
 
 ```text
 src/
-├── app/                    # Next.js pages and API routes
-│   ├── api/scan/           # Single-page scan API
-│   ├── api/crawl/          # Site crawl API
-│   ├── api/ci/             # CI threshold API
-│   ├── scan/[id]/          # Scan results page
-│   └── crawl/[id]/         # Crawl results page
-├── cli/                    # CLI tool (scan, crawl commands)
-├── components/             # React components (ScanForm, ReportView, etc.)
+├── instrumentation.ts          # OpenTelemetry + Azure Monitor bootstrap
+├── middleware.ts                # HTTP request logging middleware
+├── app/                         # Next.js pages and API routes
+│   ├── api/scan/                # Single-page scan API
+│   ├── api/crawl/               # Site crawl API
+│   ├── api/ci/                  # CI threshold API (scan + crawl)
+│   ├── scan/[id]/               # Scan results page
+│   └── crawl/[id]/              # Crawl results page
+├── cli/                         # CLI tool (scan, crawl commands)
+├── components/                  # React components (ScanForm, ReportView, etc.)
 └── lib/
-    ├── scanner/            # Multi-engine scanner (axe, IBM, custom)
-    ├── crawler/            # Site crawler (robots, sitemap, URL utils)
-    ├── scoring/            # WCAG scoring and grading
-    ├── report/             # Report generators (HTML, PDF, SARIF)
-    ├── ci/                 # CI threshold checking and formatters
-    └── types/              # TypeScript type definitions
-e2e/                        # Playwright self-scan accessibility tests
-infra/                      # Azure Bicep infrastructure
-action/                     # GitHub Action definition
+    ├── logger.ts                # Structured logger (stdout + OTel log records)
+    ├── telemetry.ts             # Custom spans and metrics for scans/crawls
+    ├── scanner/                 # Multi-engine scanner (axe, IBM, custom)
+    ├── crawler/                 # Site crawler (robots, sitemap, URL utils)
+    ├── scoring/                 # WCAG scoring and grading
+    ├── report/                  # Report generators (HTML, PDF, SARIF)
+    ├── ci/                      # CI threshold checking and formatters
+    └── types/                   # TypeScript type definitions
+e2e/                             # Playwright self-scan accessibility tests
+infra/                           # Azure Bicep infrastructure
+action/                          # GitHub Action definition
+.github/workflows/
+├── ci.yml                       # Lint, test, build on push/PR
+├── deploy.yml                   # Docker build + Azure deploy
+└── a11y-scan.yml                # Scheduled SARIF accessibility scan
 ```
 
 ## License
