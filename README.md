@@ -443,6 +443,33 @@ Scores are calculated using weighted impact severity:
 Site-wide scores aggregate per-page results with overall, lowest, highest, and
 median page scores.
 
+## AI-Assisted Development
+
+The repository includes Copilot agent customizations under `.github/` that encode AODA
+WCAG 2.2 domain knowledge for AI-assisted accessibility work.
+
+### Agents
+
+| File | Description |
+| --- | --- |
+| `.github/agents/a11y-detector.agent.md` | Detects AODA WCAG 2.2 violations through static code analysis and runtime scanning. Covers the top 10 React/Next.js violations, produces structured findings, and hands off to the Resolver agent. |
+| `.github/agents/a11y-resolver.agent.md` | Resolves AODA WCAG 2.2 violations with standards-compliant code fixes. Applies fixes in priority order (critical → serious → moderate → minor) and can hand back to the Detector for re-scanning. |
+
+### Prompts
+
+| File | Description |
+| --- | --- |
+| `.github/prompts/a11y-scan.prompt.md` | Runs an AODA WCAG 2.2 accessibility scan on a target URL or the full project via the Detector agent. Accepts URL and scope (page or site) as inputs. |
+| `.github/prompts/a11y-fix.prompt.md` | Fixes accessibility violations in the current file or project via the Resolver agent. Accepts file path and specific violation IDs as inputs. |
+
+### Instructions
+
+| File | Applies To | Description |
+| --- | --- | --- |
+| `.github/instructions/wcag22-rules.instructions.md` | `*.tsx, *.jsx, *.ts, *.html, *.css` | WCAG 2.2 Level AA compliance rules organized by POUR principles (Perceivable, Operable, Understandable, Robust) with React/Next.js-specific guidance. |
+| `.github/instructions/a11y-remediation.instructions.md` | `*.tsx, *.jsx, *.ts, *.html, *.css` | Remediation lookup table mapping violation IDs to WCAG success criteria and code fix patterns, including React hooks and Next.js component recipes. |
+| `.github/instructions/ado-workflow.instructions.md` | `**` | Required workflow for Azure DevOps work item tracking, Git branching (`feature/{id}-description`), commit message linking (`AB#{id}`), pull request creation, and post-merge branch cleanup. |
+
 ## Project Structure
 
 ```text
@@ -469,10 +496,21 @@ src/
 e2e/                             # Playwright self-scan accessibility tests
 infra/                           # Azure Bicep infrastructure
 action/                          # GitHub Action definition
-.github/workflows/
-├── ci.yml                       # Lint, test, build on push/PR
-├── deploy.yml                   # Docker build + Azure deploy
-└── a11y-scan.yml                # Scheduled SARIF accessibility scan
+.github/
+├── agents/
+│   ├── a11y-detector.agent.md   # WCAG violation detection agent
+│   └── a11y-resolver.agent.md   # WCAG violation fix agent
+├── prompts/
+│   ├── a11y-scan.prompt.md      # Accessibility scan prompt
+│   └── a11y-fix.prompt.md       # Accessibility fix prompt
+├── instructions/
+│   ├── wcag22-rules.instructions.md        # WCAG 2.2 AA compliance rules
+│   ├── a11y-remediation.instructions.md    # Remediation patterns and recipes
+│   └── ado-workflow.instructions.md        # ADO work item and branching workflow
+└── workflows/
+    ├── ci.yml                   # Lint, test, build on push/PR
+    ├── deploy.yml               # Docker build + Azure deploy
+    └── a11y-scan.yml            # Scheduled SARIF accessibility scan
 ```
 
 ## License
