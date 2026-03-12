@@ -13,6 +13,7 @@
 
 # Hidden assets
 assets-hidden/
+docs-hidden/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -345,6 +346,15 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 **/__pycache__/
 *.pyc
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
 
 # Cake - Uncomment if you are using it
 #tools/**
