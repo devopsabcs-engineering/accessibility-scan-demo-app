@@ -152,11 +152,11 @@ describe('generateSarif', () => {
   it('IBM rule IDs with underscores produce valid markdown links', () => {
     const violations = [makeViolation({
       id: 'label_name_visible',
-      helpUrl: 'https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/label_name_visible.html',
+      helpUrl: 'https://able.ibm.com/rules/archives/latest/doc/en-US/label_name_visible.html',
     })];
     const sarif = generateSarif('https://example.com', violations, '1.0.0');
     const markdown = sarif.runs[0].tool.driver.rules[0].help.markdown;
-    expect(markdown).toContain('[Rule documentation](https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/label_name_visible.html)');
+    expect(markdown).toContain('[Rule documentation](https://able.ibm.com/rules/archives/latest/doc/en-US/label_name_visible.html)');
     expect(markdown).not.toContain('label\\_name');
   });
 });

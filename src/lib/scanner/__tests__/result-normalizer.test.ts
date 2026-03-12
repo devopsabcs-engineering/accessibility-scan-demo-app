@@ -169,12 +169,12 @@ describe('normalizeIbmResults', () => {
     expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/latest/doc/en-US/img_alt_valid.html');
   });
 
-  it('extracts base URL from IBM help field', () => {
+  it('extracts base URL from IBM help field and normalizes to latest archive', () => {
     const result = normalizeIbmResults([makeIbmResult({
       ruleId: 'style_color_misuse',
       help: 'https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/style_color_misuse.html#ruleInfo=%7B%22someKey%22%3A%22someValue%22%7D',
     })]);
-    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/style_color_misuse.html');
+    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/latest/doc/en-US/style_color_misuse.html');
   });
 
   it('falls back to archive URL when help is not a URL', () => {
@@ -191,6 +191,7 @@ describe('normalizeIbmResults', () => {
       help: 'https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/some_rule.html',
     })]);
     expect(result[0].help).toBe('Human readable text');
+    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/latest/doc/en-US/some_rule.html');
   });
 
   it('includes category as a tag when present', () => {

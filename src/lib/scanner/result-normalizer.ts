@@ -56,7 +56,10 @@ function extractIbmHelpUrl(rawHelp: string | undefined, ruleId: string): string 
   if (rawHelp) {
     try {
       const url = new URL(rawHelp);
-      return `${url.origin}${url.pathname}`;
+      const ruleFile = url.pathname.split('/').pop();
+      if (ruleFile) {
+        return `https://able.ibm.com/rules/archives/latest/doc/en-US/${ruleFile}`;
+      }
     } catch {
       // not a URL, fall through
     }
