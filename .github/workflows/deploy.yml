@@ -52,3 +52,11 @@ jobs:
       - name: Restart Web App
         run: |
           az webapp restart --name ${{ steps.infra.outputs.webAppName }} --resource-group ${{ env.RESOURCE_GROUP }}
+
+      - name: Add deployment link to summary
+        run: |
+          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Site:** [${{ steps.infra.outputs.webAppUrl }}](${{ steps.infra.outputs.webAppUrl }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
