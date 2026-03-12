@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import ScanProgress from '@/components/ScanProgress';
 import ReportView from '@/components/ReportView';
 import type { ScanRecord } from '@/lib/types/scan';
@@ -10,6 +11,8 @@ import type { ScanRecord } from '@/lib/types/scan';
 export default function ScanResultPage() {
   const params = useParams<{ id: string }>();
   const scanId = params.id;
+  const t = useTranslations('ScanResult');
+  const tCommon = useTranslations('Common');
 
   const [state, setState] = useState<'scanning' | 'results' | 'error'>('scanning');
   const [scanData, setScanData] = useState<ScanRecord | null>(null);
@@ -19,7 +22,7 @@ export default function ScanResultPage() {
     try {
       const res = await fetch(`/api/scan/${scanId}`);
       if (!res.ok) {
-        setErrorMessage('Failed to fetch scan results.');
+        setErrorMessage(t('fetchFailed'));
         setState('error');
         return;
       }
@@ -27,10 +30,10 @@ export default function ScanResultPage() {
       setScanData(data);
       setState('results');
     } catch {
-      setErrorMessage('Network error fetching results.');
+      setErrorMessage(t('networkError'));
       setState('error');
     }
-  }, [scanId]);
+  }, [scanId, t]);
 
   const handleError = useCallback((message: string) => {
     setErrorMessage(message);
@@ -41,13 +44,13 @@ export default function ScanResultPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-red-600">Scan Error</h1>
+          <h1 className="text-2xl font-bold text-red-600">{t('errorTitle')}</h1>
           <p className="text-gray-600">{errorMessage}</p>
           <Link
             href="/"
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Try Again
+            {tCommon('tryAgain')}
           </Link>
         </div>
       </div>

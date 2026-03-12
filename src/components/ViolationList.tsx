@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { AxeViolation } from '@/lib/types/scan';
 
 interface ViolationListProps {
@@ -13,15 +14,16 @@ const impactColors: Record<string, string> = {
   minor: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
 };
 
-const principleLabels: Record<string, string> = {
-  perceivable: 'Perceivable',
-  operable: 'Operable',
-  understandable: 'Understandable',
-  robust: 'Robust',
-  'best-practice': 'Best Practice',
-};
-
 export default function ViolationList({ violations }: ViolationListProps) {
+  const t = useTranslations('ViolationList');
+
+  const principleLabels: Record<string, string> = {
+    perceivable: t('principlePerceivable'),
+    operable: t('principleOperable'),
+    understandable: t('principleUnderstandable'),
+    robust: t('principleRobust'),
+    'best-practice': t('principleBestPractice'),
+  };
   // Group violations by principle
   const grouped = violations.reduce<Record<string, AxeViolation[]>>((acc, v) => {
     const principle = v.principle || 'best-practice';
@@ -34,7 +36,7 @@ export default function ViolationList({ violations }: ViolationListProps) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold">Violations ({violations.length})</h3>
+      <h3 className="text-xl font-semibold">{t('title', { count: violations.length })}</h3>
       {principles.map((principle) => {
         const items = grouped[principle];
         if (!items || items.length === 0) return null;
@@ -42,7 +44,7 @@ export default function ViolationList({ violations }: ViolationListProps) {
           <details key={principle} open className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <summary className="px-4 py-3 bg-gray-50 dark:bg-gray-800 cursor-pointer font-medium flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-750">
               <span>{principleLabels[principle] || principle}</span>
-              <span className="text-sm text-gray-600">{items.length} issue{items.length !== 1 ? 's' : ''}</span>
+              <span className="text-sm text-gray-600">{t('issues', { count: items.length })}</span>
             </summary>
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {items.map((v, i) => (
@@ -54,7 +56,7 @@ export default function ViolationList({ violations }: ViolationListProps) {
       })}
       {violations.length === 0 && (
         <p className="text-green-600 dark:text-green-400 font-medium">
-          No violations found. Great job!
+          {t('noViolations')}
         </p>
       )}
     </div>
@@ -62,6 +64,8 @@ export default function ViolationList({ violations }: ViolationListProps) {
 }
 
 function ViolationItem({ violation }: { violation: AxeViolation }) {
+  const t = useTranslations('ViolationList');
+
   return (
     <details className="group">
       <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -72,7 +76,7 @@ function ViolationItem({ violation }: { violation: AxeViolation }) {
           <div className="flex-1 min-w-0">
             <div className="font-medium text-sm">{violation.help}</div>
             <div className="text-xs text-gray-600 mt-0.5">
-              {violation.id} · {violation.nodes.length} element{violation.nodes.length !== 1 ? 's' : ''} affected
+              {violation.id} · {t('elementsAffected', { count: violation.nodes.length })}
             </div>
           </div>
         </div>
@@ -86,11 +90,11 @@ function ViolationItem({ violation }: { violation: AxeViolation }) {
               {node.failureSummary && (
                 <p className="text-xs text-gray-600 mt-2">{node.failureSummary}</p>
               )}
-              <p className="text-xs text-gray-600 mt-1">Selector: {node.target.join(' > ')}</p>
+              <p className="text-xs text-gray-600 mt-1">{t('selector')} {node.target.join(' > ')}</p>
             </div>
           ))}
           {violation.nodes.length > 5 && (
-            <p className="text-xs text-gray-600">...and {violation.nodes.length - 5} more elements</p>
+            <p className="text-xs text-gray-600">{t('moreElements', { count: violation.nodes.length - 5 })}</p>
           )}
         </div>
         <a
@@ -99,7 +103,7 @@ function ViolationItem({ violation }: { violation: AxeViolation }) {
           rel="noopener noreferrer"
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
-          Learn more →
+          {t('learnMore')}
         </a>
       </div>
     </details>

@@ -1,4 +1,5 @@
 import type { PageSummary } from '@/lib/types/crawl';
+import { useTranslations } from 'next-intl';
 
 interface PageListProps {
   pages: PageSummary[];
@@ -16,19 +17,20 @@ const gradeColors: Record<string, string> = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function PageList({ pages, crawlId: _crawlId }: PageListProps) {
   const sorted = [...pages].sort((a, b) => a.score - b.score);
+  const t = useTranslations('PageList');
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xl font-semibold">Page Results ({pages.length} pages)</h3>
+      <h3 className="text-xl font-semibold">{t('title', { count: pages.length })}</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th scope="col" className="text-left py-2 px-3 font-medium">URL</th>
-              <th scope="col" className="text-right py-2 px-3 font-medium">Score</th>
-              <th scope="col" className="text-center py-2 px-3 font-medium">Grade</th>
-              <th scope="col" className="text-right py-2 px-3 font-medium">Violations</th>
-              <th scope="col" className="text-center py-2 px-3 font-medium">Status</th>
+              <th scope="col" className="text-left py-2 px-3 font-medium">{t('url')}</th>
+              <th scope="col" className="text-right py-2 px-3 font-medium">{t('score')}</th>
+              <th scope="col" className="text-center py-2 px-3 font-medium">{t('grade')}</th>
+              <th scope="col" className="text-right py-2 px-3 font-medium">{t('violations')}</th>
+              <th scope="col" className="text-center py-2 px-3 font-medium">{t('status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -64,7 +66,7 @@ export default function PageList({ pages, crawlId: _crawlId }: PageListProps) {
         </table>
       </div>
       {pages.length === 0 && (
-        <p className="text-gray-600 text-sm">No pages scanned yet.</p>
+        <p className="text-gray-600 text-sm">{t('noPagesYet')}</p>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import type { ScoreResult } from '@/lib/types/score';
+import { useTranslations } from 'next-intl';
 
 interface ScoreDisplayProps {
   score: ScoreResult;
@@ -23,12 +24,13 @@ const gradeBgColors: Record<string, string> = {
 export default function ScoreDisplay({ score }: ScoreDisplayProps) {
   const circumference = 2 * Math.PI * 54;
   const offset = circumference - (score.overallScore / 100) * circumference;
+  const t = useTranslations('ScoreDisplay');
 
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Score Gauge */}
       <div className="relative">
-        <svg width="140" height="140" aria-label={`Accessibility score: ${score.overallScore} out of 100, grade ${score.grade}`}>
+        <svg width="140" height="140" aria-label={t('scoreLabel', { score: score.overallScore, grade: score.grade })}>
           <circle cx="70" cy="70" r="54" fill="none" stroke="#e5e7eb" strokeWidth="10" className="dark:stroke-gray-700" />
           <circle
             cx="70" cy="70" r="54" fill="none" strokeWidth="10"
@@ -41,7 +43,7 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-3xl font-bold ${gradeColors[score.grade]}`}>{score.overallScore}</span>
-          <span className="text-sm text-gray-600">Grade {score.grade}</span>
+          <span className="text-sm text-gray-600">{t('grade', { grade: score.grade })}</span>
         </div>
       </div>
 
@@ -51,32 +53,32 @@ export default function ScoreDisplay({ score }: ScoreDisplayProps) {
           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
       }`}>
-        {score.aodaCompliant ? <><span aria-hidden="true">✓</span> AODA Compliant</> : <><span aria-hidden="true">✕</span> Needs Remediation</>}
+        {score.aodaCompliant ? <><span aria-hidden="true">✓</span> {t('aodaCompliant')}</> : <><span aria-hidden="true">✕</span> {t('needsRemediation')}</>}
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 text-center text-sm">
         <div>
           <div className="text-2xl font-bold text-red-600" aria-hidden="true">{score.totalViolations}</div>
-          <div className="text-gray-600">Violations</div>
-          <div className="text-sm text-gray-600">({score.totalElementViolations} elements)</div>
-          <div className="sr-only">{score.totalViolations} violations across {score.totalElementViolations} elements</div>
+          <div className="text-gray-600">{t('violations')}</div>
+          <div className="text-sm text-gray-600">{t('elementsAffected', { count: score.totalElementViolations })}</div>
+          <div className="sr-only">{t('violationsSrOnly', { violations: score.totalViolations, elements: score.totalElementViolations })}</div>
         </div>
         <div>
           <div className="text-2xl font-bold text-green-700 dark:text-green-400" aria-hidden="true">{score.totalPasses}</div>
-          <div className="text-gray-600">Passed</div>
-          <div className="sr-only">{score.totalPasses} passed rules</div>
+          <div className="text-gray-600">{t('passedLabel')}</div>
+          <div className="sr-only">{t('passedSrOnly', { count: score.totalPasses })}</div>
         </div>
         <div>
           <div className="text-2xl font-bold text-yellow-600" aria-hidden="true">{score.totalIncomplete}</div>
-          <div className="text-gray-600">Needs Review</div>
-          <div className="sr-only">{score.totalIncomplete} rules need review</div>
+          <div className="text-gray-600">{t('needsReview')}</div>
+          <div className="sr-only">{t('needsReviewSrOnly', { count: score.totalIncomplete })}</div>
         </div>
       </div>
 
       {/* POUR Principle Scores */}
       <div className="w-full max-w-md space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">WCAG Principles</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{t('wcagPrinciples')}</h3>
         {(['perceivable', 'operable', 'understandable', 'robust'] as const).map((principle) => {
           const ps = score.principleScores[principle];
           return (

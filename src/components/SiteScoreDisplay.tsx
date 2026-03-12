@@ -1,4 +1,5 @@
 import type { SiteScoreResult } from '@/lib/types/crawl';
+import { useTranslations } from 'next-intl';
 
 interface SiteScoreDisplayProps {
   siteScore: SiteScoreResult;
@@ -23,12 +24,13 @@ const gradeBgColors: Record<string, string> = {
 export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
   const circumference = 2 * Math.PI * 54;
   const offset = circumference - (siteScore.overallScore / 100) * circumference;
+  const t = useTranslations('SiteScoreDisplay');
 
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Score Gauge */}
       <div className="relative">
-        <svg width="140" height="140" aria-label={`Site accessibility score: ${siteScore.overallScore} out of 100, grade ${siteScore.grade}`}>
+        <svg width="140" height="140" aria-label={t('scoreLabel', { score: siteScore.overallScore, grade: siteScore.grade })}>
           <circle cx="70" cy="70" r="54" fill="none" stroke="#e5e7eb" strokeWidth="10" className="dark:stroke-gray-700" />
           <circle
             cx="70" cy="70" r="54" fill="none" strokeWidth="10"
@@ -41,13 +43,13 @@ export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-3xl font-bold ${gradeColors[siteScore.grade]}`}>{siteScore.overallScore}</span>
-          <span className="text-sm text-gray-600">Grade {siteScore.grade}</span>
+          <span className="text-sm text-gray-600">{t('grade', { grade: siteScore.grade })}</span>
         </div>
       </div>
 
       {/* Page Count */}
       <p className="text-gray-600 text-sm font-medium">
-        {siteScore.pageCount} pages scanned
+        {t('pagesScanned', { count: siteScore.pageCount })}
       </p>
 
       {/* AODA Badge */}
@@ -56,25 +58,25 @@ export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
       }`}>
-        {siteScore.aodaCompliant ? <><span aria-hidden="true">✓</span> AODA Compliant</> : <><span aria-hidden="true">✕</span> Needs Remediation</>}
+        {siteScore.aodaCompliant ? <><span aria-hidden="true">✓</span> {t('aodaCompliant')}</> : <><span aria-hidden="true">✕</span> {t('needsRemediation')}</>}
       </div>
 
       {/* Score Range */}
       <div className="flex gap-4 text-center text-sm">
         <div>
           <div className="text-xl font-bold text-red-500" aria-hidden="true">{siteScore.lowestPageScore}</div>
-          <div className="text-gray-600">Lowest</div>
-          <div className="sr-only">Lowest page score: {siteScore.lowestPageScore}</div>
+          <div className="text-gray-600">{t('lowest')}</div>
+          <div className="sr-only">{t('lowestSrOnly', { score: siteScore.lowestPageScore })}</div>
         </div>
         <div>
           <div className="text-xl font-bold text-yellow-500" aria-hidden="true">{siteScore.medianPageScore}</div>
-          <div className="text-gray-600">Median</div>
-          <div className="sr-only">Median page score: {siteScore.medianPageScore}</div>
+          <div className="text-gray-600">{t('median')}</div>
+          <div className="sr-only">{t('medianSrOnly', { score: siteScore.medianPageScore })}</div>
         </div>
         <div>
           <div className="text-xl font-bold text-green-500" aria-hidden="true">{siteScore.highestPageScore}</div>
-          <div className="text-gray-600">Highest</div>
-          <div className="sr-only">Highest page score: {siteScore.highestPageScore}</div>
+          <div className="text-gray-600">{t('highest')}</div>
+          <div className="sr-only">{t('highestSrOnly', { score: siteScore.highestPageScore })}</div>
         </div>
       </div>
 
@@ -82,19 +84,19 @@ export default function SiteScoreDisplay({ siteScore }: SiteScoreDisplayProps) {
       <div className="grid grid-cols-2 gap-4 text-center text-sm">
         <div>
           <div className="text-2xl font-bold text-red-500" aria-hidden="true">{siteScore.totalUniqueViolations}</div>
-          <div className="text-gray-600">Unique Violations</div>
-          <div className="sr-only">{siteScore.totalUniqueViolations} unique violations</div>
+          <div className="text-gray-600">{t('uniqueViolations')}</div>
+          <div className="sr-only">{t('uniqueViolationsSrOnly', { count: siteScore.totalUniqueViolations })}</div>
         </div>
         <div>
           <div className="text-2xl font-bold text-green-500" aria-hidden="true">{siteScore.totalPasses}</div>
-          <div className="text-gray-600">Passed Rules</div>
-          <div className="sr-only">{siteScore.totalPasses} passed rules</div>
+          <div className="text-gray-600">{t('passedRules')}</div>
+          <div className="sr-only">{t('passedRulesSrOnly', { count: siteScore.totalPasses })}</div>
         </div>
       </div>
 
       {/* POUR Principle Scores */}
       <div className="w-full max-w-md space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">WCAG Principles</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{t('wcagPrinciples')}</h3>
         {(['perceivable', 'operable', 'understandable', 'robust'] as const).map((principle) => {
           const ps = siteScore.principleScores[principle];
           return (

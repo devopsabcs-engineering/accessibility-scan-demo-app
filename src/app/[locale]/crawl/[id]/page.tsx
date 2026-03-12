@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import CrawlProgress from '@/components/CrawlProgress';
 import SiteScoreDisplay from '@/components/SiteScoreDisplay';
 import PageList from '@/components/PageList';
@@ -13,6 +14,8 @@ import type { AxeViolation } from '@/lib/types/scan';
 export default function CrawlResultPage() {
   const params = useParams<{ id: string }>();
   const crawlId = params.id;
+  const t = useTranslations('CrawlResult');
+  const tCommon = useTranslations('Common');
 
   const [state, setState] = useState<'crawling' | 'results' | 'error'>('crawling');
   const [crawlData, setCrawlData] = useState<CrawlRecord | null>(null);
@@ -27,7 +30,7 @@ export default function CrawlResultPage() {
         fetch(`/api/crawl/${crawlId}/pages`),
       ]);
       if (!crawlRes.ok) {
-        setErrorMessage('Failed to fetch crawl results.');
+        setErrorMessage(t('fetchFailed'));
         setState('error');
         return;
       }
@@ -41,10 +44,10 @@ export default function CrawlResultPage() {
 
       setState('results');
     } catch {
-      setErrorMessage('Network error fetching results.');
+      setErrorMessage(t('networkError'));
       setState('error');
     }
-  }, [crawlId]);
+  }, [crawlId, t]);
 
   const handleError = useCallback((message: string) => {
     setErrorMessage(message);
@@ -67,7 +70,7 @@ export default function CrawlResultPage() {
           }
           setState('results');
         } else if (data.status === 'error') {
-          setErrorMessage(data.error || 'Crawl failed.');
+          setErrorMessage(data.error || t('crawlFailed'));
           setState('error');
         }
       } catch {
@@ -75,7 +78,7 @@ export default function CrawlResultPage() {
       }
     }
     checkStatus();
-  }, [crawlId]);
+  }, [crawlId, t]);
 
   async function handleCancel() {
     setCancelling(true);
@@ -83,10 +86,10 @@ export default function CrawlResultPage() {
       const res = await fetch(`/api/crawl/${crawlId}/cancel`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
-        setErrorMessage(data.error || 'Failed to cancel crawl.');
+        setErrorMessage(data.error || t('cancelFailed'));
       }
     } catch {
-      setErrorMessage('Network error cancelling crawl.');
+      setErrorMessage(t('cancelNetworkError'));
     } finally {
       setCancelling(false);
     }
@@ -104,7 +107,7 @@ export default function CrawlResultPage() {
       helpUrl: av.helpUrl,
       principle: av.principle,
       nodes: av.affectedPages.map((ap) => ({
-        html: `${ap.nodeCount} instance(s) on ${ap.url}`,
+        html: t('instancesOnUrl', { nodeCount: ap.nodeCount, url: ap.url }),
         target: [ap.url],
         impact: av.impact,
       })),
@@ -115,13 +118,13 @@ export default function CrawlResultPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-red-600">Crawl Error</h1>
+          <h1 className="text-2xl font-bold text-red-600">{t('errorTitle')}</h1>
           <p className="text-gray-600">{errorMessage}</p>
           <Link
             href="/"
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Try Again
+            {tCommon('tryAgain')}
           </Link>
         </div>
       </div>
@@ -137,7 +140,7 @@ export default function CrawlResultPage() {
           disabled={cancelling}
           className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
         >
-          {cancelling ? 'Cancelling...' : 'Cancel Crawl'}
+          {cancelling ? t('cancelling') : t('cancelCrawl')}
         </button>
       </div>
     );
@@ -149,14 +152,14 @@ export default function CrawlResultPage() {
         <div className="w-full max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <header className="text-center space-y-2">
-            <h1 className="text-2xl font-bold">Site-Wide WCAG 2.2 Accessibility Report</h1>
+            <h1 className="text-2xl font-bold">{t('siteReportTitle')}</h1>
             <p className="text-gray-600">
               <a href={crawlData.seedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
                 {crawlData.seedUrl}
               </a>
             </p>
             <p className="text-sm text-gray-500">
-              {crawlData.completedPageCount} pages scanned · Started {new Date(crawlData.startedAt).toLocaleString()}
+              {t('pagesScanned', { count: crawlData.completedPageCount })} · {t('started')} {new Date(crawlData.startedAt).toLocaleString()}
             </p>
           </header>
 
@@ -167,34 +170,34 @@ export default function CrawlResultPage() {
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm font-medium"
               download
             >
-              Download PDF Report
+              {t('downloadPdf')}
             </a>
             <Link
               href="/"
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
             >
-              Scan Another Site
+              {t('scanAnother')}
             </Link>
           </div>
 
           {/* Site Score */}
           {crawlData.siteScore && (
             <section aria-labelledby="site-score-heading">
-              <h2 id="site-score-heading" className="text-xl font-semibold mb-4">Executive Summary</h2>
+              <h2 id="site-score-heading" className="text-xl font-semibold mb-4">{t('executiveSummary')}</h2>
               <SiteScoreDisplay siteScore={crawlData.siteScore} />
             </section>
           )}
 
           {/* Page Results */}
           <section aria-labelledby="pages-heading">
-            <h2 id="pages-heading" className="sr-only">Page Results</h2>
+            <h2 id="pages-heading" className="sr-only">{t('pageResults')}</h2>
             <PageList pages={pages} crawlId={crawlId} />
           </section>
 
           {/* Aggregated Violations */}
           {crawlData.aggregatedViolations && crawlData.aggregatedViolations.length > 0 && (
             <section aria-labelledby="violations-heading">
-              <h2 id="violations-heading" className="sr-only">Aggregated Violations</h2>
+              <h2 id="violations-heading" className="sr-only">{t('aggregatedViolations')}</h2>
               <ViolationList violations={toAxeViolations(crawlData)} />
             </section>
           )}
