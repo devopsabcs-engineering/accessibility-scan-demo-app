@@ -151,10 +151,10 @@ describe('normalizeIbmResults', () => {
   it('maps message to description and help', () => {
     const result = normalizeIbmResults([makeIbmResult({ message: 'Test message', help: 'Test help' })]);
     expect(result[0].description).toBe('Test message');
-    expect(result[0].help).toBe('Test help');
+    expect(result[0].help).toBe('Test message');
   });
 
-  it('falls back to message when help is not provided', () => {
+  it('uses message as help text when help is not provided', () => {
     const result = normalizeIbmResults([makeIbmResult({ message: 'Test message', help: undefined })]);
     expect(result[0].help).toBe('Test message');
   });
@@ -166,7 +166,31 @@ describe('normalizeIbmResults', () => {
 
   it('constructs IBM helpUrl from ruleId', () => {
     const result = normalizeIbmResults([makeIbmResult({ ruleId: 'img_alt_valid' })]);
-    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/tools/help/img_alt_valid');
+    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/latest/doc/en-US/img_alt_valid.html');
+  });
+
+  it('extracts base URL from IBM help field', () => {
+    const result = normalizeIbmResults([makeIbmResult({
+      ruleId: 'style_color_misuse',
+      help: 'https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/style_color_misuse.html#ruleInfo=%7B%22someKey%22%3A%22someValue%22%7D',
+    })]);
+    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/style_color_misuse.html');
+  });
+
+  it('falls back to archive URL when help is not a URL', () => {
+    const result = normalizeIbmResults([makeIbmResult({
+      ruleId: 'img_alt_valid',
+      help: 'Some non-URL help text',
+    })]);
+    expect(result[0].helpUrl).toBe('https://able.ibm.com/rules/archives/latest/doc/en-US/img_alt_valid.html');
+  });
+
+  it('uses message as help text even when IBM help field is a URL', () => {
+    const result = normalizeIbmResults([makeIbmResult({
+      message: 'Human readable text',
+      help: 'https://able.ibm.com/rules/archives/2026.03.04/doc/en-US/some_rule.html',
+    })]);
+    expect(result[0].help).toBe('Human readable text');
   });
 
   it('includes category as a tag when present', () => {

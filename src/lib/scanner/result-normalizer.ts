@@ -49,6 +49,22 @@ const IMPACT_SEVERITY_ORDER: Record<string, number> = {
 };
 
 /**
+ * Extract the base URL (before # fragment) from the raw IBM help field.
+ * Falls back to the /archives/latest/ URL pattern when help is not a valid URL.
+ */
+function extractIbmHelpUrl(rawHelp: string | undefined, ruleId: string): string {
+  if (rawHelp) {
+    try {
+      const url = new URL(rawHelp);
+      return `${url.origin}${url.pathname}`;
+    } catch {
+      // not a URL, fall through
+    }
+  }
+  return `https://able.ibm.com/rules/archives/latest/doc/en-US/${ruleId}.html`;
+}
+
+/**
  * Normalize IBM Equal Access results to the unified NormalizedViolation format.
  */
 export function normalizeIbmResults(ibmResults: IbmReportResult[]): NormalizedViolation[] {
@@ -71,8 +87,8 @@ export function normalizeIbmResults(ibmResults: IbmReportResult[]): NormalizedVi
         impact,
         tags,
         description: r.message,
-        help: r.help ?? r.message,
-        helpUrl: `https://able.ibm.com/rules/tools/help/${r.ruleId}`,
+        help: r.message,
+        helpUrl: extractIbmHelpUrl(r.help, r.ruleId),
         nodes: [{
           html: r.snippet || '',
           target: [domPath],
