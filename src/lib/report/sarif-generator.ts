@@ -11,9 +11,12 @@ interface SarifRun {
     driver: {
       name: string;
       version: string;
+      informationUri: string;
+      semanticVersion: string;
       rules: SarifRule[];
     };
   };
+  automationDetails?: { id: string };
   results: SarifResult[];
 }
 
@@ -21,8 +24,20 @@ interface SarifRule {
   id: string;
   name: string;
   shortDescription: { text: string };
+  fullDescription: { text: string };
   helpUri: string;
-  properties: { tags: string[] };
+  help: {
+    text: string;
+    markdown: string;
+  };
+  defaultConfiguration: {
+    level: 'error' | 'warning' | 'note';
+  };
+  properties: {
+    tags: string[];
+    precision: 'very-high' | 'high' | 'medium' | 'low';
+    'problem.severity': 'error' | 'warning' | 'recommendation';
+  };
 }
 
 interface SarifResult {
@@ -74,6 +89,91 @@ function urlToArtifactPath(url: string): string {
   }
 }
 
+function buildHelpMarkdown(violation: AxeViolation): string {
+  const lines: string[] = [
+    `# ${violation.help}`,
+    '',
+    violation.description,
+    '',
+    `**Impact:** ${violation.impact}`,
+  ];
+
+  if (violation.principle) {
+    lines.push(`**Principle:** ${violation.principle}`);
+  }
+
+  if (violation.engine) {
+    lines.push(`**Engine:** ${violation.engine}`);
+  }
+
+  const wcagTags = violation.tags.filter(t => /^wcag\d/.test(t));
+  if (wcagTags.length > 0) {
+    lines.push('', '## WCAG Criteria', '');
+    for (const tag of wcagTags) {
+      lines.push(`- \`${tag}\``);
+    }
+  }
+
+  lines.push('', '## Learn More', '');
+  if (violation.helpUrl) {
+    lines.push(`- [Rule documentation](${violation.helpUrl})`);
+  }
+
+  return lines.join('\n');
+}
+
+function buildHelpText(violation: AxeViolation): string {
+  const parts: string[] = [
+    violation.help,
+    '',
+    violation.description,
+    '',
+    `Impact: ${violation.impact}`,
+  ];
+
+  if (violation.principle) {
+    parts.push(`Principle: ${violation.principle}`);
+  }
+
+  const wcagTags = violation.tags.filter(t => /^wcag\d/.test(t));
+  if (wcagTags.length > 0) {
+    parts.push('', 'WCAG Criteria:');
+    for (const tag of wcagTags) {
+      parts.push(`  - ${tag}`);
+    }
+  }
+
+  if (violation.helpUrl) {
+    parts.push('', `Learn more: ${violation.helpUrl}`);
+  }
+
+  return parts.join('\n');
+}
+
+function mapEngineToPrecision(engine?: string): 'very-high' | 'high' | 'medium' | 'low' {
+  switch (engine) {
+    case 'axe-core':
+      return 'very-high';
+    case 'ibm-equal-access':
+      return 'high';
+    default:
+      return 'medium';
+  }
+}
+
+function mapImpactToSeverity(impact: string): 'error' | 'warning' | 'recommendation' {
+  switch (impact) {
+    case 'critical':
+    case 'serious':
+      return 'error';
+    case 'moderate':
+      return 'warning';
+    case 'minor':
+    default:
+      return 'recommendation';
+  }
+}
+
 function buildRun(url: string, violations: AxeViolation[], toolVersion: string): SarifRun {
   const rulesMap = new Map<string, { rule: SarifRule; index: number }>();
   const rules: SarifRule[] = [];
@@ -85,9 +185,21 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
       const rule: SarifRule = {
         id: violation.id,
         name: violation.id,
-        shortDescription: { text: violation.description },
+        shortDescription: { text: violation.help },
+        fullDescription: { text: violation.description },
         helpUri: violation.helpUrl,
-        properties: { tags: violation.tags },
+        help: {
+          text: buildHelpText(violation),
+          markdown: buildHelpMarkdown(violation),
+        },
+        defaultConfiguration: {
+          level: mapImpactToLevel(violation.impact),
+        },
+        properties: {
+          tags: violation.tags,
+          precision: mapEngineToPrecision(violation.engine),
+          'problem.severity': mapImpactToSeverity(violation.impact),
+        },
       };
       rules.push(rule);
       rulesMap.set(violation.id, { rule, index });
@@ -101,7 +213,9 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
         ruleId: violation.id,
         ruleIndex: ruleEntry.index,
         level: mapImpactToLevel(violation.impact),
-        message: { text: `${violation.help} (${url} — ${target})` },
+        message: {
+          text: `${violation.description}: ${violation.help}. Scanned URL: ${url} — Selector: ${target} — ${violation.nodes.length} element(s) affected${node.failureSummary ? ` — ${node.failureSummary}` : ''}`,
+        },
         locations: [
           {
             physicalLocation: {
@@ -122,8 +236,13 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
       driver: {
         name: 'accessibility-scanner',
         version: toolVersion,
+        informationUri: 'https://github.com/devopsabcs-engineering/accessibility-scan-demo-app',
+        semanticVersion: toolVersion,
         rules,
       },
+    },
+    automationDetails: {
+      id: `accessibility-scan/${url}`,
     },
     results,
   };
