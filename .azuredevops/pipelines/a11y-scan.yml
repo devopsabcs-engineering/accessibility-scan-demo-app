@@ -65,3 +65,9 @@ steps:
       pathToPublish: 'results'
       artifactName: 'CodeAnalysisLogs'
     displayName: 'Publish to Scans tab - $(siteName)'
+
+  - task: AdvancedSecurity-Publish@1
+    condition: always()
+    inputs:
+      SarifsInputDirectory: '$(Build.SourcesDirectory)/results'
+    displayName: 'Publish SARIF to Advanced Security - $(siteName)'
