@@ -13,6 +13,7 @@ env:
 permissions:
   id-token: write
   contents: read
+  pages: write
 
 jobs:
   # ── Deploy demo apps 001-005 (all in parallel via cross-repo dispatch) ──
