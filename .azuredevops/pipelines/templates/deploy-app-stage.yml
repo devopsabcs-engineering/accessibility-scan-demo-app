@@ -25,6 +25,7 @@ stages:
         displayName: 'Deploy ${{ parameters.appName }}'
         steps:
           - checkout: ${{ parameters.repository }}
+            path: ${{ parameters.appName }}
 
           - task: AzureCLI@2
             displayName: 'Deploy infrastructure'
@@ -34,7 +35,11 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 set -e
-                cd "$(Build.SourcesDirectory)/${{ parameters.repository }}"
+                echo "Build.SourcesDirectory: $(Build.SourcesDirectory)"
+                echo "Agent.BuildDirectory: $(Agent.BuildDirectory)"
+                ls -la "$(Agent.BuildDirectory)/s/" || true
+                ls -la "$(Agent.BuildDirectory)/" || true
+                cd "$(Agent.BuildDirectory)/${{ parameters.appName }}"
                 ls -la infra/
                 az group create \
                   --name ${{ parameters.resourceGroup }} \
@@ -55,7 +60,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 set -e
-                cd "$(Build.SourcesDirectory)/${{ parameters.repository }}"
+                cd "$(Agent.BuildDirectory)/${{ parameters.appName }}"
                 ACR_NAME=$(az deployment group show \
                   --resource-group ${{ parameters.resourceGroup }} \
                   --name infra-deploy \
