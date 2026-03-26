@@ -1,0 +1,72 @@
+# Orchestrating workflow: Scan all demo apps in parallel
+# Manually triggered - runs accessibility scans on all 5 demo apps simultaneously
+
+name: Scan All Demo Apps
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  SCANNER_BASE_URL: https://a11y-scan-demo-app.azurewebsites.net
+
+jobs:
+  scan:
+    name: Scan ${{ matrix.siteName }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - siteName: a11y-demo-app-001
+            siteUrl: https://a11y-demo-app-001-app.azurewebsites.net/
+          - siteName: a11y-demo-app-002
+            siteUrl: https://a11y-demo-app-002-app.azurewebsites.net/
+          - siteName: a11y-demo-app-003
+            siteUrl: https://a11y-demo-app-003-app.azurewebsites.net/
+          - siteName: a11y-demo-app-004
+            siteUrl: https://a11y-demo-app-004-app.azurewebsites.net/
+          - siteName: a11y-demo-app-005
+            siteUrl: https://a11y-demo-app-005-app.azurewebsites.net/
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run accessibility scan - ${{ matrix.siteName }}
+        run: |
+          mkdir -p results
+          HTTP_STATUS=$(curl -s -o results/${{ matrix.siteName }}.sarif -w "%{http_code}" \
+            -X POST "${{ env.SCANNER_BASE_URL }}/api/ci/scan" \
+            -H "Content-Type: application/json" \
+            -d '{"url": "${{ matrix.siteUrl }}", "format": "sarif"}' \
+            --max-time 120)
+
+          echo "HTTP status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::error::Scan failed for ${{ matrix.siteUrl }} (HTTP $HTTP_STATUS)"
+            cat results/${{ matrix.siteName }}.sarif
+            exit 1
+          fi
+
+          echo "SARIF file written: results/${{ matrix.siteName }}.sarif"
+          echo "File size: $(wc -c < results/${{ matrix.siteName }}.sarif) bytes"
+
+      - name: Upload SARIF artifact - ${{ matrix.siteName }}
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a11y-sarif-${{ matrix.siteName }}
+          path: results/
+
+      - name: Upload SARIF to GitHub Security - ${{ matrix.siteName }}
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: results/${{ matrix.siteName }}.sarif
+          category: a11y-${{ matrix.siteName }}
+          wait-for-processing: true
