@@ -1,0 +1,167 @@
+# Orchestrating pipeline: Deploy all demo apps and teardown after demo
+# Manually triggered - deploys all 6 apps in parallel, then tears down with approval
+trigger: none
+
+resources:
+  repositories:
+    - repository: app001
+      type: git
+      name: a11y-demo-app-001
+    - repository: app002
+      type: git
+      name: a11y-demo-app-002
+    - repository: app003
+      type: git
+      name: a11y-demo-app-003
+    - repository: app004
+      type: git
+      name: a11y-demo-app-004
+    - repository: app005
+      type: git
+      name: a11y-demo-app-005
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  serviceConnection: 'AODA-svc-conn'
+  location: 'canadacentral'
+
+stages:
+  # ── Deploy demo apps 001-005 (all in parallel) ──
+  - template: templates/deploy-app-stage.yml
+    parameters:
+      stageId: 'Deploy_001'
+      stageName: 'Deploy App 001 (Rust)'
+      appName: 'a11y-demo-app-001'
+      resourceGroup: 'rg-a11y-demo-app-001'
+      repository: 'app001'
+      containerPort: '8080'
+
+  - template: templates/deploy-app-stage.yml
+    parameters:
+      stageId: 'Deploy_002'
+      stageName: 'Deploy App 002 (C#)'
+      appName: 'a11y-demo-app-002'
+      resourceGroup: 'rg-a11y-demo-app-002'
+      repository: 'app002'
+      containerPort: '8080'
+
+  - template: templates/deploy-app-stage.yml
+    parameters:
+      stageId: 'Deploy_003'
+      stageName: 'Deploy App 003 (Java)'
+      appName: 'a11y-demo-app-003'
+      resourceGroup: 'rg-a11y-demo-app-003'
+      repository: 'app003'
+      containerPort: '8080'
+
+  - template: templates/deploy-app-stage.yml
+    parameters:
+      stageId: 'Deploy_004'
+      stageName: 'Deploy App 004 (Python)'
+      appName: 'a11y-demo-app-004'
+      resourceGroup: 'rg-a11y-demo-app-004'
+      repository: 'app004'
+      containerPort: '8080'
+
+  - template: templates/deploy-app-stage.yml
+    parameters:
+      stageId: 'Deploy_005'
+      stageName: 'Deploy App 005 (Go)'
+      appName: 'a11y-demo-app-005'
+      resourceGroup: 'rg-a11y-demo-app-005'
+      repository: 'app005'
+      containerPort: '8080'
+
+  # ── Deploy scan demo app (self repo, parallel with others) ──
+  - stage: Deploy_ScanDemo
+    displayName: 'Deploy Scan Demo App (Next.js)'
+    dependsOn: []
+    jobs:
+      - job: DeployApp
+        displayName: 'Deploy a11y-scan-demo'
+        steps:
+          - checkout: self
+
+          - task: AzureCLI@2
+            displayName: 'Deploy infrastructure'
+            inputs:
+              azureSubscription: '$(serviceConnection)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                az group create \
+                  --name rg-a11y-scan-demo \
+                  --location $(location)
+                az deployment group create \
+                  --resource-group rg-a11y-scan-demo \
+                  --name infra-deploy \
+                  --template-file infra/main.bicep \
+                  --parameters infra/main.parameters.json \
+                  --parameters imageTag=$(Build.BuildId)
+
+          - task: AzureCLI@2
+            displayName: 'Build and push Docker image'
+            inputs:
+              azureSubscription: '$(serviceConnection)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                ACR_NAME=$(az deployment group show \
+                  --resource-group rg-a11y-scan-demo \
+                  --name infra-deploy \
+                  --query 'properties.outputs.acrName.value' -o tsv)
+                echo "ACR: $ACR_NAME"
+                az acr build \
+                  --registry "$ACR_NAME" \
+                  --image a11y-scan-demo:$(Build.BuildId) .
+
+          - task: AzureCLI@2
+            displayName: 'Deploy container to Web App'
+            inputs:
+              azureSubscription: '$(serviceConnection)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                WEB_APP_NAME=$(az deployment group show \
+                  --resource-group rg-a11y-scan-demo \
+                  --name infra-deploy \
+                  --query 'properties.outputs.webAppName.value' -o tsv)
+                ACR_LOGIN=$(az deployment group show \
+                  --resource-group rg-a11y-scan-demo \
+                  --name infra-deploy \
+                  --query 'properties.outputs.acrLoginServer.value' -o tsv)
+                az webapp config container set \
+                  --name $WEB_APP_NAME \
+                  --resource-group rg-a11y-scan-demo \
+                  --container-image-name "$ACR_LOGIN/a11y-scan-demo:$(Build.BuildId)"
+                az webapp restart \
+                  --name $WEB_APP_NAME \
+                  --resource-group rg-a11y-scan-demo
+                SITE_URL=$(az deployment group show \
+                  --resource-group rg-a11y-scan-demo \
+                  --name infra-deploy \
+                  --query 'properties.outputs.webAppUrl.value' -o tsv)
+                echo "Deployed scan demo app to: $SITE_URL"
+
+  # ── Teardown (requires approval on 'teardown' environment) ──
+  - template: templates/teardown-stage.yml
+    parameters:
+      dependsOn:
+        - Deploy_001
+        - Deploy_002
+        - Deploy_003
+        - Deploy_004
+        - Deploy_005
+        - Deploy_ScanDemo
+      resourceGroups:
+        - 'rg-a11y-demo-app-001'
+        - 'rg-a11y-demo-app-002'
+        - 'rg-a11y-demo-app-003'
+        - 'rg-a11y-demo-app-004'
+        - 'rg-a11y-demo-app-005'
+        - 'rg-a11y-scan-demo'
