@@ -41,8 +41,9 @@ jobs:
           echo "Dispatching ci-cd workflow for ${{ matrix.name }}..."
           gh workflow run ci-cd.yml \
             --repo devopsabcs-engineering/${{ matrix.repo }} \
-            --ref main
-          echo "Dispatch sent to ${{ matrix.repo }}"
+            --ref main \
+            --field skip_teardown=true
+          echo "Dispatch sent to ${{ matrix.repo }} (teardown skipped)"
 
       - name: Wait for workflow to start
         env:
