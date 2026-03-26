@@ -263,8 +263,17 @@ export async function startCrawl(
       },
     });
 
-    // Run the crawler with seed URLs
-    await crawler.run(Array.from(seedUrls));
+    // Run the crawler with seed URLs.
+    // Cap the seed list to (maxPages - 1) so crawlee's internal request counter
+    // does not reach maxRequestsPerCrawl during the initial enqueue phase.
+    // When the limit is hit before the processing loop starts, the crawler
+    // terminates immediately with 0 pages processed (observed with large
+    // sitemaps such as ontario.ca and microsoft.com).
+    const primarySeed = normalizeUrl(seedUrl);
+    const remainingSeeds = Array.from(seedUrls).filter(u => u !== primarySeed);
+    const maxSeeds = Math.max(1, config.maxPages - 1);
+    const cappedSeeds = [primarySeed, ...remainingSeeds].slice(0, maxSeeds);
+    await crawler.run(cappedSeeds);
 
     // Aggregation phase
     updateCrawl(crawlId, { status: 'aggregating', progress: 95, message: 'Aggregating results...' });
