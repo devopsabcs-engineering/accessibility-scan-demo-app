@@ -1,5 +1,6 @@
 # Orchestrating workflow: Scan all demo apps in parallel
-# Manually triggered - runs accessibility scans on all 5 demo apps simultaneously
+# Manually triggered - dispatches a11y-scan workflows in sibling repos
+# so SARIF results appear in each repo's own Code Scanning alerts
 
 name: Scan All Demo Apps
 
@@ -8,77 +9,63 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-
-env:
-  SCANNER_BASE_URL: https://a11y-scan-demo-app.azurewebsites.net
 
 jobs:
   scan:
-    name: Scan ${{ matrix.siteName }}
+    name: Scan ${{ matrix.repo }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       max-parallel: 5
       matrix:
         include:
-          - siteName: a11y-demo-app-001
-            siteUrl: https://a11y-demo-app-001-app.azurewebsites.net/
-          - siteName: a11y-demo-app-002
-            siteUrl: https://a11y-demo-app-002-app.azurewebsites.net/
-          - siteName: a11y-demo-app-003
-            siteUrl: https://a11y-demo-app-003-app.azurewebsites.net/
-          - siteName: a11y-demo-app-004
-            siteUrl: https://a11y-demo-app-004-app.azurewebsites.net/
-          - siteName: a11y-demo-app-005
-            siteUrl: https://a11y-demo-app-005-app.azurewebsites.net/
+          - repo: a11y-demo-app-001
+          - repo: a11y-demo-app-002
+          - repo: a11y-demo-app-003
+          - repo: a11y-demo-app-004
+          - repo: a11y-demo-app-005
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Run accessibility scan - ${{ matrix.siteName }}
-        id: scan
+      - name: Dispatch a11y-scan workflow in ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_PAT }}
         run: |
-          mkdir -p results
-          for attempt in 1 2 3; do
-            HTTP_STATUS=$(curl -s -o results/${{ matrix.siteName }}.sarif -w "%{http_code}" \
-              -X POST "${{ env.SCANNER_BASE_URL }}/api/ci/scan" \
-              -H "Content-Type: application/json" \
-              -d '{"url": "${{ matrix.siteUrl }}", "format": "sarif"}' \
-              --max-time 120)
+          BEFORE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "before=$BEFORE" >> "$GITHUB_ENV"
+          echo "Dispatching a11y-scan workflow for ${{ matrix.repo }} (after $BEFORE)..."
+          gh workflow run a11y-scan.yml \
+            --repo devopsabcs-engineering/${{ matrix.repo }} \
+            --ref main
+          echo "Dispatch sent to ${{ matrix.repo }}"
 
-            echo "Attempt $attempt - HTTP status: $HTTP_STATUS"
-
-            if [ "$HTTP_STATUS" -eq 200 ]; then
-              echo "SARIF file written: results/${{ matrix.siteName }}.sarif"
-              echo "File size: $(wc -c < results/${{ matrix.siteName }}.sarif) bytes"
-              echo "scan_ok=true" >> "$GITHUB_OUTPUT"
+      - name: Wait for workflow run to appear
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_PAT }}
+        run: |
+          echo "Waiting for a11y-scan run created after ${{ env.before }}..."
+          for i in $(seq 1 30); do
+            RUN_ID=$(gh run list \
+              --repo devopsabcs-engineering/${{ matrix.repo }} \
+              --workflow a11y-scan.yml \
+              --json databaseId,createdAt,event \
+              --jq "[.[] | select(.createdAt >= \"${{ env.before }}\" and .event == \"workflow_dispatch\")] | .[0].databaseId")
+            if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+              echo "Found workflow run: $RUN_ID"
+              echo "run_id=$RUN_ID" >> "$GITHUB_ENV"
               exit 0
             fi
-
-            echo "::warning::Scan attempt $attempt failed for ${{ matrix.siteUrl }} (HTTP $HTTP_STATUS)"
-            if [ "$attempt" -lt 3 ]; then
-              echo "Retrying in 30s..."
-              sleep 30
-            fi
+            echo "Attempt $i: run not found yet, waiting 10s..."
+            sleep 10
           done
-
-          echo "::error::Scan failed for ${{ matrix.siteUrl }} after 3 attempts (HTTP $HTTP_STATUS)"
-          cat results/${{ matrix.siteName }}.sarif
-          echo "scan_ok=false" >> "$GITHUB_OUTPUT"
+          echo "::error::Timed out waiting for a11y-scan run to appear in ${{ matrix.repo }}"
           exit 1
 
-      - name: Upload SARIF artifact - ${{ matrix.siteName }}
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: a11y-sarif-${{ matrix.siteName }}
-          path: results/
-
-      - name: Upload SARIF to GitHub Security - ${{ matrix.siteName }}
-        uses: github/codeql-action/upload-sarif@v4
-        if: steps.scan.outputs.scan_ok == 'true'
-        with:
-          sarif_file: results/${{ matrix.siteName }}.sarif
-          category: a11y-${{ matrix.siteName }}
-          wait-for-processing: true
+      - name: Wait for workflow to complete
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_PAT }}
+        run: |
+          echo "Watching a11y-scan run ${{ env.run_id }} in ${{ matrix.repo }}..."
+          gh run watch ${{ env.run_id }} \
+            --repo devopsabcs-engineering/${{ matrix.repo }} \
+            --exit-status
+          echo "${{ matrix.repo }} scan completed successfully"
