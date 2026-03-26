@@ -217,7 +217,7 @@ describe('site-crawler', () => {
       expect(abortUpdate).toBeDefined();
     });
 
-    it('caps seed URLs below maxPages to prevent crawlee premature termination', async () => {
+    it('caps seed URLs at maxPages and places primary seed first', async () => {
       // Simulate a large sitemap that returns more URLs than maxPages
       const sitemapUrls = Array.from({ length: 200 }, (_, i) => `https://example.com/page${i}`);
       vi.mocked(discoverSitemapUrls).mockResolvedValueOnce(sitemapUrls);
@@ -236,12 +236,25 @@ describe('site-crawler', () => {
       const config = { ...defaultConfig, maxPages: 50 };
       await startCrawl('crawl-cap', 'https://example.com', config);
 
-      // Should pass fewer than maxPages seed URLs to prevent the
-      // crawler from hitting maxRequestsPerCrawl during the enqueue phase
-      expect(capturedRunArg.length).toBeLessThan(config.maxPages);
-      expect(capturedRunArg.length).toBe(config.maxPages - 1);
+      // Should cap seed URLs at maxPages
+      expect(capturedRunArg.length).toBeLessThanOrEqual(config.maxPages);
+      expect(capturedRunArg.length).toBe(config.maxPages);
       // The original seed URL must always be included first
       expect(capturedRunArg[0]).toBe('https://example.com');
+    });
+
+    it('does not set maxRequestsPerCrawl on the crawler', async () => {
+      const crawlee = await import('crawlee');
+      vi.mocked(crawlee.PlaywrightCrawler).mockImplementationOnce(function (this: Record<string, unknown>, options: Record<string, unknown>) {
+        _capturedOptions = options;
+        this.run = vi.fn().mockResolvedValue(undefined);
+        return this;
+      });
+
+      await startCrawl('crawl-no-limit', 'https://example.com', defaultConfig);
+
+      // maxRequestsPerCrawl should NOT be set — we enforce page limit via abort
+      expect(_capturedOptions).not.toHaveProperty('maxRequestsPerCrawl');
     });
   });
 

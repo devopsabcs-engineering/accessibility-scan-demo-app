@@ -97,7 +97,10 @@ export async function startCrawl(
     }
 
     const crawler = new PlaywrightCrawler({
-      maxRequestsPerCrawl: config.maxPages,
+      // Do NOT set maxRequestsPerCrawl — crawlee counts enqueued (not processed)
+      // requests against this limit, which causes premature 0-result shutdowns
+      // when many sitemap URLs are seeded. We enforce the page limit ourselves
+      // by aborting the crawl once visitedUrls reaches config.maxPages.
       maxConcurrency: config.concurrency,
       requestHandlerTimeoutSecs: 60,
       navigationTimeoutSecs: 30,
@@ -137,6 +140,12 @@ export async function startCrawl(
         }
 
         visitedUrls.add(currentUrl);
+
+        // Enforce our own page limit — abort crawl when enough pages scanned
+        if (visitedUrls.size > config.maxPages) {
+          abortController.abort();
+          return;
+        }
 
         const pageId = uuidv4();
         createScan(pageId, currentUrl);
@@ -263,16 +272,12 @@ export async function startCrawl(
       },
     });
 
-    // Run the crawler with seed URLs.
-    // Cap the seed list to (maxPages - 1) so crawlee's internal request counter
-    // does not reach maxRequestsPerCrawl during the initial enqueue phase.
-    // When the limit is hit before the processing loop starts, the crawler
-    // terminates immediately with 0 pages processed (observed with large
-    // sitemaps such as ontario.ca and microsoft.com).
+    // Seed the crawler. The primary URL is always first to guarantee it is
+    // crawled. Remaining sitemap-discovered URLs are included but capped to
+    // avoid very large initial queues that slow startup.
     const primarySeed = normalizeUrl(seedUrl);
     const remainingSeeds = Array.from(seedUrls).filter(u => u !== primarySeed);
-    const maxSeeds = Math.max(1, config.maxPages - 1);
-    const cappedSeeds = [primarySeed, ...remainingSeeds].slice(0, maxSeeds);
+    const cappedSeeds = [primarySeed, ...remainingSeeds].slice(0, config.maxPages);
     await crawler.run(cappedSeeds);
 
     // Aggregation phase
