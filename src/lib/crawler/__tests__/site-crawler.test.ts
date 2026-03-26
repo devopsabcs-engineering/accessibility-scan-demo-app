@@ -297,14 +297,14 @@ describe('site-crawler', () => {
   });
 
   describe('requestHandler', () => {
-    async function getRequestHandler() {
+    async function getRequestHandler(crawlId = 'crawl-rh', seed = 'https://example.com') {
       const crawlee = await import('crawlee');
       vi.mocked(crawlee.PlaywrightCrawler).mockImplementationOnce(function (this: Record<string, unknown>, options: Record<string, unknown>) {
         _capturedOptions = options;
         this.run = vi.fn().mockResolvedValue(undefined);
         return this;
       });
-      await startCrawl('crawl-rh', 'https://example.com', defaultConfig);
+      await startCrawl(crawlId, seed, defaultConfig);
       return _capturedOptions.requestHandler as (ctx: Record<string, unknown>) => Promise<void>;
     }
 
@@ -390,6 +390,33 @@ describe('site-crawler', () => {
 
       await handler(ctx);
       expect(ctx.enqueueLinks).toHaveBeenCalled();
+    });
+
+    it('handles seed URL redirect by updating effective seed for domain checks', async () => {
+      // Simulate: seed is https://ontario.ca, but it redirects to https://www.ontario.ca
+      // With same-hostname strategy, domain check must still pass after redirect
+      vi.mocked(isWithinDomainBoundary).mockImplementation((candidate: string, seed: string) => {
+        // Simulate real domain boundary: exact hostname match
+        const candidateHost = new URL(candidate).hostname;
+        const seedHost = new URL(seed).hostname;
+        return candidateHost === seedHost;
+      });
+
+      const handler = await getRequestHandler('crawl-redirect', 'https://ontario.ca');
+      const ctx = {
+        page: { evaluate: vi.fn() },
+        request: {
+          url: 'https://ontario.ca',
+          loadedUrl: 'https://www.ontario.ca/page/government-ontario',
+        },
+        enqueueLinks: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await handler(ctx);
+
+      // The page should have been scanned despite the hostname mismatch
+      expect(createScan).toHaveBeenCalled();
+      expect(scanPage).toHaveBeenCalled();
     });
   });
 

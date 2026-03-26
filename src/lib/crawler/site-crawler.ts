@@ -39,6 +39,10 @@ export async function startCrawl(
   const completedPages: PageSummary[] = [];
   const visitedUrls = new Set<string>();
 
+  // The effective seed URL may change if the seed redirects (e.g. ontario.ca → www.ontario.ca).
+  // We update this on the first request so domain boundary checks use the post-redirect hostname.
+  let effectiveSeedUrl = seedUrl;
+
   try {
     // Phase: discovering
     updateCrawl(crawlId, { status: 'discovering', progress: 5, message: 'Fetching robots.txt and sitemaps...' });
@@ -118,6 +122,17 @@ export async function startCrawl(
         const { page, request, enqueueLinks } = context;
         const currentUrl = normalizeUrl(request.loadedUrl || request.url);
 
+        // If the seed URL redirected (e.g. ontario.ca → www.ontario.ca),
+        // update the effective seed so domain boundary checks pass for
+        // the redirected hostname.
+        if (request.loadedUrl && visitedUrls.size === 0) {
+          const requestedUrl = normalizeUrl(request.url);
+          const primarySeed = normalizeUrl(seedUrl);
+          if (requestedUrl === primarySeed && currentUrl !== primarySeed) {
+            effectiveSeedUrl = currentUrl;
+          }
+        }
+
         // Check abort
         if (abortController.signal.aborted) return;
 
@@ -125,7 +140,7 @@ export async function startCrawl(
         if (visitedUrls.has(currentUrl)) return;
 
         // Domain boundary check
-        if (!isWithinDomainBoundary(currentUrl, seedUrl, config.domainStrategy)) return;
+        if (!isWithinDomainBoundary(currentUrl, effectiveSeedUrl, config.domainStrategy)) return;
 
         // Pattern check
         if (!matchesPatterns(currentUrl, config.includePatterns, config.excludePatterns)) return;
@@ -224,7 +239,7 @@ export async function startCrawl(
             transformRequestFunction: (req) => {
               const normalized = normalizeUrl(req.url);
               if (!isScannable(normalized)) return false;
-              if (!isWithinDomainBoundary(normalized, seedUrl, config.domainStrategy)) return false;
+              if (!isWithinDomainBoundary(normalized, effectiveSeedUrl, config.domainStrategy)) return false;
               if (!matchesPatterns(normalized, config.includePatterns, config.excludePatterns)) return false;
               if (visitedUrls.has(normalized)) return false;
 
