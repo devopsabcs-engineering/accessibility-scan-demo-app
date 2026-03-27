@@ -1,4 +1,4 @@
-import { PlaywrightCrawler, Configuration, purgeDefaultStorages, type PlaywrightCrawlingContext } from 'crawlee';
+import { PlaywrightCrawler, Configuration, type PlaywrightCrawlingContext } from 'crawlee';
 import { v4 as uuidv4 } from 'uuid';
 import { scanPage } from '../scanner/engine';
 import { parseAxeResults } from '../scanner/result-parser';
@@ -84,8 +84,14 @@ export async function startCrawl(
     });
     emitProgress(crawlId, completedPages, onProgress);
 
-    // Prevent crawlee from writing state to disk
-    Configuration.getGlobalConfig().set('persistStorage', false);
+    // Each crawl gets its own Configuration so crawlee uses a fresh,
+    // isolated request queue. Without this, the default singleton queue
+    // retains "already handled" URLs from previous crawls, causing
+    // subsequent crawls to immediately shut down with 0 results.
+    const crawlConfig = new Configuration({
+      persistStorage: false,
+      storageClientOptions: { localDataDirectory: `/tmp/crawlee-${crawlId}` },
+    });
 
     // Track depth per URL
     const urlDepth = new Map<string, number>();
@@ -96,6 +102,7 @@ export async function startCrawl(
       maxConcurrency: config.concurrency,
       requestHandlerTimeoutSecs: 60,
       navigationTimeoutSecs: 30,
+      configuration: crawlConfig,
       launchContext: {
         launchOptions: {
           headless: true,
@@ -309,8 +316,6 @@ export async function startCrawl(
   } finally {
     activeAbortControllers.delete(crawlId);
     clearRobotsCache();
-    // Purge crawlee's internal storage to prevent stale state across crawl runs
-    await purgeDefaultStorages();
   }
 }
 
