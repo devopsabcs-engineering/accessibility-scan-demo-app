@@ -1,4 +1,4 @@
-import { PlaywrightCrawler, Configuration, type PlaywrightCrawlingContext } from 'crawlee';
+import { PlaywrightCrawler, Configuration, purgeDefaultStorages, type PlaywrightCrawlingContext } from 'crawlee';
 import { v4 as uuidv4 } from 'uuid';
 import { scanPage } from '../scanner/engine';
 import { parseAxeResults } from '../scanner/result-parser';
@@ -99,7 +99,13 @@ export async function startCrawl(
       launchContext: {
         launchOptions: {
           headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--single-process',
+          ],
         },
       },
       browserPoolOptions: {
@@ -303,6 +309,8 @@ export async function startCrawl(
   } finally {
     activeAbortControllers.delete(crawlId);
     clearRobotsCache();
+    // Purge crawlee's internal storage to prevent stale state across crawl runs
+    await purgeDefaultStorages();
   }
 }
 

@@ -156,8 +156,8 @@ describe('store', () => {
       store.createScan('s1', 'https://example.com');
       store.updateScan('s1', { status: 'complete' });
 
-      // Advance past SCAN_TTL (1hr) + CLEANUP_INTERVAL (30min)
-      vi.advanceTimersByTime(90 * 60 * 1000);
+      // Advance past SCAN_TTL (15min) + CLEANUP_INTERVAL (5min)
+      vi.advanceTimersByTime(20 * 60 * 1000);
 
       expect(store.getScan('s1')).toBeUndefined();
     });
@@ -167,8 +167,8 @@ describe('store', () => {
       store.createScan('s1', 'https://example.com');
       store.updateScan('s1', { status: 'complete' });
 
-      // Advance only 20 minutes — within 1hr TTL, before first cleanup fires
-      vi.advanceTimersByTime(20 * 60 * 1000);
+      // Advance only 3 minutes — within 15min TTL, before first cleanup fires
+      vi.advanceTimersByTime(3 * 60 * 1000);
 
       expect(store.getScan('s1')).toBeDefined();
     });
@@ -193,8 +193,8 @@ describe('store', () => {
       store.createCrawl('c1', 'https://example.com', config);
       store.updateCrawl('c1', { status: 'complete', pageIds: ['page1', 'page2'] });
 
-      // Advance past CRAWL_TTL (4hr) + CLEANUP_INTERVAL (30min)
-      vi.advanceTimersByTime(270 * 60 * 1000);
+      // Advance past CRAWL_TTL (30min) + CLEANUP_INTERVAL (5min)
+      vi.advanceTimersByTime(35 * 60 * 1000);
 
       expect(store.getCrawl('c1')).toBeUndefined();
       // Associated page scans should also be removed
@@ -209,8 +209,8 @@ describe('store', () => {
       store.createCrawl('c1', 'https://example.com', config);
       store.updateCrawl('c1', { status: 'complete' });
 
-      // Advance 2 hours — within 4hr TTL
-      vi.advanceTimersByTime(120 * 60 * 1000);
+      // Advance 3 minutes — within 30min TTL
+      vi.advanceTimersByTime(3 * 60 * 1000);
 
       expect(store.getCrawl('c1')).toBeDefined();
     });
