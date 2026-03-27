@@ -10,10 +10,9 @@ vi.mock('crawlee', () => ({
     this.run = vi.fn().mockResolvedValue(undefined);
     return this;
   }),
-  Configuration: {
-    getGlobalConfig: vi.fn().mockReturnValue({ set: vi.fn() }),
-  },
-  purgeDefaultStorages: vi.fn().mockResolvedValue(undefined),
+  Configuration: vi.fn().mockImplementation(function () {
+    return { get: vi.fn(), set: vi.fn() };
+  }),
 }));
 
 vi.mock('uuid', () => ({ v4: vi.fn().mockReturnValue('mock-page-id') }));
