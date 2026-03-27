@@ -72,9 +72,9 @@ export function getAllCrawls(): CrawlRecord[] {
 
 // ---------- TTL Cleanup ----------
 
-const SCAN_TTL_MS = 60 * 60 * 1000;        // 1 hour
-const CRAWL_TTL_MS = 4 * 60 * 60 * 1000;   // 4 hours
-const CLEANUP_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
+const SCAN_TTL_MS = 15 * 60 * 1000;        // 15 minutes (reduced from 1h to limit memory on constrained environments)
+const CRAWL_TTL_MS = 30 * 60 * 1000;       // 30 minutes (reduced from 4h)
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes (reduced from 30min)
 
 function cleanupExpired(): void {
   const now = Date.now();

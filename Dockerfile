@@ -19,7 +19,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-ENV NODE_OPTIONS="--max-old-space-size=1024"
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 
 # Install procps (provides 'ps' command needed by Crawlee memory monitoring)
 # and Playwright system dependencies with Chromium
