@@ -1,4 +1,4 @@
-import { PlaywrightCrawler, Configuration, type PlaywrightCrawlingContext } from 'crawlee';
+import { PlaywrightCrawler, Configuration, RequestQueue, purgeDefaultStorages, type PlaywrightCrawlingContext } from 'crawlee';
 import { v4 as uuidv4 } from 'uuid';
 import { scanPage } from '../scanner/engine';
 import { parseAxeResults } from '../scanner/result-parser';
@@ -43,6 +43,9 @@ export async function startCrawl(
   // We update this on the first request so domain boundary checks use the post-redirect hostname.
   let effectiveSeedUrl = seedUrl;
 
+  // Per-crawl request queue — declared here so it can be dropped in finally
+  let requestQueue: Awaited<ReturnType<typeof RequestQueue.open>> | undefined;
+
   try {
     // Phase: discovering
     updateCrawl(crawlId, { status: 'discovering', progress: 5, message: 'Fetching robots.txt and sitemaps...' });
@@ -84,14 +87,14 @@ export async function startCrawl(
     });
     emitProgress(crawlId, completedPages, onProgress);
 
-    // Each crawl gets its own Configuration so crawlee uses a fresh,
-    // isolated request queue. Without this, the default singleton queue
-    // retains "already handled" URLs from previous crawls, causing
-    // subsequent crawls to immediately shut down with 0 results.
-    const crawlConfig = new Configuration({
-      persistStorage: false,
-      storageClientOptions: { localDataDirectory: `/tmp/crawlee-${crawlId}` },
-    });
+    // Purge default storages before each crawl to clear any stale state,
+    // then open a uniquely-named RequestQueue so this crawl is fully isolated
+    // from previous runs. Without this, crawlee's default singleton queue
+    // retains "already handled" URLs, causing subsequent crawls to shut down
+    // with 0 results.
+    Configuration.getGlobalConfig().set('persistStorage', false);
+    await purgeDefaultStorages();
+    requestQueue = await RequestQueue.open(`crawl-${crawlId}`);
 
     // Track depth per URL
     const urlDepth = new Map<string, number>();
@@ -102,7 +105,7 @@ export async function startCrawl(
       maxConcurrency: config.concurrency,
       requestHandlerTimeoutSecs: 60,
       navigationTimeoutSecs: 30,
-      configuration: crawlConfig,
+      requestQueue,
       launchContext: {
         launchOptions: {
           headless: true,
@@ -316,6 +319,10 @@ export async function startCrawl(
   } finally {
     activeAbortControllers.delete(crawlId);
     clearRobotsCache();
+    // Drop the per-crawl request queue to free memory
+    if (requestQueue) {
+      await requestQueue.drop().catch(() => {});
+    }
   }
 }
 
