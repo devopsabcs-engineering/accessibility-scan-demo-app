@@ -6,6 +6,12 @@ name: Deploy All Demo Apps
 
 on:
   workflow_dispatch:
+    inputs:
+      teardown_scan_demo:
+        description: 'Also tear down the scan demo app (rg-a11y-scan-demo)'
+        required: false
+        type: boolean
+        default: false
 
 env:
   LOCATION: canadacentral
@@ -210,6 +216,7 @@ jobs:
           fi
 
       - name: Delete rg-a11y-scan-demo
+        if: ${{ inputs.teardown_scan_demo }}
         run: |
           if az group exists --name rg-a11y-scan-demo | grep -q true; then
             echo "Deleting resource group: rg-a11y-scan-demo"
