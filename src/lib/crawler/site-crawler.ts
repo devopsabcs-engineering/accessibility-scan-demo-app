@@ -39,6 +39,10 @@ export async function startCrawl(
   const completedPages: PageSummary[] = [];
   const visitedUrls = new Set<string>();
 
+  // The effective seed URL may change if the seed redirects (e.g. ontario.ca → www.ontario.ca).
+  // We update this on the first request so domain boundary checks use the post-redirect hostname.
+  let effectiveSeedUrl = seedUrl;
+
   try {
     // Phase: discovering
     updateCrawl(crawlId, { status: 'discovering', progress: 5, message: 'Fetching robots.txt and sitemaps...' });
@@ -63,26 +67,19 @@ export async function startCrawl(
       sitemapUrls = await discoverSitemapUrls(seedUrl, robotsSitemapUrls);
     }
 
-    // Build initial seed URLs: sitemap URLs + seed URL
-    const seedUrls = new Set<string>();
-    seedUrls.add(normalizeUrl(seedUrl));
-    for (const url of sitemapUrls) {
-      const normalized = normalizeUrl(url);
-      if (
-        isScannable(normalized) &&
-        isWithinDomainBoundary(normalized, seedUrl, config.domainStrategy) &&
-        matchesPatterns(normalized, config.includePatterns, config.excludePatterns)
-      ) {
-        seedUrls.add(normalized);
-      }
-    }
+    // Only seed the primary URL into crawlee's queue. Sitemap URLs are NOT
+    // pre-loaded because crawlee counts every enqueued URL against
+    // maxRequestsPerCrawl — pre-loading hundreds of sitemap URLs exhausts
+    // the budget before the processing loop starts, causing 0-result crawls.
+    // Pages are discovered naturally via enqueueLinks during BFS traversal.
+    const primarySeed = normalizeUrl(seedUrl);
 
-    const totalEstimate = Math.min(seedUrls.size, config.maxPages);
+    const totalEstimate = Math.min(sitemapUrls.length + 1, config.maxPages);
     updateCrawl(crawlId, {
       status: 'scanning',
       progress: 10,
       message: `Starting crawl of ${totalEstimate} discovered URLs...`,
-      discoveredUrls: Array.from(seedUrls),
+      discoveredUrls: [primarySeed],
       totalPageCount: totalEstimate,
     });
     emitProgress(crawlId, completedPages, onProgress);
@@ -92,9 +89,7 @@ export async function startCrawl(
 
     // Track depth per URL
     const urlDepth = new Map<string, number>();
-    for (const url of seedUrls) {
-      urlDepth.set(url, 0);
-    }
+    urlDepth.set(primarySeed, 0);
 
     const crawler = new PlaywrightCrawler({
       maxRequestsPerCrawl: config.maxPages,
@@ -115,6 +110,16 @@ export async function startCrawl(
         const { page, request, enqueueLinks } = context;
         const currentUrl = normalizeUrl(request.loadedUrl || request.url);
 
+        // If the seed URL redirected (e.g. ontario.ca → www.ontario.ca),
+        // update the effective seed so domain boundary checks pass for
+        // the redirected hostname.
+        if (request.loadedUrl && visitedUrls.size === 0) {
+          const requestedUrl = normalizeUrl(request.url);
+          if (requestedUrl === primarySeed && currentUrl !== primarySeed) {
+            effectiveSeedUrl = currentUrl;
+          }
+        }
+
         // Check abort
         if (abortController.signal.aborted) return;
 
@@ -122,7 +127,7 @@ export async function startCrawl(
         if (visitedUrls.has(currentUrl)) return;
 
         // Domain boundary check
-        if (!isWithinDomainBoundary(currentUrl, seedUrl, config.domainStrategy)) return;
+        if (!isWithinDomainBoundary(currentUrl, effectiveSeedUrl, config.domainStrategy)) return;
 
         // Pattern check
         if (!matchesPatterns(currentUrl, config.includePatterns, config.excludePatterns)) return;
@@ -215,7 +220,7 @@ export async function startCrawl(
             transformRequestFunction: (req) => {
               const normalized = normalizeUrl(req.url);
               if (!isScannable(normalized)) return false;
-              if (!isWithinDomainBoundary(normalized, seedUrl, config.domainStrategy)) return false;
+              if (!isWithinDomainBoundary(normalized, effectiveSeedUrl, config.domainStrategy)) return false;
               if (!matchesPatterns(normalized, config.includePatterns, config.excludePatterns)) return false;
               if (visitedUrls.has(normalized)) return false;
 
@@ -263,17 +268,10 @@ export async function startCrawl(
       },
     });
 
-    // Run the crawler with seed URLs.
-    // Cap the seed list to (maxPages - 1) so crawlee's internal request counter
-    // does not reach maxRequestsPerCrawl during the initial enqueue phase.
-    // When the limit is hit before the processing loop starts, the crawler
-    // terminates immediately with 0 pages processed (observed with large
-    // sitemaps such as ontario.ca and microsoft.com).
-    const primarySeed = normalizeUrl(seedUrl);
-    const remainingSeeds = Array.from(seedUrls).filter(u => u !== primarySeed);
-    const maxSeeds = Math.max(1, config.maxPages - 1);
-    const cappedSeeds = [primarySeed, ...remainingSeeds].slice(0, maxSeeds);
-    await crawler.run(cappedSeeds);
+    // Seed only the primary URL. Pages are discovered via enqueueLinks
+    // during BFS traversal, which keeps maxRequestsPerCrawl from being
+    // exhausted before the processing loop starts.
+    await crawler.run([primarySeed]);
 
     // Aggregation phase
     updateCrawl(crawlId, { status: 'aggregating', progress: 95, message: 'Aggregating results...' });
