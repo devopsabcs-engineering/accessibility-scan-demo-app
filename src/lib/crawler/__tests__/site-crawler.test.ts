@@ -217,8 +217,8 @@ describe('site-crawler', () => {
       expect(abortUpdate).toBeDefined();
     });
 
-    it('caps seed URLs below maxPages to prevent crawlee premature termination', async () => {
-      // Simulate a large sitemap that returns more URLs than maxPages
+    it('seeds only the primary URL regardless of sitemap size', async () => {
+      // Simulate a large sitemap that returns many URLs
       const sitemapUrls = Array.from({ length: 200 }, (_, i) => `https://example.com/page${i}`);
       vi.mocked(discoverSitemapUrls).mockResolvedValueOnce(sitemapUrls);
 
@@ -236,12 +236,8 @@ describe('site-crawler', () => {
       const config = { ...defaultConfig, maxPages: 50 };
       await startCrawl('crawl-cap', 'https://example.com', config);
 
-      // Should pass fewer than maxPages seed URLs to prevent the
-      // crawler from hitting maxRequestsPerCrawl during the enqueue phase
-      expect(capturedRunArg.length).toBeLessThan(config.maxPages);
-      expect(capturedRunArg.length).toBe(config.maxPages - 1);
-      // The original seed URL must always be included first
-      expect(capturedRunArg[0]).toBe('https://example.com');
+      // Only the primary seed should be passed to crawler.run()
+      expect(capturedRunArg).toEqual(['https://example.com']);
     });
   });
 
@@ -284,14 +280,14 @@ describe('site-crawler', () => {
   });
 
   describe('requestHandler', () => {
-    async function getRequestHandler() {
+    async function getRequestHandler(crawlId = 'crawl-rh', seed = 'https://example.com') {
       const crawlee = await import('crawlee');
       vi.mocked(crawlee.PlaywrightCrawler).mockImplementationOnce(function (this: Record<string, unknown>, options: Record<string, unknown>) {
         _capturedOptions = options;
         this.run = vi.fn().mockResolvedValue(undefined);
         return this;
       });
-      await startCrawl('crawl-rh', 'https://example.com', defaultConfig);
+      await startCrawl(crawlId, seed, defaultConfig);
       return _capturedOptions.requestHandler as (ctx: Record<string, unknown>) => Promise<void>;
     }
 
@@ -377,6 +373,32 @@ describe('site-crawler', () => {
 
       await handler(ctx);
       expect(ctx.enqueueLinks).toHaveBeenCalled();
+    });
+
+    it('handles seed URL redirect by updating effective seed for domain checks', async () => {
+      // Simulate: seed is https://ontario.ca, but it redirects to https://www.ontario.ca
+      // With same-hostname strategy, domain check must still pass after redirect
+      vi.mocked(isWithinDomainBoundary).mockImplementation((candidate: string, seed: string) => {
+        const candidateHost = new URL(candidate).hostname;
+        const seedHost = new URL(seed).hostname;
+        return candidateHost === seedHost;
+      });
+
+      const handler = await getRequestHandler('crawl-redirect', 'https://ontario.ca');
+      const ctx = {
+        page: { evaluate: vi.fn() },
+        request: {
+          url: 'https://ontario.ca',
+          loadedUrl: 'https://www.ontario.ca/page/government-ontario',
+        },
+        enqueueLinks: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await handler(ctx);
+
+      // The page should have been scanned despite the hostname mismatch
+      expect(createScan).toHaveBeenCalled();
+      expect(scanPage).toHaveBeenCalled();
     });
   });
 
