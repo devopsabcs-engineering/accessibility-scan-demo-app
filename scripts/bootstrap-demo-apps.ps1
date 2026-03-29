@@ -234,6 +234,16 @@ foreach ($app in $DemoApps) {
     }
 }
 
+# Create 'teardown' environment on scanner repo (required for deploy-all teardown approval gate)
+Write-Host "Creating 'teardown' environment on $Org/$ScannerRepo..." -ForegroundColor Cyan
+$null = gh api "repos/$Org/$ScannerRepo/environments/teardown" --method PUT 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "  Teardown environment created." -ForegroundColor Green
+}
+else {
+    Write-Host "  Could not create teardown environment (may need admin access)." -ForegroundColor Yellow
+}
+
 # Configure OIDC secrets on the scanner repo (needed for Azure access)
 $scannerFullRepo = "$Org/$ScannerRepo"
 if ($ConfigureSecrets) {
