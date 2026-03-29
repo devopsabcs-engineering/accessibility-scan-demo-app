@@ -1,0 +1,53 @@
+trigger: none
+
+schedules:
+  - cron: '0 6 * * 1'
+    displayName: 'Weekly accessibility scan'
+    branches:
+      include:
+        - main
+    always: true
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SCANNER_BASE_URL: 'https://a11y-scan-demo-app.azurewebsites.net'
+
+steps:
+  - checkout: self
+    displayName: 'Checkout repository'
+
+  - script: |
+      mkdir -p results
+      HTTP_STATUS=$(curl -s -o results/a11y-demo-app-005.sarif -w "%{http_code}" \
+        -X POST "$(SCANNER_BASE_URL)/api/ci/scan" \
+        -H "Content-Type: application/json" \
+        -d '{"url": "https://a11y-demo-app-005-app.azurewebsites.net/", "format": "sarif"}' \
+        --max-time 120)
+
+      echo "HTTP status: $HTTP_STATUS"
+
+      if [ "$HTTP_STATUS" -ne 200 ]; then
+        echo "##vso[task.logissue type=error]Scan failed (HTTP $HTTP_STATUS)"
+        cat results/a11y-demo-app-005.sarif
+        exit 1
+      fi
+
+      echo "SARIF file written: results/a11y-demo-app-005.sarif"
+      echo "File size: $(wc -c < results/a11y-demo-app-005.sarif) bytes"
+    displayName: 'Run accessibility scan'
+    timeoutInMinutes: 5
+
+  - task: PublishBuildArtifacts@1
+    condition: always()
+    inputs:
+      pathToPublish: 'results'
+      artifactName: 'a11y-sarif'
+    displayName: 'Publish SARIF artifact'
+
+  - task: AdvancedSecurity-Publish@1
+    condition: always()
+    inputs:
+      SarifsInputDirectory: '$(Build.SourcesDirectory)/results'
+    displayName: 'Publish SARIF to Advanced Security'

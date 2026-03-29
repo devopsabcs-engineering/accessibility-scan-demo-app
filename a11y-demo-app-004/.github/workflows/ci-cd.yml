@@ -1,0 +1,188 @@
+name: a11y-demo-app-004-ci-cd
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_teardown:
+        description: 'Skip teardown (used by orchestrator)'
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      skip_teardown:
+        description: 'Skip teardown (used by orchestrator)'
+        type: boolean
+        default: false
+
+env:
+  APP_NAME: a11y-demo-app-004
+  RESOURCE_GROUP: rg-a11y-demo-app-004
+  LOCATION: canadacentral
+
+permissions:
+  id-token: write
+  contents: read
+  pages: write
+
+jobs:
+  build:
+    name: Deploy infra, build and push to ACR
+    runs-on: ubuntu-latest
+    outputs:
+      site-url: ${{ steps.deploy-container.outputs.site_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy infrastructure
+        run: |
+          set -e
+          az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
+          az deployment group create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name infra-deploy \
+            --template-file infra/main.bicep \
+            --parameters infra/main.parameters.json \
+            --parameters imageTag=${{ github.run_id }}
+
+      - name: Build and push Docker image
+        run: |
+          set -e
+          ACR_NAME=$(az deployment group show \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name infra-deploy \
+            --query 'properties.outputs.acrName.value' -o tsv)
+          echo "ACR: $ACR_NAME"
+          az acr build \
+            --registry "$ACR_NAME" \
+            --image ${{ env.APP_NAME }}:${{ github.run_id }} .
+
+  deploy:
+    name: Deploy container to Web App
+    runs-on: ubuntu-latest
+    needs: build
+    environment: deploy-004
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Update Web App container
+        id: deploy-container
+        run: |
+          WEB_APP_NAME=$(az deployment group show \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name infra-deploy \
+            --query 'properties.outputs.webAppName.value' -o tsv)
+          ACR_LOGIN=$(az deployment group show \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name infra-deploy \
+            --query 'properties.outputs.acrLoginServer.value' -o tsv)
+          az webapp config container set \
+            --name $WEB_APP_NAME \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --container-image-name "$ACR_LOGIN/${{ env.APP_NAME }}:${{ github.run_id }}"
+          az webapp restart \
+            --name $WEB_APP_NAME \
+            --resource-group ${{ env.RESOURCE_GROUP }}
+          SITE_URL="https://$WEB_APP_NAME.azurewebsites.net"
+          echo "Deployed to: $SITE_URL"
+          echo "site_url=$SITE_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Capture deployment screenshot
+        run: |
+          echo "Waiting for app to warm up..."
+          sleep 30
+          npx --yes playwright install --with-deps chromium
+          npx playwright screenshot \
+            --viewport-size="1280,900" \
+            --wait-for-timeout=5000 \
+            --full-page \
+            "${{ steps.deploy-container.outputs.site_url }}" \
+            screenshot.png
+          echo "Screenshot captured"
+
+      - name: Update wiki with deployment screenshot
+        env:
+          WIKI_PAT: ${{ secrets.WIKI_PAT }}
+        run: |
+          set -e
+          WIKI_REPO="https://x-access-token:${WIKI_PAT}@github.com/${{ github.repository }}.wiki.git"
+          SITE_URL="${{ steps.deploy-container.outputs.site_url }}"
+          APP="${{ env.APP_NAME }}"
+          BUILD_NUM="${{ github.run_number }}"
+          BUILD_ID="${{ github.run_id }}"
+          BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          ATTACH_NAME="${APP}-${BUILD_ID}.png"
+
+          git clone --depth 1 "$WIKI_REPO" wiki || {
+            mkdir wiki && cd wiki && git init && git remote add origin "$WIKI_REPO"
+            cd ..
+          }
+          mkdir -p wiki/images
+          cp screenshot.png "wiki/images/$ATTACH_NAME"
+
+          cat > "wiki/Deployment.md" <<EOF
+          # ${APP}
+
+          **Latest Deployment:** ${BUILD_NUM}
+
+          **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')
+
+          **Site:** [${SITE_URL}](${SITE_URL})
+
+          **Workflow Run:** [Run ${BUILD_ID}](${BUILD_URL})
+
+          ---
+
+          ![Deployment Screenshot](images/${ATTACH_NAME})
+          EOF
+          sed -i 's/^          //g' "wiki/Deployment.md"
+
+          cd wiki
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -A
+          git diff --cached --quiet && echo "No wiki changes" || {
+            git commit -m "Update deployment screenshot for ${APP} (run ${BUILD_ID})"
+            git push origin master || git push origin main
+            echo "Wiki updated: Deployment"
+          }
+
+  teardown:
+    name: Delete resource group
+    if: ${{ inputs.skip_teardown != true }}
+    runs-on: ubuntu-latest
+    needs: deploy
+    environment: teardown-004
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Delete resource group
+        run: |
+          if az group exists --name ${{ env.RESOURCE_GROUP }} | grep -q true; then
+            echo "Deleting resource group: ${{ env.RESOURCE_GROUP }}"
+            az group delete --name ${{ env.RESOURCE_GROUP }} --yes --no-wait
+            echo "Deletion initiated for ${{ env.RESOURCE_GROUP }}"
+          else
+            echo "Resource group ${{ env.RESOURCE_GROUP }} does not exist, skipping."
+          fi

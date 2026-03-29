@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; margin: 0; }
+.header { background: #1a1a1a; color: #555; padding: 10px; font-size: 12px; }
+.nav { background: #333; }
+.nav a { color: #555; text-decoration: none; padding: 8px 12px; display: inline-block; font-size: 11px; }
+.nav a:hover { color: #666; }
+.banner { position: relative; }
+.banner img { width: 100%; height: 300px; object-fit: cover; }
+.banner-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; background: rgba(200,200,200,0.3); padding: 20px; }
+.content { padding: 20px; }
+.card { border: 1px solid #eee; padding: 15px; margin: 10px; display: inline-block; width: 280px; vertical-align: top; }
+.card img { width: 100%; }
+.btn { background: #aaa; color: #bbb; border: none; padding: 10px 20px; cursor: pointer; font-size: 10px; }
+.btn:focus { outline: none; }
+.footer { background: #f0f0f0; color: #e0e0e0; padding: 20px; font-size: 11px; }
+.form-section { background: #fafafa; padding: 20px; margin: 20px 0; }
+input, select, textarea { display: block; margin: 5px 0 15px 0; padding: 8px; width: 300px; }
+.small-text { font-size: 9px; color: #ccc; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+table td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+.marquee { background: yellow; color: red; padding: 5px; font-weight: bold; }
+.blink { animation: blink 0.5s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.popup { background: white; width: 400px; margin: 100px auto; padding: 20px; }
+.tab-panel div { padding: 10px; }
+</style>
+</head>
+<body onload="document.getElementById('popup').style.display='block'">
+
+<!-- Popup with no focus trap, no role, no label -->
+<div id="popup" class="popup-overlay">
+<div class="popup">
+<b>WELCOME!</b><br>
+Sign up for our newsletter now!!!
+<input type="text" placeholder="email">
+<div class="btn" onclick="document.getElementById('popup').style.display='none'">OK SURE</div>
+<div class="small-text">click anywhere or press some key maybe</div>
+</div>
+</div>
+
+<!-- Header with poor contrast -->
+<div class="header">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='15' fill='%23007bff'/%3E%3C/svg%3E">
+DEMO APP 002 - C# Edition
+<div style="float:right">
+<a href="#" style="color:#555">Login</a> |
+<a href="#" style="color:#555">Register</a>
+</div>
+</div>
+
+<!-- Nav with no landmarks, no keyboard access -->
+<div class="nav">
+<a href="#">Home</a>
+<a href="#">Products</a>
+<a href="#">Services</a>
+<a href="#">About</a>
+<a href="#">Contact</a>
+<a href="#">FAQ</a>
+</div>
+
+<!-- Marquee / blink -->
+<div class="marquee"><span class="blink">🔥 FLASH SALE - 50% OFF EVERYTHING - LIMITED TIME!!! 🔥</span></div>
+
+<!-- Banner image with no alt text -->
+<div class="banner">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='300'%3E%3Crect fill='%234a90d9' width='1200' height='300'/%3E%3Ctext x='600' y='150' text-anchor='middle' fill='white' font-size='40'%3EBanner Image%3C/text%3E%3C/svg%3E">
+<div class="banner-text">
+<font size="7" color="#cccccc"><b>Welcome to Our Store</b></font><br>
+<font size="3" color="#aaaaaa">Best products at unbeatable prices</font>
+</div>
+</div>
+
+<div class="content">
+
+<!-- Fake breadcrumb with no nav landmark -->
+<div style="font-size:11px; color:#ccc; margin-bottom:10px;">Home > Products > Featured > Sale Items</div>
+
+<!-- Heading hierarchy violations -->
+<h4>Featured Products</h4>
+<h1 style="font-size:12px; color:#ddd;">Shop Now</h1>
+
+<!-- Cards with images missing alt, clickable divs, poor contrast -->
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%23e74c3c' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3EProduct A%3C/text%3E%3C/svg%3E">
+<h6>Wireless Headphones</h6>
+<div style="color:#eee; font-size:11px;">Great sound quality with noise cancellation feature built in for your enjoyment and pleasure.</div>
+<div style="color:#ddd;">$49.99 <s style="color:#eee">$99.99</s></div>
+<div class="btn" onclick="alert('Added!')">ADD TO CART</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%232ecc71' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3EProduct B%3C/text%3E%3C/svg%3E">
+<h6>Smart Watch</h6>
+<div style="color:#eee; font-size:11px;">Track your fitness and stay connected with smart notifications on your wrist all day.</div>
+<div style="color:#ddd;">$129.99</div>
+<div class="btn" onclick="alert('Added!')">ADD TO CART</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%239b59b6' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3EProduct C%3C/text%3E%3C/svg%3E">
+<h6>Bluetooth Speaker</h6>
+<div style="color:#eee; font-size:11px;">Portable speaker with amazing bass and waterproof design for outdoor adventures.</div>
+<div style="color:#ddd;">$79.99</div>
+<div class="btn" onclick="alert('Added!')">ADD TO CART</div>
+</div>
+
+<!-- Table without headers, caption, or scope -->
+<h5>Price Comparison</h5>
+<table>
+<tr><td><b>Product</b></td><td><b>Our Price</b></td><td><b>Competitor</b></td><td><b>Savings</b></td></tr>
+<tr><td>Headphones</td><td>$49.99</td><td>$89.99</td><td style="color:#cfc;">$40.00</td></tr>
+<tr><td>Smart Watch</td><td>$129.99</td><td>$199.99</td><td style="color:#cfc;">$70.00</td></tr>
+<tr><td>Speaker</td><td>$79.99</td><td>$119.99</td><td style="color:#cfc;">$40.00</td></tr>
+</table>
+
+<!-- Form with no labels, no fieldset, autocomplete issues -->
+<div class="form-section">
+<h3>Contact Us</h3>
+<input type="text" placeholder="Your name">
+<input type="text" placeholder="Email address">
+<input type="text" placeholder="Phone number">
+<select>
+<option value="">Choose subject</option>
+<option>Sales</option>
+<option>Support</option>
+<option>Returns</option>
+</select>
+<textarea placeholder="Your message" rows="4"></textarea>
+<div class="btn" onclick="alert('Sent!')">SUBMIT</div>
+<div class="small-text">* required fields (but we won't tell you which ones)</div>
+</div>
+
+<!-- Inaccessible tab interface -->
+<h5>Product Details</h5>
+<div class="tab-panel">
+<span class="btn" onclick="document.getElementById('t1').style.display='block';document.getElementById('t2').style.display='none';document.getElementById('t3').style.display='none';">Description</span>
+<span class="btn" onclick="document.getElementById('t2').style.display='block';document.getElementById('t1').style.display='none';document.getElementById('t3').style.display='none';">Specs</span>
+<span class="btn" onclick="document.getElementById('t3').style.display='block';document.getElementById('t1').style.display='none';document.getElementById('t2').style.display='none';">Reviews</span>
+<div id="t1">This product is absolutely amazing and you should buy it right now without hesitation.</div>
+<div id="t2" style="display:none">Dimensions: big. Weight: light. Color: nice.</div>
+<div id="t3" style="display:none">
+★★★★★ "Best purchase ever!" - user123<br>
+★★★★★ "Changed my life!" - happycustomer<br>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='20'%3E%3Crect fill='gold' width='100' height='20'/%3E%3C/svg%3E">
+</div>
+</div>
+
+<!-- Autoplaying content -->
+<marquee style="background:#ff0; color:#ff6600; font-size:14px;">🎉 Join thousands of happy customers! Order today and get FREE shipping! Use code SAVE20 at checkout! 🎉</marquee>
+
+<!-- Image map (obsolete and inaccessible) -->
+<h5>Store Locations</h5>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200'%3E%3Crect fill='%23ddd' width='600' height='200'/%3E%3Ctext x='300' y='100' text-anchor='middle' fill='%23999' font-size='20'%3EMap Placeholder%3C/text%3E%3C/svg%3E" usemap="#storemap">
+<map name="storemap">
+<area shape="rect" coords="0,0,200,200" href="#" onclick="alert('Store 1')">
+<area shape="rect" coords="200,0,400,200" href="#" onclick="alert('Store 2')">
+<area shape="rect" coords="400,0,600,200" href="#" onclick="alert('Store 3')">
+</map>
+
+<!-- Links that say "click here" -->
+<p style="font-size:12px; color:#bbb;">
+Want to learn more? <a href="#" style="color:#aaa">Click here</a>. For our return policy, <a href="#" style="color:#aaa">click here</a>. To see our terms, <a href="#" style="color:#aaa">click here</a>.
+</p>
+
+</div>
+
+<!-- Footer with poor contrast -->
+<div class="footer">
+<div style="color:#e8e8e8;">&copy; 2024 Demo Store. All rights reserved.</div>
+<div style="color:#e8e8e8;">
+<a href="#" style="color:#e0e0e0">Privacy</a> |
+<a href="#" style="color:#e0e0e0">Terms</a> |
+<a href="#" style="color:#e0e0e0">Sitemap</a>
+</div>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20'%3E%3Crect fill='%23f0f0f0' width='80' height='20'/%3E%3C/svg%3E">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20'%3E%3Crect fill='%23f0f0f0' width='80' height='20'/%3E%3C/svg%3E">
+</div>
+
+<script>
+// Keyboard trap on page
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    // Do nothing useful - breaks tab navigation
+  }
+});
+// Set title via JS (not in HTML)
+document.title = "Page";
+</script>
+</body>
+</html>

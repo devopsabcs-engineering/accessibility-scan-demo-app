@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; margin: 0; }
+.header { background: #1a1a1a; color: #555; padding: 10px; font-size: 12px; }
+.nav { background: #333; }
+.nav a { color: #555; text-decoration: none; padding: 8px 12px; display: inline-block; font-size: 11px; }
+.nav a:hover { color: #666; }
+.banner { position: relative; }
+.banner img { width: 100%; height: 300px; object-fit: cover; }
+.banner-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; background: rgba(200,200,200,0.3); padding: 20px; }
+.content { padding: 20px; }
+.card { border: 1px solid #eee; padding: 15px; margin: 10px; display: inline-block; width: 280px; vertical-align: top; }
+.card img { width: 100%; }
+.btn { background: #aaa; color: #bbb; border: none; padding: 10px 20px; cursor: pointer; font-size: 10px; }
+.btn:focus { outline: none; }
+.footer { background: #f0f0f0; color: #e0e0e0; padding: 20px; font-size: 11px; }
+.form-section { background: #fafafa; padding: 20px; margin: 20px 0; }
+input, select, textarea { display: block; margin: 5px 0 15px 0; padding: 8px; width: 300px; }
+.small-text { font-size: 9px; color: #ccc; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+table td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+.marquee { background: yellow; color: red; padding: 5px; font-weight: bold; }
+.blink { animation: blink 0.5s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.popup { background: white; width: 400px; margin: 100px auto; padding: 20px; }
+</style>
+</head>
+<body onload="document.getElementById('popup').style.display='block'">
+
+<div id="popup" class="popup-overlay">
+<div class="popup">
+<b>WELCOME!</b><br>
+Sign up for our newsletter now!!!
+<input type="text" placeholder="email">
+<div class="btn" onclick="document.getElementById('popup').style.display='none'">OK SURE</div>
+<div class="small-text">click anywhere or press some key maybe</div>
+</div>
+</div>
+
+<div class="header">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='15' fill='%23e67e22'/%3E%3C/svg%3E">
+DEMO APP 003 - Java Spring Boot Edition
+<div style="float:right">
+<a href="#" style="color:#555">Login</a> |
+<a href="#" style="color:#555">Register</a>
+</div>
+</div>
+
+<div class="nav">
+<a href="#">Home</a>
+<a href="#">Courses</a>
+<a href="#">Resources</a>
+<a href="#">Blog</a>
+<a href="#">Contact</a>
+</div>
+
+<div class="marquee"><span class="blink">📚 NEW COURSES AVAILABLE - ENROLL NOW!!! 📚</span></div>
+
+<div class="banner">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='300'%3E%3Crect fill='%23e67e22' width='1200' height='300'/%3E%3Ctext x='600' y='150' text-anchor='middle' fill='white' font-size='40'%3EBanner Image%3C/text%3E%3C/svg%3E">
+<div class="banner-text">
+<font size="7" color="#cccccc"><b>Online Learning Platform</b></font><br>
+<font size="3" color="#aaaaaa">Learn anything, anywhere</font>
+</div>
+</div>
+
+<div class="content">
+
+<div style="font-size:11px; color:#ccc; margin-bottom:10px;">Home > Courses > Featured</div>
+
+<h4>Featured Courses</h4>
+<h1 style="font-size:12px; color:#ddd;">Start Learning Today</h1>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%233498db' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3ECourse A%3C/text%3E%3C/svg%3E">
+<h6>Web Development</h6>
+<div style="color:#eee; font-size:11px;">Learn HTML CSS and JavaScript from scratch with hands-on projects and real world examples.</div>
+<div style="color:#ddd;">$29.99</div>
+<div class="btn" onclick="alert('Enrolled!')">ENROLL NOW</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%23e74c3c' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3ECourse B%3C/text%3E%3C/svg%3E">
+<h6>Data Science</h6>
+<div style="color:#eee; font-size:11px;">Master Python and machine learning with practical exercises and industry datasets.</div>
+<div style="color:#ddd;">$49.99</div>
+<div class="btn" onclick="alert('Enrolled!')">ENROLL NOW</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%232ecc71' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3ECourse C%3C/text%3E%3C/svg%3E">
+<h6>Cloud Computing</h6>
+<div style="color:#eee; font-size:11px;">Get certified in AWS Azure and GCP with comprehensive study materials and practice exams.</div>
+<div style="color:#ddd;">$59.99</div>
+<div class="btn" onclick="alert('Enrolled!')">ENROLL NOW</div>
+</div>
+
+<h5>Course Schedule</h5>
+<table>
+<tr><td><b>Course</b></td><td><b>Duration</b></td><td><b>Level</b></td><td><b>Rating</b></td></tr>
+<tr><td>Web Development</td><td>12 weeks</td><td>Beginner</td><td style="color:#cfc;">4.8/5</td></tr>
+<tr><td>Data Science</td><td>16 weeks</td><td>Intermediate</td><td style="color:#cfc;">4.9/5</td></tr>
+<tr><td>Cloud Computing</td><td>10 weeks</td><td>Advanced</td><td style="color:#cfc;">4.7/5</td></tr>
+</table>
+
+<div class="form-section">
+<h3>Request Information</h3>
+<input type="text" placeholder="Full name">
+<input type="text" placeholder="Email">
+<input type="text" placeholder="Phone">
+<select>
+<option value="">Select interest</option>
+<option>Web Dev</option>
+<option>Data Science</option>
+<option>Cloud</option>
+</select>
+<textarea placeholder="Questions or comments" rows="4"></textarea>
+<div class="btn" onclick="alert('Submitted!')">SEND REQUEST</div>
+<div class="small-text">* we may or may not respond</div>
+</div>
+
+<marquee style="background:#ff0; color:#ff6600; font-size:14px;">🎓 Over 10,000 students enrolled! Join the community today! 🎓</marquee>
+
+<p style="font-size:12px; color:#bbb;">
+For FAQs <a href="#" style="color:#aaa">click here</a>. For refund policy <a href="#" style="color:#aaa">click here</a>. For support <a href="#" style="color:#aaa">click here</a>.
+</p>
+
+</div>
+
+<div class="footer">
+<div style="color:#e8e8e8;">&copy; 2024 Demo Learning. All rights reserved.</div>
+<div style="color:#e8e8e8;">
+<a href="#" style="color:#e0e0e0">Privacy</a> |
+<a href="#" style="color:#e0e0e0">Terms</a>
+</div>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20'%3E%3Crect fill='%23f0f0f0' width='80' height='20'/%3E%3C/svg%3E">
+</div>
+
+<script>
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') { }
+});
+document.title = "Page";
+</script>
+</body>
+</html>
