@@ -28,6 +28,7 @@ $Audience = 'api://AzureADTokenExchange'
 # Each repo gets a main branch credential; demo apps get deploy-NNN and teardown-NNN environment credentials
 $FederatedRepos = @(
     @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-main';          Subject = "repo:${RepoOwner}/${ScannerRepo}:ref:refs/heads/main";                    Description = "OIDC for $RepoOwner/$ScannerRepo main branch" }
+    @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-teardown-env';   Subject = "repo:${RepoOwner}/${ScannerRepo}:environment:teardown";                   Description = "OIDC for $RepoOwner/$ScannerRepo teardown environment" }
     @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-001:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-001 main branch" }
     @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-001:environment:deploy-001";              Description = "OIDC for $RepoOwner/a11y-demo-app-001 deploy environment" }
     @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-001:environment:teardown-001";            Description = "OIDC for $RepoOwner/a11y-demo-app-001 teardown environment" }
