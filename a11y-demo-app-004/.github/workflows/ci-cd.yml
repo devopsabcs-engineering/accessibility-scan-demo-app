@@ -103,6 +103,13 @@ jobs:
           echo "Deployed to: $SITE_URL"
           echo "site_url=$SITE_URL" >> "$GITHUB_OUTPUT"
 
+      - name: Update APP_URL secret
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+        run: |
+          gh secret set APP_URL --repo "${{ github.repository }}" --body "${{ steps.deploy-container.outputs.site_url }}"
+          echo "APP_URL secret updated"
+
       - name: Capture deployment screenshot
         run: |
           echo "Waiting for app to warm up..."

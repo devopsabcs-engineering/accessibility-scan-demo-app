@@ -28,7 +28,7 @@ jobs:
             HTTP_STATUS=$(curl -s -o results/a11y-demo-app-005.sarif -w "%{http_code}" \
               -X POST "${{ env.SCANNER_BASE_URL }}/api/ci/scan" \
               -H "Content-Type: application/json" \
-              -d '{"url": "https://a11y-demo-app-005-app.azurewebsites.net/", "format": "sarif"}' \
+              -d '{"url": "${{ secrets.APP_URL }}", "format": "sarif"}' \
               --max-time 120)
 
             echo "Attempt $attempt - HTTP status: $HTTP_STATUS"
