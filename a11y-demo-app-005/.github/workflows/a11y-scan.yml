@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  SCANNER_BASE_URL: https://a11y-scan-demo-app.azurewebsites.net
+  SCANNER_BASE_URL: ${{ secrets.SCANNER_URL }}
 
 permissions:
   security-events: write

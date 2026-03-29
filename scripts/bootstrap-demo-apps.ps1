@@ -59,6 +59,18 @@ if ($null -eq $OrgAdminToken) {
     $OrgAdminToken = Read-Host -Prompt 'Enter ORG_ADMIN_TOKEN for wiki push (or press Enter to skip)'
 }
 
+# Resolve scanner URL from Azure deployment or environment variable
+$ScannerUrl = $env:SCANNER_URL
+if (-not $ScannerUrl) {
+    $null = az account show 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        $ScannerUrl = az deployment group show --resource-group rg-a11y-scan-demo --name infra-deploy --query 'properties.outputs.webAppUrl.value' -o tsv 2>$null
+    }
+}
+if (-not $ScannerUrl) {
+    $ScannerUrl = Read-Host -Prompt 'Enter SCANNER_URL (scanner app base URL, or press Enter to skip)'
+}
+
 # Run OIDC setup if Azure CLI is logged in and secrets are being configured
 if ($ConfigureSecrets) {
     $null = az account show 2>&1
@@ -210,6 +222,17 @@ foreach ($app in $DemoApps) {
         }
         catch {
             Write-Host "  Warning: Could not configure ORG_ADMIN_TOKEN: $_" -ForegroundColor Yellow
+        }
+    }
+
+    if ($ScannerUrl) {
+        Write-Host "  Configuring SCANNER_URL for a11y scan workflow..." -ForegroundColor Gray
+        try {
+            gh secret set SCANNER_URL --repo $fullRepo --body $ScannerUrl
+            Write-Host "  SCANNER_URL configured." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  Warning: Could not configure SCANNER_URL: $_" -ForegroundColor Yellow
         }
     }
 

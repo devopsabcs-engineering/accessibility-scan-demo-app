@@ -148,6 +148,52 @@ jobs:
             --name infra-deploy \
             --query 'properties.outputs.webAppUrl.value' -o tsv)
           echo "Deployed scan demo app to: $SITE_URL"
+          echo "scanner_url=$SITE_URL" >> "$GITHUB_OUTPUT"
+        id: deploy-scanner
+
+  # ── Deployment summary with clickable links ──
+  summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs:
+      - dispatch-apps
+      - deploy-scan-demo
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Generate deployment summary
+        run: |
+          echo "## 🚀 All Demo Apps Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| App | Language | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|----------|-----|" >> $GITHUB_STEP_SUMMARY
+          for i in 001 002 003 004 005; do
+            RG="rg-a11y-demo-app-${i}"
+            URL=$(az deployment group show \
+              --resource-group "$RG" \
+              --name infra-deploy \
+              --query 'properties.outputs.webAppUrl.value' -o tsv 2>/dev/null || echo "N/A")
+            case $i in
+              001) LANG="Rust" ;;
+              002) LANG="C#" ;;
+              003) LANG="Java" ;;
+              004) LANG="Python" ;;
+              005) LANG="Go" ;;
+            esac
+            echo "| App ${i} | ${LANG} | [${URL}](${URL}) |" >> $GITHUB_STEP_SUMMARY
+          done
+          SCANNER_URL=$(az deployment group show \
+            --resource-group rg-a11y-scan-demo \
+            --name infra-deploy \
+            --query 'properties.outputs.webAppUrl.value' -o tsv 2>/dev/null || echo "N/A")
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scanner App" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** [${SCANNER_URL}](${SCANNER_URL})" >> $GITHUB_STEP_SUMMARY
 
   # ── Teardown (requires approval via 'teardown' environment) ──
   teardown:
