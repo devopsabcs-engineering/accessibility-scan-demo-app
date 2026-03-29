@@ -149,6 +149,21 @@ jobs:
             --query 'properties.outputs.webAppUrl.value' -o tsv)
           echo "Deployed scan demo app to: $SITE_URL"
 
+      - name: Update SCANNER_URL secret on all demo app repos
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_PAT }}
+        run: |
+          SITE_URL=$(az deployment group show \
+            --resource-group rg-a11y-scan-demo \
+            --name infra-deploy \
+            --query 'properties.outputs.webAppUrl.value' -o tsv)
+          for i in 001 002 003 004 005; do
+            REPO="devopsabcs-engineering/a11y-demo-app-${i}"
+            echo "Setting SCANNER_URL on ${REPO}..."
+            gh secret set SCANNER_URL --repo "$REPO" --body "$SITE_URL"
+          done
+          echo "SCANNER_URL updated on all demo app repos: $SITE_URL"
+
   # ── Teardown (requires approval via 'teardown' environment) ──
   teardown:
     name: Teardown All Resources
