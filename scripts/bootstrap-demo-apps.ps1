@@ -236,6 +236,22 @@ foreach ($app in $DemoApps) {
         }
     }
 
+    # Resolve and set APP_URL from Azure deployment (if deployed)
+    $rg = "rg-$($app.Name)"
+    $appUrl = az deployment group show --resource-group $rg --name infra-deploy --query 'properties.outputs.webAppUrl.value' -o tsv 2>$null
+    if ($appUrl) {
+        Write-Host "  Configuring APP_URL ($appUrl)..." -ForegroundColor Gray
+        try {
+            gh secret set APP_URL --repo $fullRepo --body $appUrl
+            Write-Host "  APP_URL configured." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  Warning: Could not configure APP_URL: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  APP_URL: app not deployed yet, skipping." -ForegroundColor Gray
+    }
+
     # Initialize wiki (required before workflows can push to it)
     if ($OrgAdminToken) {
         Write-Host "  Initializing wiki..." -ForegroundColor Gray
