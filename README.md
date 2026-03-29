@@ -470,9 +470,57 @@ WCAG 2.2 domain knowledge for AI-assisted accessibility work.
 | `.github/instructions/a11y-remediation.instructions.md` | `*.tsx, *.jsx, *.ts, *.html, *.css` | Remediation lookup table mapping violation IDs to WCAG success criteria and code fix patterns, including React hooks and Next.js component recipes. |
 | `.github/instructions/ado-workflow.instructions.md` | `**` | Required workflow for Azure DevOps work item tracking, Git branching (`feature/{id}-description`), commit message linking (`AB#{id}`), pull request creation, and post-merge branch cleanup. |
 
+## Demo Applications
+
+This repository embeds 5 intentionally inaccessible web applications used as scan targets
+for workshop exercises and CI/CD pipeline testing:
+
+| App | Language | Theme | Local Port |
+| --- | --- | --- | --- |
+| a11y-demo-app-001 | Rust | Travel Agency | 8001 |
+| a11y-demo-app-002 | C# | E-Commerce | 8002 |
+| a11y-demo-app-003 | Java | Learning Platform | 8003 |
+| a11y-demo-app-004 | Python | Recipe Sharing | 8004 |
+| a11y-demo-app-005 | Go | Fitness Tracker | 8005 |
+
+Each app contains 15+ intentional WCAG 2.2 violations across categories including missing
+alt text, contrast failures, keyboard traps, heading hierarchy violations, and more. Use
+`scripts/bootstrap-demo-apps.ps1` to create individual repositories from these templates.
+
+## Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `scripts/bootstrap-demo-apps.ps1` | Creates demo app repos from template directories, configures OIDC secrets, environments, and wikis |
+| `scripts/setup-oidc.ps1` | Creates Azure AD app registration with federated credentials for GitHub Actions OIDC auth |
+
+### Bootstrap Quick Start
+
+```powershell
+# 1. Log in to Azure CLI
+az login
+
+# 2. Log in to GitHub CLI with org admin permissions
+gh auth login
+
+# 3. Run OIDC setup (creates Azure AD app and federated credentials)
+./scripts/setup-oidc.ps1
+
+# 4. Run bootstrap (creates 5 demo app repos, configures secrets)
+./scripts/bootstrap-demo-apps.ps1
+```
+
 ## Project Structure
 
 ```text
+a11y-demo-app-001/               # Rust/Actix-web travel booking demo app (port 8001)
+a11y-demo-app-002/               # C#/ASP.NET e-commerce demo app (port 8002)
+a11y-demo-app-003/               # Java/Spring Boot learning platform demo app (port 8003)
+a11y-demo-app-004/               # Python/Flask recipe sharing demo app (port 8004)
+a11y-demo-app-005/               # Go fitness tracker demo app (port 8005)
+scripts/
+├── bootstrap-demo-apps.ps1      # Create demo app repos from templates
+└── setup-oidc.ps1               # Azure AD OIDC federation setup
 src/
 ├── instrumentation.ts          # OpenTelemetry + Azure Monitor bootstrap
 ├── middleware.ts                # HTTP request logging middleware

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial; margin: 0; }
+.header { background: #1a1a1a; color: #555; padding: 10px; font-size: 12px; }
+.nav { background: #333; }
+.nav a { color: #555; text-decoration: none; padding: 8px 12px; display: inline-block; font-size: 11px; }
+.banner { position: relative; }
+.banner img { width: 100%; height: 300px; object-fit: cover; }
+.banner-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; background: rgba(200,200,200,0.3); padding: 20px; }
+.content { padding: 20px; }
+.card { border: 1px solid #eee; padding: 15px; margin: 10px; display: inline-block; width: 280px; vertical-align: top; }
+.card img { width: 100%; }
+.btn { background: #aaa; color: #bbb; border: none; padding: 10px 20px; cursor: pointer; font-size: 10px; }
+.btn:focus { outline: none; }
+.footer { background: #f0f0f0; color: #e0e0e0; padding: 20px; font-size: 11px; }
+.form-section { background: #fafafa; padding: 20px; margin: 20px 0; }
+input, select, textarea { display: block; margin: 5px 0 15px 0; padding: 8px; width: 300px; }
+.small-text { font-size: 9px; color: #ccc; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+table td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+.marquee { background: yellow; color: red; padding: 5px; font-weight: bold; }
+.blink { animation: blink 0.5s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.popup { background: white; width: 400px; margin: 100px auto; padding: 20px; }
+</style>
+</head>
+<body onload="document.getElementById('popup').style.display='block'">
+
+<div id="popup" class="popup-overlay">
+<div class="popup">
+<b>FLASH DEAL!</b><br>
+Enter your email for 20% off your first booking!
+<input type="text" placeholder="email">
+<div class="btn" onclick="document.getElementById('popup').style.display='none'">CLAIM DEAL</div>
+<div class="small-text">keyboard users: good luck</div>
+</div>
+</div>
+
+<div class="header">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='15' fill='%23c0392b'/%3E%3C/svg%3E">
+DEMO APP 001 - Rust Edition
+<div style="float:right">
+<a href="#" style="color:#555">Login</a> |
+<a href="#" style="color:#555">Register</a>
+</div>
+</div>
+
+<div class="nav">
+<a href="#">Home</a>
+<a href="#">Destinations</a>
+<a href="#">Hotels</a>
+<a href="#">Flights</a>
+<a href="#">Deals</a>
+</div>
+
+<div class="marquee"><span class="blink">✈️ SUMMER SALE - UP TO 70% OFF FLIGHTS!!! ✈️</span></div>
+
+<div class="banner">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='300'%3E%3Crect fill='%23c0392b' width='1200' height='300'/%3E%3Ctext x='600' y='150' text-anchor='middle' fill='white' font-size='40'%3ETravel Banner%3C/text%3E%3C/svg%3E">
+<div class="banner-text">
+<font size="7" color="#cccccc"><b>TravelNow Bookings</b></font><br>
+<font size="3" color="#aaaaaa">Explore the world with us</font>
+</div>
+</div>
+
+<div class="content">
+
+<div style="font-size:11px; color:#ccc; margin-bottom:10px;">Home > Destinations > Popular</div>
+
+<h4>Top Destinations</h4>
+<h1 style="font-size:12px; color:#ddd;">Book Your Dream Vacation</h1>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%233498db' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3EParis%3C/text%3E%3C/svg%3E">
+<h6>Paris, France</h6>
+<div style="color:#eee; font-size:11px;">Visit the city of lights with iconic landmarks world class cuisine and romantic ambiance.</div>
+<div style="color:#ddd;">From $599/person</div>
+<div class="btn" onclick="alert('Booked!')">BOOK NOW</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%23e67e22' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3ETokyo%3C/text%3E%3C/svg%3E">
+<h6>Tokyo, Japan</h6>
+<div style="color:#eee; font-size:11px;">Experience ancient temples cutting edge technology and incredible street food culture.</div>
+<div style="color:#ddd;">From $799/person</div>
+<div class="btn" onclick="alert('Booked!')">BOOK NOW</div>
+</div>
+
+<div class="card">
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Crect fill='%232ecc71' width='280' height='180'/%3E%3Ctext x='140' y='90' text-anchor='middle' fill='white' font-size='20'%3EBali%3C/text%3E%3C/svg%3E">
+<h6>Bali, Indonesia</h6>
+<div style="color:#eee; font-size:11px;">Tropical paradise with stunning beaches lush rice terraces and vibrant local culture.</div>
+<div style="color:#ddd;">From $499/person</div>
+<div class="btn" onclick="alert('Booked!')">BOOK NOW</div>
+</div>
+
+<h5>Flight Deals</h5>
+<table>
+<tr><td><b>Route</b></td><td><b>Price</b></td><td><b>Airline</b></td><td><b>Savings</b></td></tr>
+<tr><td>NYC → Paris</td><td>$399</td><td>AirDemo</td><td style="color:#cfc;">$200 off</td></tr>
+<tr><td>LAX → Tokyo</td><td>$599</td><td>FlyNow</td><td style="color:#cfc;">$300 off</td></tr>
+<tr><td>SFO → Bali</td><td>$449</td><td>SkyWay</td><td style="color:#cfc;">$150 off</td></tr>
+</table>
+
+<div class="form-section">
+<h3>Search Flights</h3>
+<input type="text" placeholder="From">
+<input type="text" placeholder="To">
+<input type="text" placeholder="Departure date">
+<input type="text" placeholder="Return date">
+<select>
+<option value="">Passengers</option>
+<option>1</option>
+<option>2</option>
+<option>3+</option>
+</select>
+<div class="btn" onclick="alert('Searching...')">SEARCH FLIGHTS</div>
+<div class="small-text">* dates are just text fields because why not</div>
+</div>
+
+<marquee style="background:#ff0; color:#ff6600; font-size:14px;">🌍 Trusted by 2 million travelers worldwide! Book with confidence! 🌍</marquee>
+
+<p style="font-size:12px; color:#bbb;">
+Travel insurance info <a href="#" style="color:#aaa">click here</a>. Cancellation policy <a href="#" style="color:#aaa">click here</a>. Help center <a href="#" style="color:#aaa">click here</a>.
+</p>
+
+</div>
+
+<div class="footer">
+<div style="color:#e8e8e8;">&copy; 2024 TravelNow Demo. All rights reserved.</div>
+<div style="color:#e8e8e8;">
+<a href="#" style="color:#e0e0e0">Privacy</a> |
+<a href="#" style="color:#e0e0e0">Terms</a>
+</div>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20'%3E%3Crect fill='%23f0f0f0' width='80' height='20'/%3E%3C/svg%3E">
+</div>
+
+<script>
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') { }
+});
+document.title = "Page";
+</script>
+</body>
+</html>

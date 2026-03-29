@@ -1,0 +1,66 @@
+name: a11y-demo-app-004-a11y-scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+env:
+  SCANNER_BASE_URL: https://a11y-scan-demo-app.azurewebsites.net
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  scan:
+    name: Run accessibility scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run accessibility scan
+        id: scan
+        timeout-minutes: 5
+        run: |
+          mkdir -p results
+          for attempt in 1 2 3; do
+            HTTP_STATUS=$(curl -s -o results/a11y-demo-app-004.sarif -w "%{http_code}" \
+              -X POST "${{ env.SCANNER_BASE_URL }}/api/ci/scan" \
+              -H "Content-Type: application/json" \
+              -d '{"url": "https://a11y-demo-app-004-app.azurewebsites.net/", "format": "sarif"}' \
+              --max-time 120)
+
+            echo "Attempt $attempt - HTTP status: $HTTP_STATUS"
+
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "SARIF file written: results/a11y-demo-app-004.sarif"
+              echo "File size: $(wc -c < results/a11y-demo-app-004.sarif) bytes"
+              echo "scan_ok=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "::warning::Scan attempt $attempt failed (HTTP $HTTP_STATUS)"
+            if [ "$attempt" -lt 3 ]; then
+              echo "Retrying in 30s..."
+              sleep 30
+            fi
+          done
+
+          echo "::error::Scan failed after 3 attempts (HTTP $HTTP_STATUS)"
+          cat results/a11y-demo-app-004.sarif
+          echo "scan_ok=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-sarif
+          path: results/
+
+      - name: Upload SARIF to GitHub Advanced Security
+        if: steps.scan.outputs.scan_ok == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results/
