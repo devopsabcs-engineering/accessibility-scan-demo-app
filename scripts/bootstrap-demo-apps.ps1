@@ -55,7 +55,7 @@ $ConfigureSecrets = [bool]$AzureClientId
 $script:wikiInitNeeded = @()
 
 $OrgAdminToken = $env:ORG_ADMIN_TOKEN
-if (-not $OrgAdminToken) {
+if ($null -eq $OrgAdminToken) {
     $OrgAdminToken = Read-Host -Prompt 'Enter ORG_ADMIN_TOKEN for wiki push (or press Enter to skip)'
 }
 
