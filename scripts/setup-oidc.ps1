@@ -26,6 +26,7 @@ $Audience = 'api://AzureADTokenExchange'
 
 # All repos that need federated credentials (scanner + 5 demo apps)
 # Each repo gets a main branch credential; demo apps get deploy-NNN and teardown-NNN environment credentials
+# Azure AD limit: 20 federated credentials per app registration (current count: 17)
 $FederatedRepos = @(
     @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-main';          Subject = "repo:${RepoOwner}/${ScannerRepo}:ref:refs/heads/main";                    Description = "OIDC for $RepoOwner/$ScannerRepo main branch" }
     @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-teardown-env';   Subject = "repo:${RepoOwner}/${ScannerRepo}:environment:teardown";                   Description = "OIDC for $RepoOwner/$ScannerRepo teardown environment" }
@@ -46,10 +47,19 @@ $FederatedRepos = @(
     @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-005:environment:teardown-005";            Description = "OIDC for $RepoOwner/a11y-demo-app-005 teardown environment" }
 )
 
+# Stale credentials to remove (legacy prod-env entries no longer used by any workflow)
+$StaleCreds = @(
+    'github-actions-demo-001-prod-env'
+    'github-actions-demo-002-prod-env'
+    'github-actions-demo-003-prod-env'
+    'github-actions-demo-004-prod-env'
+    'github-actions-demo-005-prod-env'
+)
+
 Write-Host '=== OIDC Federation Setup ===' -ForegroundColor Cyan
 
 # Step 1: Get or create app registration
-Write-Host "`n[1/5] Checking for existing app registration '$AppName'..."
+Write-Host "`n[1/6] Checking for existing app registration '$AppName'..."
 $existingApp = az ad app list --display-name $AppName --query '[0]' -o json 2>$null | ConvertFrom-Json
 
 if ($existingApp) {
@@ -64,8 +74,21 @@ if ($existingApp) {
     Write-Host "  Created app: $appId" -ForegroundColor Green
 }
 
-# Step 2: Create or verify federated credentials for all repos
-Write-Host "`n[2/5] Configuring federated credentials for $($FederatedRepos.Count) entries..."
+# Step 2: Remove stale federated credentials (legacy prod-env entries)
+Write-Host "`n[2/6] Removing stale federated credentials..."
+foreach ($staleName in $StaleCreds) {
+    $staleCred = az ad app federated-credential list --id $objectId --query "[?name=='$staleName']" -o json 2>$null | ConvertFrom-Json
+    if ($staleCred -and $staleCred.Count -gt 0) {
+        Write-Host "  Removing stale credential '$staleName'..."
+        az ad app federated-credential delete --id $objectId --federated-credential-id $staleCred[0].id -o none
+        Write-Host "    Removed" -ForegroundColor Green
+    } else {
+        Write-Host "  '$staleName' not found, skipping" -ForegroundColor Gray
+    }
+}
+
+# Step 3: Create or verify federated credentials for all repos
+Write-Host "`n[3/6] Configuring federated credentials for $($FederatedRepos.Count) entries..."
 foreach ($fedRepo in $FederatedRepos) {
     $credName = $fedRepo.CredName
     $subject = $fedRepo.Subject
@@ -96,8 +119,8 @@ foreach ($fedRepo in $FederatedRepos) {
     }
 }
 
-# Step 3: Create or get service principal
-Write-Host "`n[3/5] Checking for existing service principal..."
+# Step 4: Create or get service principal
+Write-Host "`n[4/6] Checking for existing service principal..."
 $existingSp = az ad sp list --filter "appId eq '$appId'" --query '[0]' -o json 2>$null | ConvertFrom-Json
 
 if ($existingSp) {
@@ -110,8 +133,8 @@ if ($existingSp) {
     Write-Host "  Created service principal: $spObjectId" -ForegroundColor Green
 }
 
-# Step 4: Assign Contributor role on subscription (required for deployments)
-Write-Host "`n[4/5] Checking Contributor role assignment..."
+# Step 5: Assign Contributor role on subscription (required for deployments)
+Write-Host "`n[5/6] Checking Contributor role assignment..."
 $subscriptionId = az account show --query 'id' -o tsv
 $existingRole = az role assignment list `
     --assignee $appId `
@@ -131,10 +154,10 @@ if ($existingRole) {
     Write-Host "  Contributor role assigned" -ForegroundColor Green
 }
 
-# Step 5: Output configuration
+# Step 6: Output configuration
 $tenantId = az account show --query 'tenantId' -o tsv
 
-Write-Host "`n[5/5] Configuration for GitHub Secrets:" -ForegroundColor Cyan
+Write-Host "`n[6/6] Configuration for GitHub Secrets:" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  AZURE_CLIENT_ID:       $appId"
 Write-Host "  AZURE_TENANT_ID:       $tenantId"
