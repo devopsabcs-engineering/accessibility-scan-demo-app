@@ -8,6 +8,7 @@ on:
 env:
   RESOURCE_GROUP: rg-a11y-scan-demo
   APP_NAME: a11y-scan-demo
+  LOCATION: canadacentral
 
 permissions:
   id-token: write
@@ -27,6 +28,9 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Ensure resource group exists
+        run: az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
       - name: Deploy infrastructure
         uses: azure/arm-deploy@v2
