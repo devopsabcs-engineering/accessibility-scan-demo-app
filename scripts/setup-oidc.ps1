@@ -25,19 +25,24 @@ $Issuer = 'https://token.actions.githubusercontent.com'
 $Audience = 'api://AzureADTokenExchange'
 
 # All repos that need federated credentials (scanner + 5 demo apps)
-# Each repo gets a main branch credential; demo apps also get a production environment credential for teardown
+# Each repo gets a main branch credential; demo apps get deploy-NNN and teardown-NNN environment credentials
 $FederatedRepos = @(
-    @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-main';      Subject = "repo:${RepoOwner}/${ScannerRepo}:ref:refs/heads/main";                Description = "OIDC for $RepoOwner/$ScannerRepo main branch" }
-    @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-main';     Subject = "repo:${RepoOwner}/a11y-demo-app-001:ref:refs/heads/main";             Description = "OIDC for $RepoOwner/a11y-demo-app-001 main branch" }
-    @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-prod-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-001:environment:production";          Description = "OIDC for $RepoOwner/a11y-demo-app-001 production environment" }
-    @{ Repo = 'a11y-demo-app-002'; CredName = 'github-actions-demo-002-main';     Subject = "repo:${RepoOwner}/a11y-demo-app-002:ref:refs/heads/main";             Description = "OIDC for $RepoOwner/a11y-demo-app-002 main branch" }
-    @{ Repo = 'a11y-demo-app-002'; CredName = 'github-actions-demo-002-prod-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-002:environment:production";          Description = "OIDC for $RepoOwner/a11y-demo-app-002 production environment" }
-    @{ Repo = 'a11y-demo-app-003'; CredName = 'github-actions-demo-003-main';     Subject = "repo:${RepoOwner}/a11y-demo-app-003:ref:refs/heads/main";             Description = "OIDC for $RepoOwner/a11y-demo-app-003 main branch" }
-    @{ Repo = 'a11y-demo-app-003'; CredName = 'github-actions-demo-003-prod-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-003:environment:production";          Description = "OIDC for $RepoOwner/a11y-demo-app-003 production environment" }
-    @{ Repo = 'a11y-demo-app-004'; CredName = 'github-actions-demo-004-main';     Subject = "repo:${RepoOwner}/a11y-demo-app-004:ref:refs/heads/main";             Description = "OIDC for $RepoOwner/a11y-demo-app-004 main branch" }
-    @{ Repo = 'a11y-demo-app-004'; CredName = 'github-actions-demo-004-prod-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-004:environment:production";          Description = "OIDC for $RepoOwner/a11y-demo-app-004 production environment" }
-    @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-main';     Subject = "repo:${RepoOwner}/a11y-demo-app-005:ref:refs/heads/main";             Description = "OIDC for $RepoOwner/a11y-demo-app-005 main branch" }
-    @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-prod-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-005:environment:production";          Description = "OIDC for $RepoOwner/a11y-demo-app-005 production environment" }
+    @{ Repo = $ScannerRepo;        CredName = 'github-actions-scanner-main';          Subject = "repo:${RepoOwner}/${ScannerRepo}:ref:refs/heads/main";                    Description = "OIDC for $RepoOwner/$ScannerRepo main branch" }
+    @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-001:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-001 main branch" }
+    @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-001:environment:deploy-001";              Description = "OIDC for $RepoOwner/a11y-demo-app-001 deploy environment" }
+    @{ Repo = 'a11y-demo-app-001'; CredName = 'github-actions-demo-001-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-001:environment:teardown-001";            Description = "OIDC for $RepoOwner/a11y-demo-app-001 teardown environment" }
+    @{ Repo = 'a11y-demo-app-002'; CredName = 'github-actions-demo-002-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-002:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-002 main branch" }
+    @{ Repo = 'a11y-demo-app-002'; CredName = 'github-actions-demo-002-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-002:environment:deploy-002";              Description = "OIDC for $RepoOwner/a11y-demo-app-002 deploy environment" }
+    @{ Repo = 'a11y-demo-app-002'; CredName = 'github-actions-demo-002-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-002:environment:teardown-002";            Description = "OIDC for $RepoOwner/a11y-demo-app-002 teardown environment" }
+    @{ Repo = 'a11y-demo-app-003'; CredName = 'github-actions-demo-003-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-003:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-003 main branch" }
+    @{ Repo = 'a11y-demo-app-003'; CredName = 'github-actions-demo-003-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-003:environment:deploy-003";              Description = "OIDC for $RepoOwner/a11y-demo-app-003 deploy environment" }
+    @{ Repo = 'a11y-demo-app-003'; CredName = 'github-actions-demo-003-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-003:environment:teardown-003";            Description = "OIDC for $RepoOwner/a11y-demo-app-003 teardown environment" }
+    @{ Repo = 'a11y-demo-app-004'; CredName = 'github-actions-demo-004-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-004:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-004 main branch" }
+    @{ Repo = 'a11y-demo-app-004'; CredName = 'github-actions-demo-004-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-004:environment:deploy-004";              Description = "OIDC for $RepoOwner/a11y-demo-app-004 deploy environment" }
+    @{ Repo = 'a11y-demo-app-004'; CredName = 'github-actions-demo-004-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-004:environment:teardown-004";            Description = "OIDC for $RepoOwner/a11y-demo-app-004 teardown environment" }
+    @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-main';         Subject = "repo:${RepoOwner}/a11y-demo-app-005:ref:refs/heads/main";                 Description = "OIDC for $RepoOwner/a11y-demo-app-005 main branch" }
+    @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-deploy-env';   Subject = "repo:${RepoOwner}/a11y-demo-app-005:environment:deploy-005";              Description = "OIDC for $RepoOwner/a11y-demo-app-005 deploy environment" }
+    @{ Repo = 'a11y-demo-app-005'; CredName = 'github-actions-demo-005-teardown-env'; Subject = "repo:${RepoOwner}/a11y-demo-app-005:environment:teardown-005";            Description = "OIDC for $RepoOwner/a11y-demo-app-005 teardown environment" }
 )
 
 Write-Host '=== OIDC Federation Setup ===' -ForegroundColor Cyan

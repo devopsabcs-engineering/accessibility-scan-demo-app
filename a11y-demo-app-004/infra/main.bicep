@@ -10,9 +10,10 @@ param imageTag string = 'latest'
 @description('Container port the app listens on')
 param containerPort string = '8080'
 
-var acrName = replace('${appName}acr', '-', '')
-var appServicePlanName = '${appName}-plan'
-var webAppName = '${appName}-app'
+var suffix = uniqueString(resourceGroup().id)
+var acrName = replace('${appName}${suffix}acr', '-', '')
+var appServicePlanName = '${appName}-${suffix}-plan'
+var webAppName = '${appName}-${suffix}-app'
 
 // Azure Container Registry
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {

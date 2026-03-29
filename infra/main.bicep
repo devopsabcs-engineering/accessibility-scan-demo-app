@@ -10,11 +10,12 @@ param imageTag string = 'latest'
 @description('App Service Plan SKU')
 param appServicePlanSku string = 'P1v3'
 
-var acrName = replace('${appName}acr', '-', '')
-var appServicePlanName = '${appName}-plan'
-var webAppName = '${appName}-app'
-var logAnalyticsName = '${appName}-log'
-var appInsightsName = '${appName}-ai'
+var suffix = uniqueString(resourceGroup().id)
+var acrName = replace('${appName}${suffix}acr', '-', '')
+var appServicePlanName = '${appName}-${suffix}-plan'
+var webAppName = '${appName}-${suffix}-app'
+var logAnalyticsName = '${appName}-${suffix}-log'
+var appInsightsName = '${appName}-${suffix}-ai'
 
 // Azure Container Registry
 resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
