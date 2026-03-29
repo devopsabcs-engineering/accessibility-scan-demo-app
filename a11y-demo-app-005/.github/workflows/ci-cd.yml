@@ -118,7 +118,7 @@ jobs:
 
       - name: Update wiki with deployment screenshot
         env:
-          WIKI_PAT: ${{ secrets.WIKI_PAT }}
+          WIKI_PAT: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
           set -e
           WIKI_REPO="https://x-access-token:${WIKI_PAT}@github.com/${{ github.repository }}.wiki.git"
