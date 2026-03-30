@@ -174,6 +174,13 @@ function mapImpactToSeverity(impact: string): 'error' | 'warning' | 'recommendat
   }
 }
 
+function truncateTags(tags: string[], limit: number): string[] {
+  if (tags.length <= limit) return tags;
+  const wcag = tags.filter(t => /^wcag\d/.test(t));
+  const other = tags.filter(t => !/^wcag\d/.test(t));
+  return [...wcag, ...other].slice(0, limit);
+}
+
 function buildRun(url: string, violations: AxeViolation[], toolVersion: string): SarifRun {
   const rulesMap = new Map<string, { rule: SarifRule; index: number }>();
   const rules: SarifRule[] = [];
@@ -196,7 +203,7 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
           level: mapImpactToLevel(violation.impact),
         },
         properties: {
-          tags: violation.tags,
+          tags: truncateTags(violation.tags, 10),
           precision: mapEngineToPrecision(violation.engine),
           'problem.severity': mapImpactToSeverity(violation.impact),
         },
