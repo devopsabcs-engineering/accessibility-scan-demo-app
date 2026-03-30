@@ -11,6 +11,9 @@
 *.sln.docstates
 *.env
 
+# Copilot tracking
+.copilot-tracking/
+
 # Hidden assets
 assets-hidden/
 docs-hidden/
