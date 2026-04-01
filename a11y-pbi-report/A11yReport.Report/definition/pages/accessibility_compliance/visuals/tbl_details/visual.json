@@ -1,0 +1,196 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "name": "tbl_details",
+  "position": {
+    "x": 20,
+    "y": 510,
+    "z": 5000,
+    "height": 195,
+    "width": 1240,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_A11yViolations"
+                    }
+                  },
+                  "Property": "SiteKey"
+                }
+              },
+              "queryRef": "Fact_A11yViolations.SiteKey",
+              "nativeQueryRef": "Site",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_A11yViolations"
+                    }
+                  },
+                  "Property": "RuleName"
+                }
+              },
+              "queryRef": "Fact_A11yViolations.RuleName",
+              "nativeQueryRef": "Rule",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Impact"
+                    }
+                  },
+                  "Property": "Impact"
+                }
+              },
+              "queryRef": "Dim_Impact.Impact",
+              "nativeQueryRef": "Impact",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_State"
+                    }
+                  },
+                  "Property": "State"
+                }
+              },
+              "queryRef": "Dim_State.State",
+              "nativeQueryRef": "State",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_A11yViolations"
+                    }
+                  },
+                  "Property": "ElementCount"
+                }
+              },
+              "queryRef": "Fact_A11yViolations.ElementCount",
+              "nativeQueryRef": "Elements",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_A11yViolations"
+                    }
+                  },
+                  "Property": "ScanDate"
+                }
+              },
+              "queryRef": "Fact_A11yViolations.ScanDate",
+              "nativeQueryRef": "Scan Date",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Accessibility Violation Details'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "filter_tbl_site",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Fact_A11yViolations"
+              }
+            },
+            "Property": "SiteKey"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "filter_tbl_rule",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Fact_A11yViolations"
+              }
+            },
+            "Property": "RuleName"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "filter_tbl_impact",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim_Impact"
+              }
+            },
+            "Property": "Impact"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "filter_tbl_state",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim_State"
+              }
+            },
+            "Property": "State"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

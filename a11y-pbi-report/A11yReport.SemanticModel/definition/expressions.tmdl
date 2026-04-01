@@ -1,0 +1,14 @@
+expression StorageAccountName = "a11yscan7yt3mwgxp3wiy" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 425b8458-21ff-466e-8ddc-1c5ee97ff4ce
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression ContainerName = "a11y-scan-results" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: b2ae2a25-eb12-4e6d-90b6-acf520f8ee5c
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+

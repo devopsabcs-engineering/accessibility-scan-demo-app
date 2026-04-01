@@ -14,8 +14,8 @@ export default defineConfig({
     restoreMocks: true,
     clearMocks: true,
     testTimeout: 10000,
-    reporters: process.env.GITHUB_ACTIONS
-      ? ['default', 'github-actions', 'junit']
+    reporters: (process.env.GITHUB_ACTIONS || process.env.TF_BUILD)
+      ? ['default', ...(process.env.GITHUB_ACTIONS ? ['github-actions'] : []), 'junit']
       : ['default'],
     outputFile: {
       junit: './test-results/junit.xml',
@@ -32,7 +32,7 @@ export default defineConfig({
         'src/lib/report/templates/**',
         'src/cli/bin/**',
       ],
-      reporter: ['text', 'json-summary', 'json', 'lcov'],
+      reporter: ['text', 'json-summary', 'json', 'lcov', 'cobertura'],
       reportOnFailure: true,
       reportsDirectory: './coverage',
       thresholds: {

@@ -1,0 +1,53 @@
+table Dim_Impact
+	lineageTag: d1000001-0001-0001-0001-000000000001
+
+	column ImpactKey
+		dataType: string
+		isKey
+		lineageTag: d1000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: ImpactKey
+
+	column Impact
+		dataType: string
+		lineageTag: d1000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: Impact
+
+	column ImpactWeight
+		dataType: int64
+		formatString: 0
+		lineageTag: d1000001-0001-0001-0001-000000000004
+		summarizeBy: none
+		sourceColumn: ImpactWeight
+
+	column SortOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: d1000001-0001-0001-0001-000000000005
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	partition Dim_Impact = m
+		mode: import
+		source =
+				let
+					Source = Table.FromRows(
+						{
+							{"critical", "critical", "10", "1"},
+							{"serious", "serious", "7", "2"},
+							{"moderate", "moderate", "3", "3"},
+							{"minor", "minor", "1", "4"}
+						},
+						{"ImpactKey", "Impact", "ImpactWeight", "SortOrder"}
+					),
+					TypedColumns = Table.TransformColumnTypes(Source,
+						{{"ImpactKey", type text}, {"Impact", type text},
+						 {"ImpactWeight", Int64.Type}, {"SortOrder", Int64.Type}})
+				in
+					TypedColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

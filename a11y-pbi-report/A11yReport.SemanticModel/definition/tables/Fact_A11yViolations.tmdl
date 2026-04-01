@@ -1,0 +1,273 @@
+table Fact_A11yViolations
+	lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+	measure 'Total Violations' = COUNTROWS(Fact_A11yViolations)
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000001
+
+	measure 'Active Violations' = CALCULATE(COUNTROWS(Fact_A11yViolations), Dim_State[State] = "active")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000002
+
+	measure 'Fixed Violations' = CALCULATE(COUNTROWS(Fact_A11yViolations), Dim_State[State] = "fixed")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000003
+
+	measure 'Fix Rate %' = IF([Total Violations] = 0, 0, DIVIDE([Fixed Violations], [Total Violations], 0)) + 0
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 20000001-0001-0001-0001-000000000004
+
+	measure 'Sites Scanned' = DISTINCTCOUNT(Fact_A11yViolations[SiteKey])
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000005
+
+	measure 'Pages Scanned' = DISTINCTCOUNT(Fact_A11yViolations[PageUrl])
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000006
+
+	measure 'Unique Rules Violated' = DISTINCTCOUNT(Fact_A11yViolations[RuleId])
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000007
+
+	measure 'Total Elements Affected' = SUM(Fact_A11yViolations[ElementCount])
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000008
+
+	measure 'Critical Violations' = CALCULATE([Total Violations], Dim_Impact[Impact] = "critical")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-000000000009
+
+	measure 'Serious Violations' = CALCULATE([Total Violations], Dim_Impact[Impact] = "serious")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000a
+
+	measure 'Critical + Serious' = [Critical Violations] + [Serious Violations]
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000b
+
+	measure 'Perceivable Violations' = CALCULATE([Total Violations], Dim_Principle[PrincipleName] = "Perceivable")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000c
+
+	measure 'Operable Violations' = CALCULATE([Total Violations], Dim_Principle[PrincipleName] = "Operable")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000d
+
+	measure 'Understandable Violations' = CALCULATE([Total Violations], Dim_Principle[PrincipleName] = "Understandable")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000e
+
+	measure 'Robust Violations' = CALCULATE([Total Violations], Dim_Principle[PrincipleName] = "Robust")
+		formatString: #,0
+		lineageTag: 20000001-0001-0001-0001-00000000000f
+
+	measure 'Weighted Compliance Score' = 100 - SUMX(Fact_A11yViolations, SWITCH(RELATED(Dim_Impact[Impact]), "critical", 10, "serious", 7, "moderate", 3, "minor", 1, 0))
+		formatString: 0.0
+		lineageTag: 20000001-0001-0001-0001-000000000010
+
+	measure 'Mean Time to Fix' =
+			AVERAGEX(
+				FILTER(Fact_A11yViolations, NOT(ISBLANK(Fact_A11yViolations[FixedDate]))),
+				DATEDIFF(Fact_A11yViolations[ScanDate], Fact_A11yViolations[FixedDate], DAY)
+			)
+		formatString: 0.0
+		lineageTag: 20000001-0001-0001-0001-000000000011
+
+	column ViolationId
+		dataType: string
+		isKey
+		lineageTag: 10000001-0001-0001-0001-000000000001
+		summarizeBy: none
+		sourceColumn: ViolationId
+
+	column RuleId
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: RuleId
+
+	column RuleName
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: RuleName
+
+	column Description
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000004
+		summarizeBy: none
+		sourceColumn: Description
+
+	column HelpUrl
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000005
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: HelpUrl
+
+	column Impact
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000006
+		summarizeBy: none
+		sourceColumn: Impact
+
+	column WcagCriterionKey
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000007
+		summarizeBy: none
+		sourceColumn: WcagCriterionKey
+
+	column PrincipleKey
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000008
+		summarizeBy: none
+		sourceColumn: PrincipleKey
+
+	column StateKey
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000009
+		summarizeBy: none
+		sourceColumn: StateKey
+
+	column SiteKey
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000a
+		summarizeBy: none
+		sourceColumn: SiteKey
+
+	column EngineKey
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000b
+		summarizeBy: none
+		sourceColumn: EngineKey
+
+	column PageUrl
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000c
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: PageUrl
+
+	column TargetElement
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000d
+		summarizeBy: none
+		sourceColumn: TargetElement
+
+	column ElementCount
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000e
+		summarizeBy: none
+		sourceColumn: ElementCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column ScanDate
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-00000000000f
+		summarizeBy: none
+		sourceColumn: ScanDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column FixedDate
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000010
+		summarizeBy: none
+		sourceColumn: FixedDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column ScanRunId
+		dataType: string
+		lineageTag: 10000001-0001-0001-0001-000000000011
+		summarizeBy: none
+		sourceColumn: ScanRunId
+
+	column Name
+		dataType: string
+		lineageTag: 71aad3d3-29d9-4df5-b7a6-ebe872e58000
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Extension
+		dataType: string
+		lineageTag: 0d6a700e-4150-47ec-bebe-245e1160be36
+		summarizeBy: none
+		sourceColumn: Extension
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date accessed'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 9e83a040-28d3-4165-8816-b50e5a1c5926
+		summarizeBy: none
+		sourceColumn: Date accessed
+
+		variation Variation
+			isDefault
+			relationship: 822016d7-cee3-4d72-937e-30d6173a71a4
+			defaultHierarchy: LocalDateTable_39185912-0154-4622-b832-c70773d5f347.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date modified'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 35feb739-0ffe-4280-a1de-6b50aaf8004d
+		summarizeBy: none
+		sourceColumn: Date modified
+
+		variation Variation
+			isDefault
+			relationship: fe456e65-8314-441f-83c6-e35355868ef9
+			defaultHierarchy: LocalDateTable_411f4c56-6924-4ea8-a0c6-7201f18f3bfd.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date created'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b1432be7-7ef0-4e19-82b0-6dc5ad9e4157
+		summarizeBy: none
+		sourceColumn: Date created
+
+		variation Variation
+			isDefault
+			relationship: d80cdb46-987d-4688-94f5-cf0daa3a526a
+			defaultHierarchy: LocalDateTable_8a1051c5-8e2a-4621-86dd-09c3082c7afb.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Folder Path'
+		dataType: string
+		lineageTag: 6cbbc320-3731-446d-8159-d705abe83a7b
+		summarizeBy: none
+		sourceColumn: Folder Path
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_A11yViolations = m
+		mode: import
+		source =
+				let
+				StorageUrl = "https://" & StorageAccountName & ".blob.core.windows.net/" & ContainerName,
+					Source = AzureStorage.Blobs(StorageUrl),
+					FilteredRows = Table.SelectRows(Source, each Text.EndsWith([Name], ".json")),
+					ParsedContent = Table.AddColumn(FilteredRows, "ParsedJson", each Json.Document([Content])),
+					ExpandedRows = Table.ExpandListColumn(ParsedContent, "ParsedJson"),
+					ExpandedCols = Table.ExpandRecordColumn(ExpandedRows, "ParsedJson",
+						{"ViolationId", "RuleId", "RuleName", "Description", "HelpUrl",
+						 "Impact", "WcagCriterionKey", "PrincipleKey", "StateKey",
+						 "SiteKey", "EngineKey", "PageUrl", "TargetElement",
+						 "ElementCount", "ScanDate", "FixedDate", "ScanRunId"})
+				in
+					ExpandedCols
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

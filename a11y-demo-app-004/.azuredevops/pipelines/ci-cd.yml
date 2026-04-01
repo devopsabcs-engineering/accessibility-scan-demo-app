@@ -11,7 +11,7 @@ pool:
 variables:
   - group: wiki-access
   - name: serviceConnection
-    value: 'AODA-svc-conn'
+    value: 'a11y-scanner-ado'
   - name: appName
     value: 'a11y-demo-app-004'
   - name: resourceGroup
@@ -161,7 +161,7 @@ stages:
   - stage: Teardown
     displayName: 'Teardown Resources'
     dependsOn: Deploy
-    condition: succeeded()
+    condition: eq(variables['Build.Reason'], 'Manual')
     jobs:
       - deployment: TeardownApp
         displayName: 'Delete resource group'

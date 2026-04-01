@@ -1,0 +1,37 @@
+table Dim_State
+	lineageTag: e1000001-0001-0001-0001-000000000001
+
+	column StateKey
+		dataType: string
+		isKey
+		lineageTag: e1000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: StateKey
+
+	column State
+		dataType: string
+		lineageTag: e1000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: State
+
+	partition Dim_State = m
+		mode: import
+		source =
+				let
+					Source = Table.FromRows(
+						{
+							{"active", "active"},
+							{"fixed", "fixed"},
+							{"new", "new"}
+						},
+						{"StateKey", "State"}
+					),
+					TypedColumns = Table.TransformColumnTypes(Source,
+						{{"StateKey", type text}, {"State", type text}})
+				in
+					TypedColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

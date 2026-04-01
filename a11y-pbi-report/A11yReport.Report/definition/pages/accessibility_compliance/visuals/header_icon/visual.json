@@ -1,0 +1,108 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "header_icon",
+  "position": {
+    "x": 20,
+    "y": 10,
+    "z": 10000,
+    "height": 28,
+    "width": 28,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "image",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "imageUrl": {
+              "expr": {
+                "Literal": {
+                  "Value": "'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjAnIHZpZXdCb3g9JzAgMCAyMCAyMCcgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMTAgMkM1LjU4MTcyIDIgMiA1LjU4MTcyIDIgMTBDMiAxNC40MTgzIDUuNTgxNzIgMTggMTAgMThDMTQuNDE4MyAxOCAxOCAxNC40MTgzIDE4IDEwQzE4IDUuNTgxNzIgMTQuNDE4MyAyIDEwIDJaTTEwIDRDMTEuMTkzNSA0IDEyLjI5MjcgNC4zNDE1IDEzLjIzMzEgNC45MDY5TDEyLjQ2NDIgNS43NTQ1QzExLjcyOTYgNS4yODMgMTAuODkzIDUgMTAgNUM3LjIzODU4IDUgNSA3LjIzODU4IDUgMTBDNSAxMi43NjE0IDcuMjM4NTggMTUgMTAgMTVDMTIuNzYxNCAxNSAxNSAxMi43NjE0IDE1IDEwQzE1IDkuMTA3IDE0LjcxNyA4LjI3MDQgMTQuMjQ1NSA3LjUzNThMMTUuMDkzMSA2Ljc2NjlDMTUuNjU4NSA3LjcwNzMgMTYgOC44MDY1IDE2IDEwQzE2IDEzLjMxMzcgMTMuMzEzNyAxNiAxMCAxNkM2LjY4NjI5IDE2IDQgMTMuMzEzNyA0IDEwQzQgNi42ODYyOSA2LjY4NjI5IDQgMTAgNFpNMTUuNzA3MSAzLjI5MjlMMTAgOUw4LjUgNy41TDcuNSA4LjVMMTAgMTFMMTYuNzA3MSA0LjI5MjlMMTUuNzA3MSAzLjI5MjlaJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPg=='"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#107C10'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#107C10'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "padding": [
+        {
+          "properties": {
+            "top": {
+              "expr": {
+                "Literal": {
+                  "Value": "2L"
+                }
+              }
+            },
+            "bottom": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,95 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "fact_a11yviolations.active_violations": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Fact_A11yViolations",
+			          "ConceptualProperty": "Active Violations"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Active Issues": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_a11yviolations.fix_rate_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Fact_A11yViolations",
+			          "ConceptualProperty": "Fix Rate %"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Fix Rate": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_a11yviolations.sites_scanned": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Fact_A11yViolations",
+			          "ConceptualProperty": "Sites Scanned"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sites Scanned": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_a11yviolations.total_violations": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Fact_A11yViolations",
+			          "ConceptualProperty": "Total Violations"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Total Issues": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+
