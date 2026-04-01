@@ -1,0 +1,44 @@
+table Dim_Principle
+	lineageTag: c1000001-0001-0001-0001-000000000001
+
+	column PrincipleKey
+		dataType: string
+		isKey
+		lineageTag: c1000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: PrincipleKey
+
+	column PrincipleId
+		dataType: string
+		lineageTag: c1000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: PrincipleId
+
+	column PrincipleName
+		dataType: string
+		lineageTag: c1000001-0001-0001-0001-000000000004
+		summarizeBy: none
+		sourceColumn: PrincipleName
+
+	partition Dim_Principle = m
+		mode: import
+		source =
+				let
+					Source = Table.FromRows(
+						{
+							{"1", "1", "Perceivable"},
+							{"2", "2", "Operable"},
+							{"3", "3", "Understandable"},
+							{"4", "4", "Robust"}
+						},
+						{"PrincipleKey", "PrincipleId", "PrincipleName"}
+					),
+					TypedColumns = Table.TransformColumnTypes(Source,
+						{{"PrincipleKey", type text}, {"PrincipleId", type text}, {"PrincipleName", type text}})
+				in
+					TypedColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

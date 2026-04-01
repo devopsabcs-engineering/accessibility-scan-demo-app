@@ -462,3 +462,7 @@ next-env.d.ts
 *.msix
 *.msm
 *.msp
+
+# Power BI Desktop local artifacts
+**/.pbi/localSettings.json
+**/.pbi/cache.abf

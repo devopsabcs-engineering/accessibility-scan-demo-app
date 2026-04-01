@@ -12,7 +12,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  SCANNER_BASE_URL: 'https://a11y-scan-demo-app.azurewebsites.net'
+  - group: a11y-scan-config
 
 strategy:
   matrix:
@@ -21,7 +21,7 @@ strategy:
       siteUrl: 'https://codepen.io/leezee/pen/eYbXzpJ'
     a11y-scan-demo-app:
       siteName: 'a11y-scan-demo-app'
-      siteUrl: 'https://a11y-scan-demo-app.azurewebsites.net/'
+      siteUrl: '$(SCANNER_URL)'
     ontario-gov:
       siteName: 'ontario-gov'
       siteUrl: 'https://www.ontario.ca/page/government-ontario'
@@ -34,7 +34,7 @@ steps:
   - script: |
       mkdir -p results
       HTTP_STATUS=$(curl -s -o results/$(siteName).sarif -w "%{http_code}" \
-        -X POST "$(SCANNER_BASE_URL)/api/ci/scan" \
+        -X POST "$(SCANNER_URL)/api/ci/scan" \
         -H "Content-Type: application/json" \
         -d '{"url": "$(siteUrl)", "format": "sarif"}' \
         --max-time 120)

@@ -5,7 +5,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  SCANNER_BASE_URL: 'https://a11y-scan-demo-app.azurewebsites.net'
+  - group: a11y-scan-config
 
 steps:
   - task: AdvancedSecurity-Codeql-Init@1
@@ -22,9 +22,9 @@ steps:
   - script: |
       mkdir -p results
       HTTP_STATUS=$(curl -s -o results/a11y-scan.sarif -w "%{http_code}" \
-        -X POST "$(SCANNER_BASE_URL)/api/ci/scan" \
+        -X POST "$(SCANNER_URL)/api/ci/scan" \
         -H "Content-Type: application/json" \
-        -d '{"url": "$(SCANNER_BASE_URL)", "format": "sarif"}' \
+        -d '{"url": "$(SCANNER_URL)", "format": "sarif"}' \
         --max-time 120)
 
       echo "HTTP status: $HTTP_STATUS"

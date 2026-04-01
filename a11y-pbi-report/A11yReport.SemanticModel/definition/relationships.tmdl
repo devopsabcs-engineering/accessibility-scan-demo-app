@@ -1,0 +1,43 @@
+relationship Fact_Impact_To_Dim_Impact
+	fromColumn: Fact_A11yViolations.Impact
+	toColumn: Dim_Impact.ImpactKey
+
+relationship Fact_State_To_Dim_State
+	fromColumn: Fact_A11yViolations.StateKey
+	toColumn: Dim_State.StateKey
+
+relationship Fact_WcagCriterion_To_Dim_WcagCriterion
+	fromColumn: Fact_A11yViolations.WcagCriterionKey
+	toColumn: Dim_WcagCriterion.CriterionKey
+
+relationship Fact_Principle_To_Dim_Principle
+	fromColumn: Fact_A11yViolations.PrincipleKey
+	toColumn: Dim_Principle.PrincipleKey
+
+relationship Fact_Site_To_Dim_Site
+	fromColumn: Fact_A11yViolations.SiteKey
+	toColumn: Dim_Site.SiteKey
+
+relationship Fact_Engine_To_Dim_Engine
+	fromColumn: Fact_A11yViolations.EngineKey
+	toColumn: Dim_Engine.EngineKey
+
+relationship Fact_Date_To_Dim_Date
+	fromColumn: Fact_A11yViolations.ScanDate
+	toColumn: Dim_Date.Date
+
+relationship 822016d7-cee3-4d72-937e-30d6173a71a4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_A11yViolations.'Date accessed'
+	toColumn: LocalDateTable_39185912-0154-4622-b832-c70773d5f347.Date
+
+relationship fe456e65-8314-441f-83c6-e35355868ef9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_A11yViolations.'Date modified'
+	toColumn: LocalDateTable_411f4c56-6924-4ea8-a0c6-7201f18f3bfd.Date
+
+relationship d80cdb46-987d-4688-94f5-cf0daa3a526a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Fact_A11yViolations.'Date created'
+	toColumn: LocalDateTable_8a1051c5-8e2a-4621-86dd-09c3082c7afb.Date
+

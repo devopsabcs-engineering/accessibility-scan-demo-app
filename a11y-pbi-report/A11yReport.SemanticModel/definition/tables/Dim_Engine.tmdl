@@ -1,0 +1,41 @@
+table Dim_Engine
+	lineageTag: 01000001-0001-0001-0001-000000000001
+
+	column EngineKey
+		dataType: string
+		isKey
+		lineageTag: 01000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: EngineKey
+
+	column EngineName
+		dataType: string
+		lineageTag: 01000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: EngineName
+
+	column EngineVersion
+		dataType: string
+		lineageTag: 01000001-0001-0001-0001-000000000004
+		summarizeBy: none
+		sourceColumn: EngineVersion
+
+	partition Dim_Engine = m
+		mode: import
+		source =
+				let
+					Source = Table.FromRows(
+						{
+							{"axe-core", "axe-core", "4.x"}
+						},
+						{"EngineKey", "EngineName", "EngineVersion"}
+					),
+					TypedColumns = Table.TransformColumnTypes(Source,
+						{{"EngineKey", type text}, {"EngineName", type text}, {"EngineVersion", type text}})
+				in
+					TypedColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

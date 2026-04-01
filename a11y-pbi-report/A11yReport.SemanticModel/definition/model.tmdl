@@ -1,0 +1,29 @@
+model A11yAccessibilityReport
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["Dim_Date","Dim_Engine","Dim_Impact","Dim_Principle","Dim_Site","Dim_State","Dim_WcagCriterion","Fact_A11yViolations","StorageAccountName","ContainerName"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+ref table Dim_Date
+ref table Dim_Engine
+ref table Dim_Impact
+ref table Dim_Principle
+ref table Dim_Site
+ref table Dim_State
+ref table Dim_WcagCriterion
+ref table Fact_A11yViolations
+ref table DateTableTemplate_e90b6110-3d9f-4231-b04e-bf8cd4f6f3f0
+ref table LocalDateTable_39185912-0154-4622-b832-c70773d5f347
+ref table LocalDateTable_411f4c56-6924-4ea8-a0c6-7201f18f3bfd
+ref table LocalDateTable_8a1051c5-8e2a-4621-86dd-09c3082c7afb
+
+ref cultureInfo en-US
+

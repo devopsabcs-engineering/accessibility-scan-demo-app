@@ -1,0 +1,49 @@
+table Dim_Site
+	lineageTag: f1000001-0001-0001-0001-000000000001
+
+	column SiteKey
+		dataType: string
+		isKey
+		lineageTag: f1000001-0001-0001-0001-000000000002
+		summarizeBy: none
+		sourceColumn: SiteKey
+
+	column SiteName
+		dataType: string
+		lineageTag: f1000001-0001-0001-0001-000000000003
+		summarizeBy: none
+		sourceColumn: SiteName
+
+	column SiteUrl
+		dataType: string
+		lineageTag: f1000001-0001-0001-0001-000000000004
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: SiteUrl
+
+	column Organization
+		dataType: string
+		lineageTag: f1000001-0001-0001-0001-000000000005
+		summarizeBy: none
+		sourceColumn: Organization
+
+	partition Dim_Site = m
+		mode: import
+		source =
+				let
+				StorageUrl = "https://" & StorageAccountName & ".blob.core.windows.net/" & ContainerName,
+					Source = AzureStorage.Blobs(StorageUrl),
+					FilteredRows = Table.SelectRows(Source, each Text.EndsWith([Name], ".json")),
+					ParsedContent = Table.AddColumn(FilteredRows, "ParsedJson", each Json.Document([Content])),
+					AllRecords = Table.ExpandListColumn(ParsedContent, "ParsedJson"),
+					Sites = Table.ExpandRecordColumn(AllRecords, "ParsedJson", {"SiteKey", "SiteName", "SiteUrl", "Organization"}),
+					Distinct = Table.Distinct(Table.SelectColumns(Sites, {"SiteKey", "SiteName", "SiteUrl", "Organization"})),
+					TypedColumns = Table.TransformColumnTypes(Distinct,
+						{{"SiteKey", type text}, {"SiteName", type text}, {"SiteUrl", type text}, {"Organization", type text}})
+				in
+					TypedColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

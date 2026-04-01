@@ -18,11 +18,18 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$AppName = 'a11y-scanner-github-actions'
+$AppName = 'gh-a11y-scanner-github-actions'
 $RepoOwner = 'devopsabcs-engineering'
 $ScannerRepo = 'accessibility-scan-demo-app'
 $Issuer = 'https://token.actions.githubusercontent.com'
 $Audience = 'api://AzureADTokenExchange'
+
+# Rename legacy app registration to new prefixed name (preserves appId, credentials, and role assignments)
+$oldApp = az ad app list --display-name "a11y-scanner-github-actions" --query "[0].id" -o tsv
+if ($oldApp) {
+    az ad app update --id $oldApp --display-name $AppName
+    Write-Host "Renamed existing app registration to $AppName"
+}
 
 # All repos that need federated credentials (scanner + 5 demo apps)
 # Each repo gets a main branch credential; demo apps get deploy-NNN and teardown-NNN environment credentials
