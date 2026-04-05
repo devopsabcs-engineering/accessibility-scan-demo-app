@@ -4,6 +4,12 @@ description: Multi-engine WCAG 2.2 Level AA accessibility scanner with web UI, C
 ms.date: 2026-03-08
 ---
 
+<p align="center">
+  <img src="assets/branding/logo-128.png" alt="Agentic Accelerator Framework" width="100">
+</p>
+
+<h1 align="center">Accessibility Scan Demo App</h1>
+
 ## Overview
 
 A full-stack accessibility scanning platform that tests websites against WCAG 2.2 Level AA criteria using
@@ -560,6 +566,13 @@ action/                          # GitHub Action definition
     ├── deploy.yml               # Docker build + Azure deploy
     └── a11y-scan.yml            # Scheduled SARIF accessibility scan
 ```
+
+## Related Repositories
+
+| Repository | Description |
+|------------|-------------|
+| [Agentic Accelerator Framework](https://github.com/devopsabcs-engineering/agentic-accelerator-framework) | Agent definitions, instructions, skills, and CI/CD workflows |
+| [Accessibility Scan Workshop](https://devopsabcs-engineering.github.io/accessibility-scan-workshop/) | Hands-on workshop for WCAG 2.2 accessibility scanning |
 
 ## License
 
