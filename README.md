@@ -561,6 +561,13 @@ action/                          # GitHub Action definition
     └── a11y-scan.yml            # Scheduled SARIF accessibility scan
 ```
 
+## Related Repositories
+
+| Repository | Description |
+|------------|-------------|
+| [Agentic Accelerator Framework](https://github.com/devopsabcs-engineering/agentic-accelerator-framework) | Agent definitions, instructions, skills, and CI/CD workflows |
+| [Accessibility Scan Workshop](https://devopsabcs-engineering.github.io/accessibility-scan-workshop/) | Hands-on workshop for WCAG 2.2 accessibility scanning |
+
 ## License
 
 This project is private.
