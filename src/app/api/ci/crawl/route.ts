@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
     maxDepth: Math.min(Math.max(body.maxDepth ?? 3, 1), 10),
     concurrency: Math.min(Math.max(body.concurrency ?? 3, 1), 5),
     delayMs: 1000,
-    includePatterns: [],
-    excludePatterns: [],
+    includePatterns: Array.isArray(body.includePatterns) ? body.includePatterns : [],
+    excludePatterns: Array.isArray(body.excludePatterns) ? body.excludePatterns : [],
     respectRobotsTxt: true,
     followSitemaps: true,
     domainStrategy: 'same-hostname',
@@ -126,6 +126,13 @@ export async function POST(request: NextRequest) {
       helpUrl: v.helpUrl,
     }));
 
+    // Deduped, in-scope list of successfully-scanned page URLs. Consumed by CI
+    // pipelines that use the crawler purely as a URL discoverer and then drive
+    // their own multi-engine scan loop over these URLs.
+    const discoveredUrls: string[] = Array.from(
+      new Set(pageRecords.filter((r) => r.results != null).map((r) => r.url))
+    );
+
     const ciResult: CiResult = {
       passed: thresholdEvaluation.scorePassed && thresholdEvaluation.countPassed && thresholdEvaluation.rulePassed,
       score: siteScore.overallScore,
@@ -135,6 +142,7 @@ export async function POST(request: NextRequest) {
       violationCount: aggregated.length,
       thresholdEvaluation,
       violations,
+      urls: discoveredUrls,
     };
 
     // Format response

@@ -3,12 +3,15 @@ import {
   normalizeIbmResults,
   normalizeCustomResults,
   normalizeAxeResults,
+  normalizeAlfa,
   deduplicateViolations,
   normalizeAndMerge,
+  mergeAcrossStates,
   type IbmReportResult,
   type CustomCheckResult,
+  type AlfaRawOutcome,
 } from '../result-normalizer';
-import type { AxeViolation, NormalizedViolation } from '../../types/scan';
+import type { AxeViolation, NormalizedViolation, MultiEngineResults } from '../../types/scan';
 import type { AxeResults } from 'axe-core';
 
 function makeIbmResult(overrides: Partial<IbmReportResult> = {}): IbmReportResult {
@@ -373,6 +376,141 @@ describe('deduplicateViolations', () => {
     const result = deduplicateViolations([v]);
     expect(result).toHaveLength(1);
   });
+
+  it('does not re-expand a multi-node violation (regression: N×N node explosion)', () => {
+    // A single violation with many distinct-selector nodes (e.g. axe "region"
+    // firing on every landmark-less block) must produce one survivor per
+    // distinct (selector, WCAG criterion) — each carrying exactly ONE node —
+    // never the whole violation repeated once per node.
+    const nodeCount = 40;
+    const v: NormalizedViolation = {
+      ...makeAxeViolation({ id: 'region', tags: ['wcag131'] }),
+      engine: 'axe-core',
+      nodes: Array.from({ length: nodeCount }, (_, i) => ({
+        html: `<div id="block-${i}"></div>`,
+        target: [`#block-${i}`],
+        impact: 'moderate' as const,
+        failureSummary: 'Not in a landmark',
+      })),
+    };
+
+    const result = deduplicateViolations([v]);
+
+    // One survivor per distinct selector...
+    expect(result).toHaveLength(nodeCount);
+    // ...and every survivor carries exactly one node (no carried-over siblings),
+    // so the total node count is N, not N×N.
+    const totalNodes = result.reduce((sum, r) => sum + r.nodes.length, 0);
+    expect(totalNodes).toBe(nodeCount);
+    expect(result.every(r => r.nodes.length === 1)).toBe(true);
+  });
+
+  it('keeps a hard violation over a review duplicate on the same key', () => {
+    const shared = { html: '<button>Go</button>', target: ['button.go'], impact: 'moderate' as const };
+    const review: NormalizedViolation = {
+      ...makeAxeViolation({ id: 'focus-visible', tags: ['wcag247'], impact: 'serious' }),
+      engine: 'ibm-equal-access',
+      kind: 'review',
+      nodes: [shared],
+    };
+    const violation: NormalizedViolation = {
+      ...makeAxeViolation({ id: 'focus-visible', tags: ['wcag247'], impact: 'minor' }),
+      engine: 'axe-core',
+      kind: 'violation',
+      nodes: [shared],
+    };
+
+    // Review listed first, then the hard violation — the violation must win
+    // regardless of the lower mapped severity.
+    const result = deduplicateViolations([review, violation]);
+    expect(result).toHaveLength(1);
+    expect(result[0].kind).toBe('violation');
+    expect(result[0].engine).toBe('axe-core');
+  });
+
+  it('keeps the higher severity when both items are review kind', () => {
+    const shared = { html: '<button>Go</button>', target: ['button.go'], impact: 'moderate' as const };
+    const lowReview: NormalizedViolation = {
+      ...makeAxeViolation({ id: 'focus-visible', tags: ['wcag247'], impact: 'minor' }),
+      engine: 'axe-core',
+      kind: 'review',
+      nodes: [shared],
+    };
+    const highReview: NormalizedViolation = {
+      ...makeAxeViolation({ id: 'focus-visible', tags: ['wcag247'], impact: 'serious' }),
+      engine: 'ibm-equal-access',
+      kind: 'review',
+      nodes: [shared],
+    };
+
+    const result = deduplicateViolations([lowReview, highReview]);
+    expect(result).toHaveLength(1);
+    expect(result[0].kind).toBe('review');
+    expect(result[0].impact).toBe('serious');
+  });
+});
+
+function makeAlfaOutcome(overrides: Partial<AlfaRawOutcome> = {}): AlfaRawOutcome {
+  return {
+    ruleId: 'https://alfa.siteimprove.com/rules/sia-r1',
+    outcome: 'failed',
+    impact: 'serious',
+    html: '<title></title>',
+    target: 'head > title',
+    message: 'Document has an empty title',
+    helpUrl: 'https://alfa.siteimprove.com/rules/sia-r1',
+    tags: ['wcag2a', 'wcag242'],
+    ...overrides,
+  };
+}
+
+describe('normalizeAlfa', () => {
+  it('maps a failed outcome to a hard violation tagged engine alfa', () => {
+    const result = normalizeAlfa([makeAlfaOutcome({ outcome: 'failed' })]);
+    expect(result).toHaveLength(1);
+    expect(result[0].engine).toBe('alfa');
+    expect(result[0].kind).toBe('violation');
+    expect(result[0].impact).toBe('serious');
+    expect(result[0].nodes[0].target).toEqual(['head > title']);
+  });
+
+  it('maps a cantTell outcome to a needs-review item', () => {
+    const result = normalizeAlfa([makeAlfaOutcome({ outcome: 'cantTell' })]);
+    expect(result).toHaveLength(1);
+    expect(result[0].kind).toBe('review');
+  });
+
+  it('drops passed and inapplicable outcomes', () => {
+    const result = normalizeAlfa([
+      makeAlfaOutcome({ outcome: 'passed' }),
+      makeAlfaOutcome({ outcome: 'inapplicable' }),
+    ]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('assigns a WCAG principle from the tags', () => {
+    const result = normalizeAlfa([makeAlfaOutcome({ tags: ['wcag2a', 'wcag111'] })]);
+    expect(result[0].principle).toBeTruthy();
+  });
+
+  it('falls back to best-practice tag when none provided', () => {
+    const result = normalizeAlfa([makeAlfaOutcome({ tags: [] })]);
+    expect(result[0].tags).toContain('best-practice');
+  });
+
+  it('defaults impact to moderate when missing', () => {
+    const result = normalizeAlfa([makeAlfaOutcome({ impact: null as unknown as AlfaRawOutcome['impact'] })]);
+    expect(result[0].impact).toBe('moderate');
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(normalizeAlfa([])).toEqual([]);
+  });
+
+  it('returns empty array for null/undefined input', () => {
+    expect(normalizeAlfa(null as unknown as AlfaRawOutcome[])).toEqual([]);
+    expect(normalizeAlfa(undefined as unknown as AlfaRawOutcome[])).toEqual([]);
+  });
 });
 
 describe('normalizeAndMerge', () => {
@@ -470,6 +608,28 @@ describe('normalizeAndMerge', () => {
     expect(result.violations).toHaveLength(1);
   });
 
+  it('merges alfa results and records the alfa engine version', () => {
+    const alfa: AlfaRawOutcome = {
+      ruleId: 'https://alfa.siteimprove.com/rules/sia-r1',
+      outcome: 'failed',
+      impact: 'serious',
+      html: '<title></title>',
+      target: 'head > title',
+      message: 'Document has an empty title',
+      helpUrl: 'https://alfa.siteimprove.com/rules/sia-r1',
+      tags: ['wcag2a', 'wcag242'],
+    };
+
+    const result = normalizeAndMerge(makeAxeResults(), [], [], [alfa]);
+    expect(result.engineVersions['alfa']).toBe('latest');
+    expect(result.violations.some(v => v.engine === 'alfa')).toBe(true);
+  });
+
+  it('omits the alfa engine version when no alfa results are passed', () => {
+    const result = normalizeAndMerge(makeAxeResults(), [], []);
+    expect(result.engineVersions['alfa']).toBeUndefined();
+  });
+
   it('defaults axe-core version to unknown when testEngine is missing', () => {
     const axe = makeAxeResults({ testEngine: undefined } as Partial<AxeResults>);
     const result = normalizeAndMerge(axe, [], []);
@@ -491,5 +651,82 @@ describe('normalizeAndMerge', () => {
 
     const result = normalizeAndMerge(axe, [], []);
     expect(result.violations[0].impact).toBe('minor');
+  });
+});
+
+describe('mergeAcrossStates', () => {
+  function makeNV(overrides: Partial<NormalizedViolation> = {}): NormalizedViolation {
+    return {
+      ...makeAxeViolation(),
+      engine: 'axe-core',
+      ...overrides,
+    } as NormalizedViolation;
+  }
+
+  function makeResults(violations: NormalizedViolation[], extra: Partial<MultiEngineResults> = {}): MultiEngineResults {
+    return {
+      violations,
+      passes: [],
+      incomplete: [],
+      inapplicable: [],
+      engineVersions: { 'axe-core': '4.10.0' },
+      ...extra,
+    };
+  }
+
+  it('keeps the base finding and drops a state duplicate on the same key', () => {
+    const base = makeResults([makeNV({ id: 'image-alt' })]);
+    const stateDup = makeResults([makeNV({ id: 'image-alt', state: 'menu-open' })]);
+
+    const merged = mergeAcrossStates(base, [stateDup]);
+
+    expect(merged.violations).toHaveLength(1);
+    expect(merged.violations[0].state).toBeUndefined();
+  });
+
+  it('adds a state-only finding that is not present in the base', () => {
+    const base = makeResults([makeNV({ id: 'image-alt' })]);
+    const stateOnly = makeResults([
+      makeNV({
+        id: 'aria-dialog-name',
+        state: 'dialog-open',
+        description: 'Dialog needs a name',
+        nodes: [{ html: '<div role="dialog">', target: ['div.modal'], impact: 'serious' }],
+      }),
+    ]);
+
+    const merged = mergeAcrossStates(base, [stateOnly]);
+
+    expect(merged.violations).toHaveLength(2);
+    const dialog = merged.violations.find((v) => v.id === 'aria-dialog-name');
+    expect(dialog?.state).toBe('dialog-open');
+  });
+
+  it('preserves base passes, incomplete, and inapplicable unchanged', () => {
+    const base = makeResults([], {
+      passes: [makeNV({ id: 'html-has-lang' })],
+      incomplete: [makeNV({ id: 'color-contrast' })],
+      inapplicable: [makeNV({ id: 'video-caption' })],
+    });
+    const stateOnly = makeResults([
+      makeNV({ id: 'aria-dialog-name', state: 's1', nodes: [{ html: '<div>', target: ['div.x'], impact: 'serious' }] }),
+    ]);
+
+    const merged = mergeAcrossStates(base, [stateOnly]);
+
+    expect(merged.passes).toHaveLength(1);
+    expect(merged.incomplete).toHaveLength(1);
+    expect(merged.inapplicable).toHaveLength(1);
+  });
+
+  it('unions engine versions from base and state results', () => {
+    const base = makeResults([], { engineVersions: { 'axe-core': '4.10.0' } });
+    const stateOnly = makeResults([], { engineVersions: { 'ibm-equal-access': 'latest', custom: '1.0.0' } });
+
+    const merged = mergeAcrossStates(base, [stateOnly]);
+
+    expect(merged.engineVersions['axe-core']).toBe('4.10.0');
+    expect(merged.engineVersions['ibm-equal-access']).toBe('latest');
+    expect(merged.engineVersions['custom']).toBe('1.0.0');
   });
 });

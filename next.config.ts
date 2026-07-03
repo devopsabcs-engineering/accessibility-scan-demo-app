@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
     "@azure/monitor-opentelemetry",
     "@opentelemetry/api",
     "@opentelemetry/api-logs",
+    // OCR probe (image-of-text / rendered-text-contrast): these load native /
+    // worker assets at runtime and must not be bundled by the server build.
+    "tesseract.js",
+    "pngjs",
   ],
 };
 

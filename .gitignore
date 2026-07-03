@@ -466,3 +466,10 @@ next-env.d.ts
 # Power BI Desktop local artifacts
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
+
+# Playwright captured auth storageState (SECRET — never commit)
+playwright/.auth/
+*user.json
+
+# Stray storageState capture script written by olt-renew-storagestate.ps1
+olt-capture.js

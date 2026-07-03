@@ -1,4 +1,4 @@
-import type { ScanStatus, AxeNode } from './scan';
+import type { ScanStatus, AxeNode, ScanState } from './scan';
 import type { ScoreGrade, PrincipleScores, ImpactBreakdown } from './score';
 
 // ---------- Crawl Core ----------
@@ -129,12 +129,28 @@ export interface CiScanRequest {
   standard?: 'WCAG2A' | 'WCAG2AA' | 'WCAG2AAA';
   threshold?: ThresholdConfig;
   format?: 'json' | 'sarif' | 'junit';
+  storageStatePath?: string;
+  /**
+   * Optional named UI states to scan in addition to the default DOM. When
+   * omitted, scanning behaviour is unchanged (default DOM only).
+   */
+  states?: ScanState[];
 }
 
 export interface CiCrawlRequest extends CiScanRequest {
   maxPages?: number;
   maxDepth?: number;
   concurrency?: number;
+  /**
+   * Optional include patterns forwarded to the crawler's URL filter. When
+   * omitted, no include filtering is applied (default behaviour unchanged).
+   */
+  includePatterns?: string[];
+  /**
+   * Optional exclude patterns forwarded to the crawler's URL filter. When
+   * omitted, no exclude filtering is applied (default behaviour unchanged).
+   */
+  excludePatterns?: string[];
 }
 
 export interface ThresholdConfig {
@@ -158,6 +174,12 @@ export interface CiResult {
   violationCount: number;
   thresholdEvaluation: ThresholdEvaluation;
   violations: CiViolationSummary[];
+  /**
+   * Deduped, in-scope list of page URLs discovered during a crawl. Only
+   * populated by the crawl endpoint; single-page scans omit it. Used by CI
+   * pipelines to drive a multi-engine scan loop over discovered URLs.
+   */
+  urls?: string[];
 }
 
 export interface ThresholdEvaluation {

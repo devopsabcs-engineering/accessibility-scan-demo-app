@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateSarif, generateSiteSarif } from '../sarif-generator';
-import type { AxeViolation } from '../../types/scan';
+import type { AxeViolation, NormalizedViolation, ReviewItem } from '../../types/scan';
 
 function makeViolation(overrides: Partial<AxeViolation> = {}): AxeViolation {
   return {
@@ -158,6 +158,100 @@ describe('generateSarif', () => {
     const markdown = sarif.runs[0].tool.driver.rules[0].help.markdown;
     expect(markdown).toContain('[Rule documentation](https://able.ibm.com/rules/archives/latest/doc/en-US/label_name_visible.html)');
     expect(markdown).not.toContain('label\\_name');
+  });
+
+  describe('review items', () => {
+    function makeReviewItem(overrides: Partial<ReviewItem> = {}): ReviewItem {
+      return {
+        engine: 'ibm-equal-access',
+        ruleId: 'IBM_focus_visible',
+        impact: 'moderate',
+        message: 'Verify the element has a visible focus indicator',
+        helpUrl: 'https://able.ibm.com/rules/archives/latest/doc/en-US/IBM_focus_visible.html',
+        tags: ['wcag2aa', 'wcag247'],
+        nodes: [{ html: '<button>Go</button>', target: ['button.go'], impact: 'moderate' }],
+        ...overrides,
+      };
+    }
+
+    it('emits an IBM potentialviolation review item as a SARIF note with kind: review', () => {
+      const sarif = generateSarif('https://example.com', [], '1.0.0', [makeReviewItem()]);
+      const result = sarif.runs[0].results[0];
+      expect(result.level).toBe('note');
+      expect(result.properties?.kind).toBe('review');
+      expect(result.message.text).toContain('[Needs review]');
+    });
+
+    it('emits an axe incomplete review item as a note with recommendation severity', () => {
+      const sarif = generateSarif('https://example.com', [], '1.0.0', [
+        makeReviewItem({
+          engine: 'axe-core',
+          ruleId: 'color-contrast',
+          helpUrl: 'https://dequeuniversity.com/rules/axe/4.0/color-contrast',
+          tags: ['wcag2aa', 'wcag143'],
+        }),
+      ]);
+      expect(sarif.runs[0].results[0].level).toBe('note');
+      expect(sarif.runs[0].tool.driver.rules[0].properties['problem.severity']).toBe('recommendation');
+    });
+
+    it('keeps review items separate from hard violations and does not change violation levels', () => {
+      const sarif = generateSarif(
+        'https://example.com',
+        [makeViolation({ id: 'color-contrast', impact: 'serious' })],
+        '1.0.0',
+        [makeReviewItem()]
+      );
+      const violationResult = sarif.runs[0].results.find((r) => r.ruleId === 'color-contrast');
+      const reviewResult = sarif.runs[0].results.find((r) => r.ruleId === 'IBM_focus_visible');
+      expect(violationResult?.level).toBe('error');
+      expect(violationResult?.properties?.kind).toBeUndefined();
+      expect(reviewResult?.level).toBe('note');
+      expect(reviewResult?.properties?.kind).toBe('review');
+    });
+
+    it('does not emit review rows when no review items are supplied', () => {
+      const sarif = generateSarif('https://example.com', [makeViolation()], '1.0.0');
+      expect(sarif.runs[0].results.every((r) => r.properties?.kind !== 'review')).toBe(true);
+    });
+  });
+
+  describe('state-aware fingerprints', () => {
+    function makeStateViolation(state: string | undefined): NormalizedViolation {
+      return {
+        ...makeViolation({ id: 'aria-dialog-name' }),
+        engine: 'axe-core',
+        state,
+      } as NormalizedViolation;
+    }
+
+    it('produces a different fingerprint when a state is present versus absent', () => {
+      const withoutState = generateSarif('https://example.com', [makeStateViolation(undefined)], '1.0.0');
+      const withState = generateSarif('https://example.com', [makeStateViolation('dialog-open')], '1.0.0');
+
+      const fpNoState = withoutState.runs[0].results[0].partialFingerprints?.primaryLocationLineHash;
+      const fpState = withState.runs[0].results[0].partialFingerprints?.primaryLocationLineHash;
+
+      expect(fpNoState).toBeTruthy();
+      expect(fpState).toBeTruthy();
+      expect(fpState).not.toBe(fpNoState);
+    });
+
+    it('produces distinct fingerprints for the same finding in different states', () => {
+      const a = generateSarif('https://example.com', [makeStateViolation('menu-open')], '1.0.0');
+      const b = generateSarif('https://example.com', [makeStateViolation('dialog-open')], '1.0.0');
+
+      expect(a.runs[0].results[0].partialFingerprints?.primaryLocationLineHash)
+        .not.toBe(b.runs[0].results[0].partialFingerprints?.primaryLocationLineHash);
+    });
+
+    it('keeps the no-state fingerprint stable (regression)', () => {
+      const first = generateSarif('https://example.com', [makeStateViolation(undefined)], '1.0.0');
+      const second = generateSarif('https://example.com', [makeStateViolation(undefined)], '1.0.0');
+
+      expect(first.runs[0].results[0].partialFingerprints?.primaryLocationLineHash)
+        .toBe(second.runs[0].results[0].partialFingerprints?.primaryLocationLineHash);
+    });
   });
 });
 
