@@ -1,4 +1,4 @@
-import type { AxeViolation } from '../types/scan';
+import type { AxeViolation, NormalizedViolation, ReviewItem } from '../types/scan';
 
 interface SarifLog {
   $schema: string;
@@ -47,6 +47,7 @@ interface SarifResult {
   message: { text: string };
   locations: SarifLocation[];
   partialFingerprints: Record<string, string>;
+  properties?: { kind?: string };
 }
 
 interface SarifLocation {
@@ -156,6 +157,10 @@ function mapEngineToPrecision(engine?: string): 'very-high' | 'high' | 'medium' 
       return 'very-high';
     case 'ibm-equal-access':
       return 'high';
+    case 'alfa':
+      // Alfa implements the W3C ACT-Rules with formal expectations, so its
+      // hard failures carry comparable confidence to IBM Equal Access.
+      return 'high';
     default:
       return 'medium';
   }
@@ -181,10 +186,16 @@ function truncateTags(tags: string[], limit: number): string[] {
   return [...wcag, ...other].slice(0, limit);
 }
 
-function buildRun(url: string, violations: AxeViolation[], toolVersion: string): SarifRun {
+function buildRun(url: string, violations: AxeViolation[], toolVersion: string, reviewItems: ReviewItem[] = []): SarifRun {
   const rulesMap = new Map<string, { rule: SarifRule; index: number }>();
   const rules: SarifRule[] = [];
   const results: SarifResult[] = [];
+  // Defensive de-duplication: GHAzDO/code-scanning collapses results with the
+  // same (ruleId, location, fingerprint), so emitting exact duplicates only
+  // bloats the SARIF and makes the per-run "Scans" tab disagree with the
+  // de-duplicated Advanced Security alert count. Skip results we have already
+  // emitted for the same rule + selector + snippet on this page.
+  const seenResults = new Set<string>();
 
   for (const violation of violations) {
     if (!rulesMap.has(violation.id)) {
@@ -214,8 +225,17 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
 
     const ruleEntry = rulesMap.get(violation.id)!;
 
+    // NormalizedViolation carries an optional UI-state label; AxeViolation does
+    // not. Narrow defensively so default-DOM AxeViolation input is unaffected.
+    const state = (violation as NormalizedViolation).state;
+
     for (const node of violation.nodes) {
       const target = node.target.join(' ');
+      const dedupKey = `${violation.id}\u0000${target}\u0000${node.html}`;
+      if (seenResults.has(dedupKey)) {
+        continue;
+      }
+      seenResults.add(dedupKey);
       results.push({
         ruleId: violation.id,
         ruleIndex: ruleEntry.index,
@@ -232,8 +252,90 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
           },
         ],
         partialFingerprints: {
-          primaryLocationLineHash: simpleHash(`${violation.id}:${target}`),
+          // When the finding originates from a named UI state, fold the state
+          // into the fingerprint so the same rule+selector reported in two
+          // different states yields distinct alerts. Findings with no state
+          // keep their original fingerprint, so default-DOM SARIF is unchanged.
+          primaryLocationLineHash: simpleHash(
+            state
+              ? `${violation.id}:${target}:${state}`
+              : `${violation.id}:${target}`,
+          ),
         },
+      });
+    }
+  }
+
+  // "Needs review" findings (axe incomplete + IBM potentialviolation/manual).
+  // These are emitted as non-gating SARIF notes (level: note,
+  // problem.severity: recommendation) and tagged properties.kind: "review".
+  // Violations are processed first and share the same seenResults set, so a
+  // hard finding on the same (ruleId, selector, snippet) suppresses its review
+  // duplicate.
+  for (const item of reviewItems) {
+    if (!rulesMap.has(item.ruleId)) {
+      const index = rules.length;
+      const syntheticViolation: AxeViolation = {
+        id: item.ruleId,
+        impact: (item.impact as AxeViolation['impact']) ?? 'minor',
+        tags: item.tags,
+        description: item.message,
+        help: item.message,
+        helpUrl: item.helpUrl,
+        nodes: item.nodes,
+        engine: item.engine,
+      };
+      const rule: SarifRule = {
+        id: item.ruleId,
+        name: item.ruleId,
+        shortDescription: { text: item.message },
+        fullDescription: { text: item.message },
+        helpUri: item.helpUrl,
+        help: {
+          text: buildHelpText(syntheticViolation),
+          markdown: buildHelpMarkdown(syntheticViolation),
+        },
+        defaultConfiguration: {
+          level: 'note',
+        },
+        properties: {
+          tags: truncateTags(item.tags, 10),
+          precision: mapEngineToPrecision(item.engine),
+          'problem.severity': 'recommendation',
+        },
+      };
+      rules.push(rule);
+      rulesMap.set(item.ruleId, { rule, index });
+    }
+
+    const ruleEntry = rulesMap.get(item.ruleId)!;
+
+    for (const node of item.nodes) {
+      const target = node.target.join(' ');
+      const dedupKey = `${item.ruleId}\u0000${target}\u0000${node.html}`;
+      if (seenResults.has(dedupKey)) {
+        continue;
+      }
+      seenResults.add(dedupKey);
+      results.push({
+        ruleId: item.ruleId,
+        ruleIndex: ruleEntry.index,
+        level: 'note',
+        message: {
+          text: `[Needs review] ${item.message}. Scanned URL: ${url} — Selector: ${target}${node.failureSummary ? ` — ${node.failureSummary}` : ''}`,
+        },
+        locations: [
+          {
+            physicalLocation: {
+              artifactLocation: { uri: urlToArtifactPath(url) },
+              region: { snippet: { text: node.html } },
+            },
+          },
+        ],
+        partialFingerprints: {
+          primaryLocationLineHash: simpleHash(`${item.ruleId}:${target}`),
+        },
+        properties: { kind: 'review' },
       });
     }
   }
@@ -258,13 +360,14 @@ function buildRun(url: string, violations: AxeViolation[], toolVersion: string):
 export function generateSarif(
   url: string,
   violations: AxeViolation[],
-  toolVersion: string
+  toolVersion: string,
+  reviewItems: ReviewItem[] = []
 ): SarifLog {
   return {
     $schema:
       'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json',
     version: '2.1.0',
-    runs: [buildRun(url, violations, toolVersion)],
+    runs: [buildRun(url, violations, toolVersion, reviewItems)],
   };
 }
 
