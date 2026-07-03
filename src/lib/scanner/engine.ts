@@ -17,8 +17,10 @@ const log = createLogger('scanner:engine');
 // late — which used to drop ~50 in-modal findings and masquerade as a fix in
 // the issue-count trend. A small bounded retry (with a clean re-navigation
 // between attempts) absorbs that flake while still surrendering gracefully on a
-// genuinely stale recipe.
-const STATE_APPLY_ATTEMPTS = 3;
+// genuinely stale recipe. Bumped to 5: the async entity-lookup grid on
+// /en/submit/ occasionally exceeds the wait budget on a given attempt, and the
+// extra fresh re-navigations materially cut the residual flake seen in CI.
+const STATE_APPLY_ATTEMPTS = 5;
 
 // Lazily read the raw axe-core source from disk on first use.
 // We cannot use axe.source because webpack/turbopack mangles the bundled
@@ -313,6 +315,10 @@ export async function multiEngineScanWithStates(
       });
       continue;
     }
+    // Let async-loaded state content (e.g. entity-lookup grids fetched via XHR
+    // after the modal opens) settle before scanning, so contrast/axe/IBM see
+    // the fully rendered DOM. Bounded and best-effort: never block the scan.
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
     const axeResults = await scanPage(page, state.includeSelector);
     const customResults = await runCustomChecks(page);
     const ibmResults = context ? await runIbmScan(context, url, state.actions) : [];
